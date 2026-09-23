@@ -304,6 +304,7 @@ Chrome 规定：**在语言包还没下载好时，创建模型必须由「用�
 | 内置模型显示「不可用」 | `chrome://on-device-internals` → **Model Status** 看错误；必要时重启 Chrome、检查磁盘空间与网络（需非计费连接） |
 | Nano 显示「不可用」或突然失效（v1.5.3 已修） | 两个原因：① 会话创建硬编码 `temperature=0.2` + `topK=3`，而规范要求扩展里这两个参数必须成对出现且不超过 `LanguageModel.params()` 的上限，各 Chrome 版本上限不同 —— 现在先查 `params()` 再传参，取不到就完全不带采样参数；② 无参的 `availability()` 探测与实际创建选项不一致时，部分版本会报 `unavailable` —— 现在探测时会用与创建一致的模态声明重问一次。仍不可用则检查硬件要求；`chrome://components` → `Optimization Guide On Device Model` 是否已下载；或 `chrome://flags/#prompt-api-for-gemini-nano` |
 | Nano 显示「不可用」，但模型其实能下载（v1.5.4 修） | 还有两类漏报：① 个别 Chrome 版本对**无参** `availability()` 直接抛错或报 `unavailable`，现在探测时会依次用「无参 → 带模态声明 → 老版 `capabilities()`」三种方式重问，任何一步乐观就采用；② 个别版本在 Service Worker 里**看不见** Prompt API（但扩展页面看得见）—— 现在后台探测不到时会再问一次离屏文档、侧边栏也会用本页能力补齐，不再误报。若状态是「待下载」，点本地模型卡片新增的 **「让 Chrome 下载 Gemini Nano」** 按钮即可触发模型本体下载（约 2~4GB）；按钮失败时自动再试后台与离屏宿主，并给出 `chrome://components` / 硬件要求的逐步指引 |
+| 「让 Chrome 下载 Gemini Nano」按钮点了没反应 / 失败（v1.5.5 增强） | 失败提示里新增了两个按钮 **「打开 chrome://components」** 和 **「打开 on-device-internals」**，一键跳转，不用手动敲地址栏；同时会自动读一遍本机能检测到的信号（CPU 核心数、近似内存、当前来源的存储配额）并给出结论——**注意显存大小 JS 拿不到，这条仍需你自己确认**；如果 CPU/内存/配额三项都达标却还是不可用，大概率是显存不足或该 Chrome 渠道/地区还没推送模型，去 `chrome://components` 看 `nano_v3_gpu_component` 的状态是决定性证据 |
 | 翻不动某些页面 | `chrome://`、Chrome 应用商店、部分 PDF 内部页面不允许注入脚本 |
 | 想确认到底走的是哪条链路 | 侧边栏「设置 → 诊断」，或看译文气泡上的引擎徽标；气泡旁的速度也会显示 |
 | 看后台日志 | `chrome://extensions` → 本扩展 → **Service Worker** / **离屏文档** / **检查视图** 可打开 DevTools |

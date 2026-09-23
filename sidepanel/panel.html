@@ -99,11 +99,16 @@
           </div>
           <div class="progress"><i id="dl-bar"></i></div>
           <div class="muted small" id="dl-status">语言包按语言对按需下载，下载后完全离线可用。</div>
+          <div id="hw-check" class="muted small" hidden></div>
           <div id="dl-hint" class="hint-box" hidden>
             <div class="small" id="dl-hint-text"></div>
             <div class="row">
               <button type="button" class="grow" id="use-nano">改用 Gemini Nano 引擎</button>
               <button type="button" id="selftest">分环境自检</button>
+            </div>
+            <div class="row">
+              <button type="button" class="grow" id="open-components" title="chrome://components → 找名字含 nano 的组件 → 检查更新">打开 chrome://components</button>
+              <button type="button" class="grow" id="open-on-device" title="chrome://on-device-internals → Model Status 看具体错误">打开 on-device-internals</button>
             </div>
           </div>
         </div>

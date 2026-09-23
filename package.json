@@ -1,6 +1,6 @@
 {
   "name": "chrome-local-translate",
-  "version": "1.5.2",
+  "version": "1.5.5",
   "private": true,
   "type": "module",
   "description": "Chrome 扩展：用内置本地模型（Chromium 翻译模型 / Gemini Nano）离线翻译",
