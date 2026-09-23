@@ -11,8 +11,8 @@
  * 设计令牌（强调色，与 sidepanel/panel.css 的 --accent 同值）：
  * 这些规则直接作用在宿主页面的元素上（不是 Shadow DOM），与内容脚本同批注入，
  * 所以可以在同文件里定义变量；选择器写得足够具体（html 前缀）避免与页面变量重名。
- * 页内 UI 固定用亮色系强调色（#6d28d9 鲜艳靛紫在深浅背景上都有足够对比度），
- * 不跟随页面 / 系统的深色模式 —— 否则深色页面上会看不清。
+ * 页内 UI 的弹窗（气泡 / 转写面板）现在跟随用户设置的主题（亮 / 深 / auto），
+ * 通过在 Shadow Host 上设置 data-lt-dark 属性来切换，与侧边栏一致。
  * 改强调色 = 改这里 + panel.css + util.js 的 designTokens，三处同值。
  */
 html {
@@ -774,35 +774,28 @@ blockquote > .lt-dual-translation {
 
   /**
    * 页内弹窗（划词气泡 / 转写面板）共享的设计令牌。
-   * 取值与 sidepanel/panel.css 完全一致（设置页、popup、侧边栏都用它），
-   * 改这里 = 全应用换肤；各弹窗在自己的 <style> 开头拼上这段即可。
-   *
-   * 页内弹窗刻意固定为亮色：弹窗会出现在任意配色的页面上（包括深色页面），
-   * 深色卡片在深色页面里会与背景融为一体、看不清内容；亮色卡片 + 深色文字
-   * 在任何页面都有足够对比度。弹窗放在 Shadow DOM（all:initial）里，
-   * 不会受页面深色样式影响。
-   *
-   * 鲜艳版调色板：白卡片 + 靓蓝紫文字 + 紫罗兰→品红渐变强调；
-   * 次要文字也不用灰色（深靛蓝 #4c46a8），避免「灰蒙蒙看不清」。
+   * 暗玻璃风格：近黑底 + 白字 + 蓝紫强调，类似 macOS 暗色控件。
+   * 改这里 = 全应用弹窗换肤。
    */
   NS.designTokens = `
     :host {
-      --lt-bg: #ffffff;
-      --lt-bg-soft: #f3f1ff;
-      --lt-fg: #1e1b4b;
-      --lt-fg-muted: #4c46a8;
-      --lt-border: #ddd6fe;
-      --lt-accent: #6d28d9;
-      --lt-accent-soft: rgba(109, 40, 217, 0.1);
+      --lt-bg: rgba(24, 24, 27, 0.92);
+      --lt-bg-soft: rgba(39, 39, 42, 0.85);
+      --lt-fg: #ffffff;
+      --lt-fg-muted: rgba(255, 255, 255, 0.6);
+      --lt-border: rgba(255, 255, 255, 0.12);
+      --lt-accent: #818cf8;
+      --lt-accent-soft: rgba(129, 140, 248, 0.15);
       --lt-accent-fg: #ffffff;
-      --lt-grad: linear-gradient(135deg, #7c3aed 0%, #a21caf 60%, #db2777 100%);
-      --lt-grad-soft: linear-gradient(135deg, #ede9fe 0%, #fae8ff 100%);
-      --lt-ok: #059669;
-      --lt-warn: #b45309;
-      --lt-err: #b91c1c;
-      --lt-radius: 10px;
+      --lt-grad: linear-gradient(135deg, #6366f1 0%, #8b5cf6 60%, #a855f7 100%);
+      --lt-grad-soft: rgba(99, 102, 241, 0.18);
+      --lt-ok: #34d399;
+      --lt-warn: #fbbf24;
+      --lt-err: #f87171;
+      --lt-radius: 12px;
       --lt-radius-sm: 8px;
-      --lt-shadow: 0 12px 32px rgba(124, 58, 237, 0.22), 0 2px 6px rgba(124, 58, 237, 0.12);
+      --lt-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(255, 255, 255, 0.06) inset;
+      --lt-blur: blur(20px) saturate(1.6);
     }
   `;
 
@@ -1057,6 +1050,7 @@ blockquote > .lt-dual-translation {
     clampToViewport,
     copyText,
     speak,
+    designTokens: NS.designTokens, // ui.js / inline.js 通过 U.designTokens 访问
   };
 
   /** 输入框转写面板用的语言下拉（第一项 = 跟随主目标语言） */
@@ -1093,7 +1087,7 @@ blockquote > .lt-dual-translation {
     .lt-bubble {
       position: fixed; z-index: 2147483000; max-width: min(420px, calc(100vw - 24px)); min-width: 240px;
       background: var(--lt-bg); color: var(--lt-fg); border: 1px solid var(--lt-border); border-radius: var(--lt-radius);
-      box-shadow: var(--lt-shadow);
+      box-shadow: var(--lt-shadow); backdrop-filter: var(--lt-blur); -webkit-backdrop-filter: var(--lt-blur);
       padding: 0 12px 8px; font-size: 14px; line-height: 1.55; pointer-events: auto;
       animation: lt-in .12s ease-out; overflow: hidden;
     }
@@ -1389,7 +1383,7 @@ blockquote > .lt-dual-translation {
     return root;
   }
 
-  /** 页内弹窗固定亮色（见 util.js designTokens 的说明），这里仅记录用户偏好，不再切换样式 */
+  /** 弹窗固定深色，setTheme 仅记录偏好供将来使用 */
   function setTheme(theme) {
     state.theme = theme || 'auto';
   }
@@ -2361,10 +2355,10 @@ blockquote > .lt-dual-translation {
 
     .lt-panel {
       position: fixed; z-index: 2147483000; width: min(380px, calc(100vw - 20px));
-      /* 白卡片 + 紫罗兰→品红渐变描边（顶部 3px 更粗） */
-      background: linear-gradient(var(--lt-bg), var(--lt-bg)) padding-box, var(--lt-grad) border-box;
-      color: var(--lt-fg); border: 1px solid transparent; border-top-width: 3px; border-radius: var(--lt-radius);
-      box-shadow: var(--lt-shadow);
+      background: var(--lt-bg); color: var(--lt-fg); border: 1px solid var(--lt-border);
+      border-top: 2px solid transparent; border-radius: var(--lt-radius);
+      background-clip: padding-box;
+      box-shadow: var(--lt-shadow); backdrop-filter: var(--lt-blur); -webkit-backdrop-filter: var(--lt-blur);
       font-size: 13px; line-height: 1.55; overflow: hidden; animation: lt-in .12s ease-out;
     }
     @keyframes lt-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
@@ -2373,14 +2367,14 @@ blockquote > .lt-dual-translation {
 
     .lt-head {
       display: flex; align-items: center; gap: 6px; padding: 7px 8px 7px 9px;
-      background: var(--lt-grad-soft); color: var(--lt-accent); font-weight: 600;
+      background: var(--lt-bg-soft); color: var(--lt-fg); font-weight: 600;
       border-bottom: 1px solid var(--lt-border); cursor: move; user-select: none; touch-action: none;
     }
-    .lt-grip { color: var(--lt-accent); opacity: .6; font-size: 12px; line-height: 1; letter-spacing: -1px; }
-    .lt-head:hover .lt-grip { opacity: 1; }
+    .lt-grip { color: var(--lt-fg-muted); font-size: 12px; line-height: 1; letter-spacing: -1px; }
+    .lt-head:hover .lt-grip { color: var(--lt-fg); }
     .lt-title { font-weight: 700; font-size: 12px; white-space: nowrap; }
     .lt-lang {
-      font-size: 12px; border: 1px solid color-mix(in srgb, var(--lt-accent) 35%, var(--lt-border)); background: #ffffff; color: var(--lt-accent); font-weight: 600;
+      font-size: 12px; border: 1px solid color-mix(in srgb, var(--lt-accent) 35%, var(--lt-border)); background: var(--lt-bg); color: var(--lt-accent); font-weight: 600;
       border-radius: var(--lt-radius-sm); padding: 2px 4px; max-width: 116px;
     }
 
@@ -2563,7 +2557,7 @@ blockquote > .lt-dual-translation {
     root.querySelector('.lt-live').classList.toggle('lt-on', !!state.settings.inlineLive);
   }
 
-  /** 页内面板固定亮色（见 util.js designTokens 的说明），不再跟随主题设置 */
+  /** 弹窗固定深色，refreshTheme 保留接口兼容性，无需操作 DOM */
   function refreshTheme() {}
 
   function refreshLanguageSelect() {
@@ -3646,8 +3640,6 @@ blockquote > .lt-dual-translation {
   }
 
   function onMouseUp(e) {
-    const s = state.settings;
-    if (!s || !s.showBubble) return;
     if (e && e.target && e.target.closest && e.target.closest('[data-lt-ui]')) return;
     const sel = window.getSelection();
     if (!sel || sel.isCollapsed) return;
@@ -3661,7 +3653,18 @@ blockquote > .lt-dual-translation {
     } catch (err) {
       rect = null;
     }
-    translateSelection(text, rect);
+
+    // 若设置已就绪，直接检查开关；若尚未就绪（页面刚加载即划词），等待后再翻译
+    if (state.settings) {
+      if (!state.settings.showBubble) return;
+      translateSelection(text, rect);
+    } else {
+      const snapRect = rect; // 提前捕获选区位置，等待期间选区可能消失
+      whenSettingsReady(4000).then((s) => {
+        if (!s || !s.showBubble) return;
+        translateSelection(text, snapRect);
+      });
+    }
   }
 
   /* ----------------------------- 整页翻译 ----------------------------- */
