@@ -1,0 +1,18 @@
+{
+  "name": "chrome-local-translate",
+  "version": "1.5.2",
+  "private": true,
+  "type": "module",
+  "description": "Chrome 扩展：用内置本地模型（Chromium 翻译模型 / Gemini Nano）离线翻译",
+  "scripts": {
+    "validate": "node tools/validate-manifest.mjs",
+    "test": "node tools/validate-manifest.mjs && node tests/run-tests.mjs",
+    "test:dom": "node tests/test-ui-dom.mjs",
+    "test:all": "node tools/validate-manifest.mjs && node tests/run-tests.mjs && node tests/test-ui-dom.mjs",
+    "preview": "node tools/build-preview.mjs",
+    "icons": "python3 tools/make_icons.py"
+  },
+  "devDependencies": {
+    "jsdom": "^29.1.1"
+  }
+}

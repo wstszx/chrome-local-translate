@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <title>本地翻译 · 推理宿主</title>
+  </head>
+  <body>
+    <!--
+      这是一个不可见的「离屏文档」，只做一件事：
+      在“真实文档上下文”里运行 Chrome 内置 AI（Translator / Prompt API）。
+
+      为什么需要它：内置 AI 需要有一个负责文档（responsible document）来做
+      权限与策略检查，因此某些 Chrome 版本里 Service Worker 直接调用会失败，
+      这时背景脚本会把请求转到这里执行，再由它把结果回传。
+    -->
+    <div id="host" hidden>本地模型推理宿主</div>
+    <script type="module" src="offscreen.js"></script>
+  </body>
+</html>

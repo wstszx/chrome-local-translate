@@ -1,0 +1,107 @@
+{
+  "manifest_version": 3,
+  "name": "本地翻译 · Chrome 内置模型",
+  "version": "1.5.4",
+  "description": "用 Chrome 内置的本地模型（内置翻译模型 / Gemini Nano）离线翻译：划词即译、整页翻译、输入框转写、术语表与语气控制。无需 API Key，文本不出本机。",
+  "minimum_chrome_version": "138",
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "action": {
+    "default_title": "本地翻译（Chrome 内置模型）",
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "side_panel": {
+    "default_path": "sidepanel/panel.html"
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
+  "permissions": [
+    "storage",
+    "contextMenus",
+    "scripting",
+    "activeTab",
+    "sidePanel",
+    "offscreen"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content/agent.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": true,
+      "match_about_blank": true,
+      "match_origin_as_fallback": true,
+      "world": "MAIN"
+    },
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content/util.js",
+        "content/ui.js",
+        "content/inline.js",
+        "content/main.js"
+      ],
+      "css": [
+        "content/content.css"
+      ],
+      "run_at": "document_idle",
+      "all_frames": true,
+      "match_about_blank": true,
+      "match_origin_as_fallback": true
+    }
+  ],
+  "commands": {
+    "translate-page": {
+      "suggested_key": {
+        "default": "Alt+Shift+T"
+      },
+      "description": "翻译整个页面"
+    },
+    "translate-selection": {
+      "suggested_key": {
+        "default": "Alt+Shift+S"
+      },
+      "description": "翻译选中内容"
+    },
+    "restore-page": {
+      "suggested_key": {
+        "default": "Alt+Shift+R"
+      },
+      "description": "还原页面原文"
+    },
+    "open-panel": {
+      "suggested_key": {
+        "default": "Alt+Shift+Y"
+      },
+      "description": "打开侧边栏"
+    },
+    "rewrite-input": {
+      "description": "转写当前输入框里的内容（默认不占快捷键，页内按 Alt+Shift+Enter 即可）"
+    }
+  }
+}

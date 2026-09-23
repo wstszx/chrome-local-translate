@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>本地翻译</title>
+    <link rel="stylesheet" href="panel.css" />
+  </head>
+  <body>
+    <header class="bar">
+      <div class="brand">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path
+            fill="currentColor"
+            d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm6.9 6h-2.2a13 13 0 0 0-1.2-3.1A8 8 0 0 1 18.9 8ZM12 4c.7.9 1.3 2.2 1.7 4h-3.4C10.7 6.2 11.3 4.9 12 4ZM4.3 14a8 8 0 0 1 0-4h2.5a19 19 0 0 0 0 4H4.3Zm.9 2h2.1c.3 1.1.7 2.2 1.2 3.1A8 8 0 0 1 5.2 16Zm2.1-8H5.2a8 8 0 0 1 3.3-3.1C8 5.8 7.6 6.9 7.3 8ZM12 20c-.7-.9-1.3-2.2-1.7-4h3.4c-.4 1.8-1 3.1-1.7 4Zm2-6H10a17 17 0 0 1 0-4h4a17 17 0 0 1 0 4Zm.7 5.1c.5-.9.9-2 1.2-3.1h2.1a8 8 0 0 1-3.3 3.1Zm1.5-5.1a19 19 0 0 0 0-4h2.5a8 8 0 0 1 0 4h-2.5Z"
+          />
+        </svg>
+        <span>本地翻译</span>
+      </div>
+      <span class="pill" id="engine-pill">检测中…</span>
+    </header>
+
+    <nav class="tabs">
+      <button type="button" class="tab-btn active" data-tab="text">文本</button>
+      <button type="button" class="tab-btn" data-tab="page">页面</button>
+      <button type="button" class="tab-btn" data-tab="settings">设置</button>
+    </nav>
+
+    <main>
+      <!-- ============================ 文本 ============================ -->
+      <section class="tab-panel active" id="tab-text">
+        <div class="row">
+          <select id="src-lang" class="grow" title="源语言"></select>
+          <button type="button" class="icon" id="swap" title="交换语言">⇄</button>
+          <select id="tgt-lang" class="grow" title="目标语言"></select>
+        </div>
+
+        <textarea id="input" rows="5" placeholder="粘贴或输入文本…&#10;Ctrl / Cmd + Enter 立即翻译（全程离线推理）"></textarea>
+        <div class="row between">
+          <label class="chk"><input type="checkbox" id="auto-input" /> 输入即译</label>
+          <span class="muted small" id="count">0 字</span>
+        </div>
+        <div class="row">
+          <button type="button" class="primary grow" id="do-translate">翻译</button>
+          <button type="button" id="do-explain">解释</button>
+          <button type="button" class="icon" id="do-paste" title="粘贴并翻译">粘贴</button>
+          <button type="button" class="icon" id="do-clear" title="清空">清空</button>
+        </div>
+
+        <div class="out-wrap">
+          <div class="out-head">
+            <span class="muted small" id="out-meta">译文</span>
+            <span class="grow"></span>
+            <button type="button" class="mini" id="out-copy">复制</button>
+            <button type="button" class="mini" id="out-speak">朗读</button>
+            <button type="button" class="mini" id="out-back" title="把译文当作原文再译一次（回译校验）">回译</button>
+          </div>
+          <div id="output" class="output" dir="auto"><span class="placeholder">译文会显示在这里</span></div>
+        </div>
+        <div id="text-error" class="error" hidden></div>
+        <p class="hint">
+          推理在本机完成：Chrome 的内置翻译模型或 Gemini Nano（Prompt API）。文本不会离开这台电脑。
+        </p>
+      </section>
+
+      <!-- ============================ 页面 ============================ -->
+      <section class="tab-panel" id="tab-page">
+        <div class="card">
+          <div class="page-title" id="page-title">—</div>
+          <div class="muted small ellipsis" id="page-url"></div>
+          <div class="row">
+            <button type="button" class="primary grow" id="page-translate">翻译整页</button>
+            <button type="button" id="page-dual">双语对照</button>
+            <button type="button" id="page-hover">悬停对照</button>
+          </div>
+          <div class="row">
+            <button type="button" class="grow" id="page-restore">还原原文</button>
+            <button type="button" id="page-refresh">刷新状态</button>
+          </div>
+          <div class="progress"><i id="page-bar"></i></div>
+          <div class="muted small" id="page-status">未翻译</div>
+        </div>
+
+        <div class="card">
+          <div class="label">选中文本</div>
+          <div class="row">
+            <button type="button" class="grow" id="sel-translate">翻译选中内容</button>
+            <button type="button" id="sel-explain" title="用 Gemini Nano 讲清楚">解释</button>
+          </div>
+          <div id="sel-result" class="output small" hidden></div>
+        </div>
+
+        <div class="card">
+          <div class="label">本地模型</div>
+          <div id="model-list" class="model-list"></div>
+          <div class="row">
+            <button type="button" class="grow" id="download-models">下载当前语言对的语言包</button>
+            <button type="button" id="nano-download" title="触发 Gemini Nano（Prompt API）模型本体下载，约 2~4GB">让 Chrome 下载 Gemini Nano</button>
+          </div>
+          <div class="progress"><i id="dl-bar"></i></div>
+          <div class="muted small" id="dl-status">语言包按语言对按需下载，下载后完全离线可用。</div>
+          <div id="dl-hint" class="hint-box" hidden>
+            <div class="small" id="dl-hint-text"></div>
+            <div class="row">
+              <button type="button" class="grow" id="use-nano">改用 Gemini Nano 引擎</button>
+              <button type="button" id="selftest">分环境自检</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================ 设置 ============================ -->
+      <section class="tab-panel" id="tab-settings">
+        <div class="card">
+          <div class="label">引擎</div>
+          <select id="engine">
+            <option value="auto">自动（优先内置翻译模型，不支持时用 Gemini Nano）</option>
+            <option value="translator">Chromium 内置翻译模型（快、质量好）</option>
+            <option value="nano">Gemini Nano / Prompt API（可控翻译：语气、术语表、上下文）</option>
+          </select>
+
+          <div class="label">语气 / 风格 <span class="muted small">（Gemini Nano）</span></div>
+          <select id="tone"></select>
+
+          <div class="label">术语表 <span class="muted small">（每行：原文=译文，也可以写 原文 =&gt; 译文）</span></div>
+          <textarea id="glossary" rows="4" placeholder="Gemini Nano=双子星纳米&#10;prompt=提示词"></textarea>
+
+          <div class="label">翻译背景 <span class="muted small">（帮助模型理解语境，本身不会被翻译）</span></div>
+          <textarea id="context" rows="2" placeholder="例如：这是一段 React 官方文档的更新日志"></textarea>
+        </div>
+
+        <div class="card">
+          <div class="label">划词翻译</div>
+          <label class="chk"><input type="checkbox" id="show-bubble" /> 选中文本后弹出译文气泡</label>
+          <label class="chk"><input type="checkbox" id="dblclick" /> 双击单词也翻译</label>
+        </div>
+
+        <div class="card">
+          <div class="label">输入框转写 <span class="muted small">（在网页输入框里打字时帮你换成别的语言）</span></div>
+          <label class="chk"><input type="checkbox" id="inline-enabled" /> 启用输入框转写</label>
+          <select id="inline-mode">
+            <option value="button">显示小浮标（点它或按 Alt+Shift+Enter 才转写）</option>
+            <option value="auto">自动展开：边输边译（面板跟着输入框出现）</option>
+            <option value="off">关闭</option>
+          </select>
+          <div class="row">
+            <label class="grow small">转写目标语言
+              <select id="inline-target"></select>
+            </label>
+          </div>
+          <select id="inline-insert">
+            <option value="replace">快捷键动作：替换输入框内容</option>
+            <option value="append">快捷键动作：把译文追加到末尾</option>
+            <option value="copy">快捷键动作：只复制译文，不改动输入框</option>
+          </select>
+          <label class="chk"><input type="checkbox" id="inline-live" /> 打开面板后随输入自动更新译文（边输边译）</label>
+          <div class="row">
+            <label class="grow small">最少字数 <input type="number" id="inline-min" min="1" step="1" /></label>
+          </div>
+          <div class="label">不自动弹出的网站 <span class="muted small">（每行一个域名；在面板里 Shift+点 ✕ 也可加入）</span></div>
+          <textarea id="inline-never" rows="2" placeholder="mail.google.com"></textarea>
+          <p class="hint">
+            在任意网页的输入框 / 正文编辑区里输入文字后：出现「🌐 转写」小浮标 →
+            点开面板（译文可直接编辑）→ <b>替换 / 追加 / 还原原文</b>。<br />
+            快捷键：在页内按 <b>Alt+Shift+Enter</b> 直接转写并按上面的动作写入。<br />
+            想换成别的键：去 <code>chrome://extensions/shortcuts</code> 给「转写当前输入框里的内容」绑定
+            （Chrome 只允许 4 个命令带默认快捷键，所以它默认没占键）。面板可拖动，⌖ 回到输入框下方。
+          </p>
+          <div class="row">
+            <button type="button" class="grow" id="inline-probe">自检当前输入框</button>
+          </div>
+          <div id="inline-hint" class="hint" hidden></div>
+          <div id="inline-probe-out" class="diag" hidden></div>
+          <p class="hint">
+            转写没反应时点上面的按钮：它会问一遍这个标签页里**每一层框架**（页面本身 + 里面的 iframe），
+            列出各自看到了什么 —— 哪一层「有目标」、读到几个字、是不是封闭 Shadow DOM。
+          </p>
+        </div>
+
+        <div class="card">
+          <div class="label">整页翻译</div>
+          <select id="display-mode">
+            <option value="replace">替换原文（可一键还原）</option>
+            <option value="dual">双语对照（原文下方插入译文，原文不动）</option>
+            <option value="hover">悬停对照（鼠标移上去才显示）</option>
+          </select>
+          <label class="chk"><input type="checkbox" id="auto-translate" /> 打开网页时自动翻译</label>
+          <div class="label">自动翻译的网站 <span class="muted small">（每行一个域名；留空=所有网站）</span></div>
+          <textarea id="auto-sites" rows="2" placeholder="news.ycombinator.com"></textarea>
+          <div class="label">永不翻译的网站</div>
+          <textarea id="never-sites" rows="2" placeholder="mail.google.com"></textarea>
+          <div class="row">
+            <label class="grow small">自动翻译的最少正文字数 <input type="number" id="min-chars" min="0" step="50" /></label>
+          </div>
+          <div class="row">
+            <label class="grow small">单页最多翻译段落数 <input type="number" id="max-nodes" min="50" step="100" /></label>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="label">性能与显示</div>
+          <div class="row">
+            <label class="grow small">并发请求
+              <select id="concurrency">
+                <option value="1">1（最省电）</option>
+                <option value="2">2（推荐）</option>
+                <option value="3">3</option>
+                <option value="4">4（最快）</option>
+              </select>
+            </label>
+          </div>
+          <label class="chk"><input type="checkbox" id="cache-enabled" /> 启用译文缓存（同一句只翻一次）</label>
+          <div class="row">
+            <button type="button" id="cache-clear">清理缓存</button>
+            <span class="muted small" id="cache-size">—</span>
+          </div>
+          <div class="row">
+            <button type="button" class="grow" id="engine-reset" data-label="重置本地会话（翻译报错时可试）">重置本地会话（翻译报错时可试）</button>
+          </div>
+          <div class="row">
+            <label class="grow small">主题
+              <select id="theme">
+                <option value="auto">跟随系统</option>
+                <option value="light">浅色</option>
+                <option value="dark">深色</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="label">诊断</div>
+          <div id="diag" class="diag"></div>
+          <div class="row">
+            <button type="button" class="grow" id="diag-refresh">重新检测</button>
+            <button type="button" id="diag-selftest">分环境自检</button>
+          </div>
+          <div class="row">
+            <button type="button" class="grow" id="diag-copy">复制诊断信息</button>
+          </div>
+        </div>
+
+        <p class="hint">
+          快捷键：Alt+Shift+T 整页翻译 · Alt+Shift+S 翻译选中内容 · Alt+Shift+Y 打开侧边栏（可在
+          chrome://extensions/shortcuts 修改）
+        </p>
+      </section>
+    </main>
+
+    <script type="module" src="panel.js"></script>
+  </body>
+</html>
