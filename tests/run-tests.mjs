@@ -442,6 +442,75 @@ test('自动模式下 create 失败会自动回退 Gemini Nano 并标记来源',
   assert.equal(res.text, 'NANO(Hello there)');
 });
 
+test('MTP 推测解码：Prompt API 要求兼容采样选项时，自动适配 samplingMode: "most-predictable"', async () => {
+  resetGlobals();
+  const attempts = [];
+  globalThis.LanguageModel = {
+    async availability(opts) {
+      if (opts && (opts.samplingMode === 'most-predictable' || opts.topK === 1 || opts.temperature === 0)) {
+        return 'available';
+      }
+      return 'available';
+    },
+    async create(options) {
+      attempts.push(options);
+      const isMtpOk =
+        options &&
+        (options.samplingMode === 'most-predictable' ||
+          options.topK === 1 ||
+          options.temperature === 0);
+      if (!isMtpOk) {
+        throw Object.assign(
+          new Error(
+            "The sampling options are incompatible with speculative decoding (MTP). Prompt API sessions must specify compatible sampling options, i.e. samplingMode:'most-predictable' or topK:1 or temperature:0",
+          ),
+          { name: 'NotSupportedError' },
+        );
+      }
+      return {
+        async prompt(text) {
+          return `NANO_MTP(${text})`;
+        },
+        destroy() {},
+      };
+    },
+  };
+  globalThis.LanguageModel.params = async () => ({
+    defaultTemperature: 1,
+    maxTemperature: 2,
+    defaultTopK: 3,
+    maxTopK: 128,
+  });
+
+  // 1) 翻译任务在 MTP 环境下顺利通过
+  const res = await translate({ text: 'Hello MTP', source: 'en', target: 'es', useCache: false });
+  assert.equal(res.engine, ENGINES.NANO);
+  assert.equal(res.text, 'NANO_MTP(Hello MTP)');
+  assert.ok(attempts.some((a) => a.samplingMode === 'most-predictable' || a.topK === 1 || a.temperature === 0));
+
+  // 2) Translator 不支持的语言对自动回退 Nano，在 MTP 环境下不再报 MTP sampling 错误
+  globalThis.Translator = {
+    async availability() {
+      return 'unavailable';
+    },
+    async create() {
+      throw Object.assign(new Error('Unable to create translator for the given source and target language.'), {
+        name: 'NotSupportedError',
+      });
+    },
+  };
+  const fallbackRes = await translate({ text: 'Fallback test', source: 'en', target: 'zh', useCache: false });
+  assert.equal(fallbackRes.engine, ENGINES.NANO);
+  assert.equal(fallbackRes.text, 'NANO_MTP(Fallback test)');
+
+  // 3) selftest 与 ensureNanoModel 在 MTP 环境下均正常
+  const testSelf = await selftest({ source: 'en', target: 'zh' });
+  assert.equal(testSelf.nanoCreate, 'ok');
+
+  const ensureRes = await ensureNanoModel({});
+  assert.equal(ensureRes.ok, true);
+});
+
 test('selftest 分别报告 availability 与 create 的结果', async () => {
   resetGlobals();
   installFakeNano();
