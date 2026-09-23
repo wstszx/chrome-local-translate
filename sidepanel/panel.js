@@ -7,6 +7,7 @@ import {
   TONES,
   ENGINES,
   apiSupport as apiSupportLocal,
+  checkNanoHardware,
   ensureNanoModel as ensureNanoModelLocal,
   probe as probeLocal,
   selftest as selftestLocal,
@@ -242,7 +243,7 @@ function nanoHint(status) {
   if (status === 'downloadable' || status === 'downloading') {
     return `${statusLabel(status)}：点下方「让 Chrome 下载 Gemini Nano」即可启用`;
   }
-  return `${statusLabel(status)}：多为模型未下载或硬件不满足 —— 先点「让 Chrome 下载 Gemini Nano」试一次；仍失败则到 chrome://components 找 "Optimization Guide Manifest Component: nano_v3_gpu_component"（名字含 nano 的那个）点「检查更新」，状态由 New 变 Up-to-date 即模型已装好；若状态不变，多为硬件不满足（>4GB 显存，或 16GB 内存 + 4 核）或磁盘剩余不足 22GB`;
+  return `${statusLabel(status)}：多为模型未下载或硬件不满足 —— 先点「让 Chrome 下载 Gemini Nano」试一次；仍失败则点失败提示里的「打开 chrome://components」，找 "Optimization Guide Manifest Component: nano_v3_gpu_component"（名字含 nano 的那个）点「检查更新」，状态由 New 变 Up-to-date 即模型已装好；若状态不变，多为硬件不满足（>4GB 显存，或 16GB 内存 + 4 核）或磁盘剩余不足 22GB（下方会显示本机能检测到的部分）`;
 }
 
 async function refreshModelList() {
@@ -279,6 +280,13 @@ async function refreshModelList() {
       )}</span></div>`,
     );
     box.innerHTML = rows.join('');
+    // Nano 没就绪时顺手把「本机能验证的那部分」硬件信息摆出来，不用等用户点下载按钮踩坑才看到
+    const nanoStatus = support && support.nano ? res.nano : null;
+    if (nanoStatus && nanoStatus !== 'available') {
+      renderHwCheck(await checkNanoHardware().catch(() => null));
+    } else {
+      $('hw-check').hidden = true;
+    }
   } catch (err) {
     box.innerHTML = `<div class="muted small">检测失败：${escapeHtml(err.message)}</div>`;
   }
@@ -674,20 +682,67 @@ async function downloadNano() {
     bar.parentElement.classList.remove('indeterminate');
     bar.style.width = '0%';
     $('dl-status').textContent = `下载失败：${(err && err.message) || String(err)}`;
+    const hw = await checkNanoHardware().catch(() => null);
     showDlHint(
       [
         '<b>Gemini Nano 没能就绪。</b>按顺序检查：',
-        '① <code>chrome://components</code> → 找 <b>Optimization Guide Manifest Component: nano_v3_gpu_component</b>（名字里含 nano 的那个）→ 点「检查更新」，等状态从 <b>New</b> 变成 <b>Up-to-date</b>（约 2GB）；',
+        '① 点下面的「打开 chrome://components」→ 找 <b>Optimization Guide Manifest Component: nano_v3_gpu_component</b>（名字里含 nano 的那个）→ 点「检查更新」，等状态从 <b>New</b> 变成 <b>Up-to-date</b>（约 2GB）；',
         '② 确认 <code>chrome://flags/#prompt-api-for-gemini-nano</code>（若存在）为 <b>Enabled</b> 并重启浏览器；',
         '③ 硬件要求：&gt;4GB 显存，或 16GB 内存 + 4 核以上；磁盘至少 22GB 可用；',
-        '④ <code>chrome://on-device-internals</code> → Model Status 看具体错误。',
+        '④ 点下面的「打开 on-device-internals」→ Model Status 看具体错误。',
         `⑤ 后台上下文结果：${bg && bg.error ? escapeHtml(bg.error) : '失败'}`,
       ].join('<br>'),
     );
+    renderHwCheck(hw);
     return { ok: false, error: (err && err.message) || String(err) };
   } finally {
     btn.disabled = false;
   }
+}
+
+/**
+ * 打开 chrome:// 内部诊断页。普通网页 / <a href="chrome://..."> 会被 Chrome 直接
+ * 重定向到 about:blank（这是刻意的安全限制），但从扩展的特权上下文（侧边栏文档）
+ * 调用 chrome.tabs.create() 不受此限制，也不需要额外声明 "tabs" 权限
+ * （创建标签页本身是免权限操作，"tabs" 权限只影响能否读取 url/title 等敏感字段）。
+ * 万一某个 Chrome 版本收紧了这条路（Chrome 117+ 曾扩大过 chrome:// 导航保护范围），
+ * 这里兜底把地址复制到剪贴板，让用户自己粘到地址栏。
+ */
+async function openChromeInternalPage(url) {
+  try {
+    await chrome.tabs.create({ url });
+  } catch (err) {
+    try {
+      await navigator.clipboard.writeText(url);
+      $('dl-status').textContent = `无法直接跳转（${err.message}），已把地址复制到剪贴板，请手动粘贴到地址栏：${url}`;
+    } catch {
+      $('dl-status').textContent = `无法直接跳转（${err.message}），请手动在地址栏输入：${url}`;
+    }
+  }
+}
+
+/**
+ * 把 checkNanoHardware() 的结果渲染成一句人话：能在浏览器里验证的部分（CPU/内存/存储配额）
+ * 直接给结论；显存拿不到，只能提示「还要看这一条」。
+ */
+function renderHwCheck(hw) {
+  const box = $('hw-check');
+  if (!hw) {
+    box.hidden = true;
+    return;
+  }
+  const parts = [];
+  parts.push(`本机检测：CPU ${hw.cores || '未知'} 核 · 内存约 ${hw.memoryGB ? `${hw.memoryGB}GB` : '未知（Chrome 未暴露）'}`);
+  if (hw.quotaGB != null) {
+    parts.push(`存储配额约 ${hw.quotaGB.toFixed(1)}GB（不等于磁盘总剩余空间，仅供参考）`);
+  }
+  if (hw.reasons.length) {
+    parts.push(`⚠️ ${hw.reasons.join('；')}`);
+  } else if (hw.cpuMemOk === true) {
+    parts.push('CPU/内存达标；显存无法在浏览器里检测，仍需 chrome://components 确认模型是否真的下完');
+  }
+  box.innerHTML = parts.map((p) => escapeHtml(p)).join('<br>');
+  box.hidden = false;
 }
 
 /** 分环境自检：侧边栏文档 vs 扩展后台，把 availability 与 create 的真实结果都打出来 */
@@ -948,6 +1003,9 @@ function bindEvents() {
       $('dl-status').textContent = `切换失败：${err.message}`;
     }
   });
+  // chrome:// 页面扩展没法用脚本直接读状态，只能帮用户开好页面、告诉 ta 该看哪一行
+  $('open-components').addEventListener('click', () => openChromeInternalPage('chrome://components'));
+  $('open-on-device').addEventListener('click', () => openChromeInternalPage('chrome://on-device-internals'));
   /* ---------------- 输入框转写：自检当前输入框（逐层 frame） ---------------- */
   $('inline-probe').addEventListener('click', async () => {
     const out = $('inline-probe-out');

@@ -15,6 +15,7 @@ import {
   ENGINES,
   apiSupport,
   buildSystemPrompt,
+  checkNanoHardware,
   chunkText,
   clearCache,
   detectLanguage,
@@ -176,6 +177,27 @@ function resetGlobals() {
   delete globalThis.LanguageModel;
   __internals.translatorPool.clear();
   __internals.nanoSessions.clear();
+}
+
+/** 临时改写 navigator 上那几个只读属性，测完自动还原（Node 的 navigator 不允许直接赋值）。 */
+function withNavigatorStub(stub, fn) {
+  const keys = ['hardwareConcurrency', 'deviceMemory', 'storage'];
+  const original = {};
+  for (const key of keys) {
+    original[key] = Object.getOwnPropertyDescriptor(navigator, key);
+    if (key in stub) {
+      Object.defineProperty(navigator, key, { value: stub[key], configurable: true });
+    } else {
+      Object.defineProperty(navigator, key, { value: undefined, configurable: true });
+    }
+  }
+  return Promise.resolve()
+    .then(fn)
+    .finally(() => {
+      for (const key of keys) {
+        if (original[key]) Object.defineProperty(navigator, key, original[key]);
+      }
+    });
 }
 
 /* ------------------------------ 语言工具 ------------------------------ */
@@ -580,6 +602,52 @@ test('ensureNanoModel：没有 Prompt API 时给 no-nano 错误（文案含排�
   resetGlobals();
   await assert.rejects(() => ensureNanoModel({}), (err) => err.code === 'no-nano' && /components/.test(err.message));
   resetGlobals();
+});
+
+test('checkNanoHardware：CPU/内存/配额都达标时不给出否定结论', async () => {
+  await withNavigatorStub(
+    { hardwareConcurrency: 8, deviceMemory: 16, storage: { estimate: async () => ({ quota: 30 * 1024 ** 3, usage: 5 * 1024 ** 3 }) } },
+    async () => {
+      const hw = await checkNanoHardware();
+      assert.equal(hw.cores, 8);
+      assert.equal(hw.memoryGB, 16);
+      assert.ok(Math.abs(hw.quotaGB - 30) < 0.01);
+      assert.equal(hw.cpuMemOk, true);
+      assert.equal(hw.quotaLikelyOk, true);
+      assert.deepEqual(hw.reasons, []);
+    },
+  );
+});
+
+test('checkNanoHardware：CPU/内存不达标 → 给出具体原因', async () => {
+  await withNavigatorStub({ hardwareConcurrency: 2, deviceMemory: 8, storage: undefined }, async () => {
+    const hw = await checkNanoHardware();
+    assert.equal(hw.cpuMemOk, false);
+    assert.ok(hw.reasons.some((r) => /CPU\/内存偏低/.test(r)));
+  });
+});
+
+test('checkNanoHardware：存储配额不足 22GB → 给出具体原因', async () => {
+  await withNavigatorStub(
+    { hardwareConcurrency: 8, deviceMemory: 16, storage: { estimate: async () => ({ quota: 10 * 1024 ** 3, usage: 1 * 1024 ** 3 }) } },
+    async () => {
+      const hw = await checkNanoHardware();
+      assert.equal(hw.quotaLikelyOk, false);
+      assert.ok(hw.reasons.some((r) => /存储配额/.test(r)));
+    },
+  );
+});
+
+test('checkNanoHardware：navigator.storage.estimate 缺失或报错时不抛出，只是拿不到读数', async () => {
+  await withNavigatorStub(
+    { hardwareConcurrency: 8, deviceMemory: 16, storage: { estimate: async () => { throw new Error('denied'); } } },
+    async () => {
+      const hw = await checkNanoHardware();
+      assert.equal(hw.freeGB, null);
+      assert.equal(hw.quotaGB, null);
+      assert.equal(hw.quotaLikelyOk, null);
+    },
+  );
 });
 
 /* ------------------------------ 批量 / 流式 ------------------------------ */

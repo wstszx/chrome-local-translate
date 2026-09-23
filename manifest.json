@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "本地翻译 · Chrome 内置模型",
-  "version": "1.5.4",
+  "version": "1.5.5",
   "description": "用 Chrome 内置的本地模型（内置翻译模型 / Gemini Nano）离线翻译：划词即译、整页翻译、输入框转写、术语表与语气控制。无需 API Key，文本不出本机。",
   "minimum_chrome_version": "138",
   "icons": {
