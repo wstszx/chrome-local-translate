@@ -310,6 +310,111 @@ test('Translator 链路：翻译 + 二次命中缓存', async () => {
   assert.equal(__internals.translatorPool.size, 1, '相同语言对复用同一个 Translator 实例');
 });
 
+test('缓存：auto 源第二次翻译应命中缓存（键的写入/查询两侧必须对称）', async () => {
+  resetGlobals();
+  await clearCache();
+  const { calls, state } = installFakeTranslator();
+  const text = 'The quick brown fox jumps over the lazy dog.';
+  // 不传 source（默认 'auto'）：写入侧若存成检测后的语言而查询侧用 '*'，这里就会永远 miss
+  const first = await translate({ text, target: 'fr' });
+  assert.equal(first.engine, ENGINES.TRANSLATOR);
+  assert.equal(state.created, 1);
+  const second = await translate({ text, target: 'fr' });
+  assert.equal(second.cached, true, 'auto 源第二次应命中缓存');
+  assert.equal(calls.length, 1, '不应再次调用模型');
+});
+
+test('缓存：fnv1a 碰撞的文本不得错误命中（命中时校验存储的原文前缀）', async () => {
+  resetGlobals();
+  await clearCache();
+  installFakeTranslator();
+  // 真实碰撞对：fnv1a('#18298') === fnv1a('#285232') === 'l8o46q'（引擎内置实现逐字一致）
+  const a = 'cache collision probe #18298';
+  const b = 'cache collision probe #285232';
+  const first = await translate({ text: a, source: 'en', target: 'fr' });
+  const second = await translate({ text: b, source: 'en', target: 'fr' });
+  assert.equal(first.text, '«CACHE COLLISION PROBE #18298»');
+  assert.equal(second.text, '«CACHE COLLISION PROBE #285232»', '碰撞文本不能拿到别人的译文');
+  assert.notEqual(second.cached, true, '碰撞文本应未命中并真正调用模型');
+});
+
+test('缓存：Nano 换 context / temperature 后不得命中旧缓存', async () => {
+  resetGlobals();
+  await clearCache();
+  let promptCalls = 0;
+  globalThis.LanguageModel = {
+    async availability() {
+      return 'available';
+    },
+    async create() {
+      return {
+        async prompt(text) {
+          promptCalls += 1;
+          return `NANO(${text})`;
+        },
+        destroy() {},
+      };
+    },
+  };
+  const text = 'Hello context cache.';
+  const opts = { text, source: 'en', target: 'zh', engine: ENGINES.NANO };
+
+  await translate({ ...opts, context: '这是技术文档' });
+  assert.equal(promptCalls, 1);
+
+  // 换 context：会改变系统提示词，必须重新翻译，不能拿到旧 context 的译文
+  const r2 = await translate({ ...opts, context: '这是聊天记录' });
+  assert.equal(promptCalls, 2);
+  assert.notEqual(r2.cached, true);
+
+  // 同 context 第二次：应命中缓存
+  const r3 = await translate({ ...opts, context: '这是聊天记录' });
+  assert.equal(promptCalls, 2);
+  assert.equal(r3.cached, true);
+
+  // 换 temperature：采样行为不同，也要重新翻译
+  const r4 = await translate({ ...opts, context: '这是聊天记录', temperature: 0.8 });
+  assert.equal(promptCalls, 3);
+  assert.notEqual(r4.cached, true);
+});
+
+test('缓存：auto 引擎回退到 Nano 的结果，第二次也应命中缓存', async () => {
+  resetGlobals();
+  await clearCache();
+  let nanoPromptCalls = 0;
+  globalThis.LanguageModel = {
+    async availability() {
+      return 'available';
+    },
+    async create() {
+      return {
+        async prompt(text) {
+          nanoPromptCalls += 1;
+          return `NANO(${text})`;
+        },
+        destroy() {},
+      };
+    },
+  };
+  globalThis.Translator = {
+    async availability() {
+      return 'available';
+    },
+    async create() {
+      throw Object.assign(new Error('Unable to create translator for the given source and target language.'), {
+        name: 'NotSupportedError',
+      });
+    },
+  };
+  const text = 'Hello fallback cache.';
+  const first = await translate({ text, source: 'en', target: 'zh' });
+  assert.equal(first.engine, ENGINES.NANO);
+  assert.equal(first.fallbackFrom, 'pair-create-failed');
+  const second = await translate({ text, source: 'en', target: 'zh' });
+  assert.equal(second.cached, true, '回退结果写在 nano 键下，查询侧也必须探到它');
+  assert.equal(nanoPromptCalls, 1, '不应再次调用 Nano');
+});
+
 test('源语言 = 目标语言时直接返回，不调用模型', async () => {
   resetGlobals();
   const { calls } = installFakeTranslator();
