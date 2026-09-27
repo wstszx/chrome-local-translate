@@ -26,6 +26,7 @@ import {
   selftest,
   translate,
   translateStream,
+  translateBatch,
   warmup,
 } from './lib/engine.js';
 import { getSettings, setSettings, onSettingsChanged } from './lib/settings.js';
@@ -177,29 +178,9 @@ async function runLocal(kind, payload) {
     }
     case 'translateBatch': {
       const { items = [], options = {} } = payload;
-      const concurrency = Math.max(1, Math.min(4, options.concurrency || 2));
-      const results = new Array(items.length).fill(null);
-      let cursor = 0;
-      await Promise.all(
-        Array.from({ length: Math.min(concurrency, items.length || 1) }, async () => {
-          while (cursor < items.length) {
-            const index = cursor;
-            cursor += 1;
-            const item = items[index];
-            try {
-              const res = await translate({
-                ...options,
-                text: typeof item === 'string' ? item : item.text,
-                context: (item && item.context) || options.context || '',
-              });
-              results[index] = { text: res.text, skipped: res.skipped, engine: res.engine };
-            } catch (err) {
-              results[index] = { text: null, error: humanizeError(err), code: err && err.code };
-            }
-          }
-        }),
-      );
-      return { ok: true, results };
+      // 统一实现（评审 A4）：与 offscreen 共用 lib/engine.js 的 translateBatch，
+      // 消灭两份手写并发循环漂移的隐患。协议不变：results[i] = { text } | { text: null, error, code }
+      return translateBatch(items, options);
     }
     default:
       throw new AIError('unknown', `未知任务：${kind}`);

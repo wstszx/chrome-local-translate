@@ -25,10 +25,12 @@
     }
   })();
 
+  // 注意：DIALOG 不在跳过名单里（评审 A3）——模态弹窗里的正文也要翻，
+  // 否则用户会觉得「页面没翻全」；弹窗内容交给动态跟进（MutationObserver）处理。
   const SKIP_TAGS = new Set([
     'SCRIPT', 'STYLE', 'NOSCRIPT', 'TEMPLATE', 'TEXTAREA', 'INPUT', 'SELECT', 'OPTION', 'TITLE',
     'CODE', 'PRE', 'KBD', 'SAMP', 'VAR', 'SVG', 'MATH', 'CANVAS', 'IFRAME', 'OBJECT', 'EMBED',
-    'VIDEO', 'AUDIO', 'MAP', 'AREA', 'HEAD', 'META', 'LINK', 'BASE', 'NOSCRIPT', 'DIALOG',
+    'VIDEO', 'AUDIO', 'MAP', 'AREA', 'HEAD', 'META', 'LINK', 'BASE', 'NOSCRIPT',
   ]);
   const BLOCK_TAGS = new Set([
     'P', 'DIV', 'SECTION', 'ARTICLE', 'ASIDE', 'HEADER', 'FOOTER', 'MAIN', 'NAV', 'FIGURE', 'FIGCAPTION',
@@ -290,16 +292,26 @@
     return out;
   }
 
+  /**
+   * 找到文本节点所属的「块」。
+   * 最多向上走到 BODY 为止（BODY/HTML 自身永远不当块返回）：正文之外的散落内联文字
+   * 返回 null，由调用方各自兜底 —— 旧版会在这里返回 BODY，双语模式下译文被
+   * appendChild 到整个页面最末尾，与原文相距十万八千里（评审 A2）。
+   */
   function blockOf(node) {
     let el = node.parentElement;
     while (el && el !== document.body && !BLOCK_TAGS.has(el.tagName)) el = el.parentElement;
-    return el || node.parentElement || document.body;
+    if (!el || el === document.body || el === document.documentElement) return null;
+    return el;
   }
 
   function buildItems(nodes) {
     const byBlock = new Map();
     for (const node of nodes) {
-      const b = blockOf(node);
+      // blockOf 不再返回 BODY：正文之外的散落内联文字按直接父元素兜底（仍是内联元素也无妨，
+      // 替换模式只是换文本节点，不需要块级位置）
+      const b = blockOf(node) || node.parentElement;
+      if (!b || b === document.body || b === document.documentElement) continue;
       const arr = byBlock.get(b);
       if (arr) arr.push(node);
       else byBlock.set(b, [node]);
@@ -318,10 +330,13 @@
 
   /* --------------------------- 双语对照（段落下插译文） --------------------------- */
 
-/** 有些块不能在里面塞块级元素（表格单元格的兄弟、列表项的兄弟等），这些改成「插到块里面」 */
+/** 这些标签是 UI 铬件，且内容模型只允许短语内容 —— 双语模式整体跳过，不往里面塞块级 div（评审 A1） */
+const DUAL_SKIP_TAGS = new Set(['BUTTON', 'LABEL', 'SUMMARY', 'OUTPUT', 'SELECT', 'OPTION', 'NAV']);
+
+/** 有些块不能在外面插兄弟元素（表格单元格、列表项等），这些改成「插到块里面」 */
 const INSERT_INSIDE = new Set([
-  'TD', 'TH', 'LI', 'DT', 'DD', 'CAPTION', 'FIGCAPTION', 'LEGEND', 'BUTTON', 'LABEL', 'SUMMARY',
-  'BLOCKQUOTE', 'BODY', 'HTML', 'OUTPUT', 'ADDRESS', 'TIME',
+  'TD', 'TH', 'LI', 'DT', 'DD', 'CAPTION', 'FIGCAPTION', 'LEGEND',
+  'BLOCKQUOTE', 'ADDRESS', 'TIME',
 ]);
 
 /**
@@ -341,7 +356,9 @@ function buildBlockItems(nodes) {
   for (const node of nodes) {
     if (node.nodeType !== 3) continue;
     const block = blockOf(node);
-    if (!block || state.dualItems.has(block)) continue; // 已经有译文的块，别重复插
+    if (!block) continue; // BODY 直属的散落文字不做双语插入（没有安全的插入位置，评审 A2）
+    if (DUAL_SKIP_TAGS.has(block.tagName)) continue; // 按钮等 UI 铬件不插译文（评审 A1）
+    if (state.dualItems.has(block)) continue; // 已经有译文的块，别重复插
     const arr = byBlock.get(block);
     if (arr) arr.push(node);
     else byBlock.set(block, [node]);
@@ -374,6 +391,25 @@ function makeDualElement(text) {
 }
 
 /**
+ * 把元素插到块内最后一个「真实子节点」之后（跳过我们插入的译文块，以及末尾隐藏的 script 等）。
+ * 返回 false 表示块里没有可锚定的子节点。
+ */
+function appendAfterLastContentChild(block, el) {
+  let anchor = null;
+  for (const child of block.childNodes) {
+    if (child.nodeType === 1 && (child.hasAttribute('data-lt-dual') || child.classList.contains('lt-dual-translation'))) continue;
+    anchor = child;
+  }
+  if (!anchor) return false;
+  try {
+    anchor.after(el);
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
+
+/**
  * 把译文插到原文段落下方（原文一个字符都不动）。
  * 返回 true 表示插上了/更新了。
  */
@@ -393,14 +429,15 @@ function applyDual(item, translated) {
 
   const el = makeDualElement(text);
   try {
-    if (INSERT_INSIDE.has(block.tagName)) block.appendChild(el);
-    else block.insertAdjacentElement('afterend', el);
-  } catch (err) {
-    try {
-      block.appendChild(el);
-    } catch (err2) {
-      return false;
+    if (INSERT_INSIDE.has(block.tagName)) {
+      // 单元格/列表项这类块没法在外部插兄弟元素：塞到自己内部末尾。
+      // 末尾可能挂着 script/template 这类不可见节点，所以优先锚定在最后一个真实子节点之后。
+      if (!appendAfterLastContentChild(block, el)) block.appendChild(el);
+    } else {
+      block.insertAdjacentElement('afterend', el);
     }
+  } catch (err) {
+    return false;
   }
   state.dualItems.set(block, { el, source: item.text || '' });
   return true;

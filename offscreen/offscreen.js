@@ -17,6 +17,7 @@ import {
   selftest,
   translate,
   translateStream,
+  translateBatch,
   warmup,
 } from '../lib/engine.js';
 
@@ -55,29 +56,9 @@ async function handle({ kind, payload = {} }) {
       return { ok: true, ...(await selftest({ source: payload.source || 'en', target: payload.target || 'zh' })) };
     case 'translateBatch': {
       const { items = [], options = {} } = payload;
-      const results = new Array(items.length).fill(null);
-      const tasks = items.map((item, index) => ({ item, index }));
-      let cursor = 0;
-      const concurrency = Math.max(1, Math.min(4, options.concurrency || 2));
-      await Promise.all(
-        Array.from({ length: Math.min(concurrency, tasks.length || 1) }, async () => {
-          while (cursor < tasks.length) {
-            const { item, index } = tasks[cursor];
-            cursor += 1;
-            try {
-              const res = await translate({
-                ...options,
-                text: typeof item === 'string' ? item : item.text,
-                context: (item && item.context) || options.context || '',
-              });
-              results[index] = { text: res.text, skipped: res.skipped, engine: res.engine };
-            } catch (err) {
-              results[index] = { text: null, error: humanizeError(err), code: err && err.code };
-            }
-          }
-        }),
-      );
-      return { ok: true, results };
+      // 统一实现（评审 A4）：直接复用 lib/engine.js 的 translateBatch，
+      // 之前这里手写的并发循环与 background 是两份实现，改一处忘一处必然漂移
+      return translateBatch(items, options);
     }
     case 'stream': {
       // 离屏文档里不做真流式：把整段结果一次性回传，前端会自动退化为「一次显示」

@@ -45,6 +45,28 @@ if (!m.name) fail('缺少 name');
 if (!m.description) fail('缺少 description');
 if (m.description && m.description.length > 132) fail(`description 超过 132 字符（${m.description.length}）`);
 
+/* ------------------------------ 版本一致性（评审 A7） ------------------------------ */
+
+// 历史上出现过 manifest.json 与 package.json 版本漂移（1.4.0 vs 1.3.1）没人拦。
+// 这里断言两者相等：以后手动改版本漏改一处，npm test 会直接报出来。
+const pkgPath = join(root, 'package.json');
+if (existsSync(pkgPath)) {
+  let pkg = null;
+  try {
+    pkg = JSON.parse(readFileSync(pkgPath, 'utf8'));
+  } catch (err) {
+    fail(`package.json 不是合法 JSON：${err.message}`);
+  }
+  if (pkg) {
+    if (!pkg.version) fail('package.json 缺少 version 字段');
+    else if (pkg.version !== m.version) {
+      fail(`版本号不一致：manifest.json 是 ${m.version}，package.json 是 ${pkg.version}（两处必须同步）`);
+    } else note(`版本一致：${m.version}（manifest.json = package.json）`);
+  }
+} else {
+  note('项目里没有 package.json，跳过版本一致性检查');
+}
+
 /* ------------------------------ 文件引用 ------------------------------ */
 
 const referenced = [];

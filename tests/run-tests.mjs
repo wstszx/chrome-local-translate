@@ -26,6 +26,7 @@ import {
   selftest,
   translate,
   translateMany,
+  translateBatch,
   translateStream,
   __internals,
 } from '../lib/engine.js';
@@ -839,6 +840,66 @@ test('translateMany 去重并返回结果映射', async () => {
   assert.equal(res.map.get('Hello'), '«HELLO»');
   assert.equal(res.map.get('World!'), '«WORLD!»');
   assert.equal(calls.length, 3);
+});
+
+test('translateBatch：空 items / 空 context 的批量与单条结果一致', async () => {
+  resetGlobals();
+  await clearCache();
+  const { calls } = installFakeTranslator();
+  const empty = await translateBatch([], { source: 'en', target: 'fr' });
+  assert.deepEqual(empty, { ok: true, results: [] });
+
+  const res = await translateBatch(['Hello', 'World', 'Hello'], { source: 'en', target: 'fr' });
+  assert.equal(res.ok, true);
+  assert.deepEqual(
+    res.results.map((r) => r && r.text),
+    ['«HELLO»', '«WORLD»', '«HELLO»'],
+    '混合 string 项逐位返回，重复文本同批去重',
+  );
+  assert.equal(calls.length, 2, '重复的 Hello 只应真正调用一次模型');
+});
+
+test('translateBatch：带 context 的项按 context 分桶，不同桶不串味', async () => {
+  resetGlobals();
+  await clearCache();
+  installFakeTranslator();
+  const items = [
+    { text: 'Hello', context: '技术文档' },
+    { text: 'World', context: '' },
+    { text: 'Hello', context: '聊天记录' },
+    { text: 'Hello', context: '技术文档' },
+  ];
+  const res = await translateBatch(items, { source: 'en', target: 'fr' });
+  assert.equal(res.ok, true);
+  assert.deepEqual(
+    res.results.map((r) => r && r.text),
+    ['«HELLO»', '«WORLD»', '«HELLO»', '«HELLO»'],
+    '结果按输入下标逐位对齐，不同 context 的同文各自翻译',
+  );
+});
+
+test('translateBatch：单条失败不影响其他条目，错误结构保持旧协议', async () => {
+  resetGlobals();
+  await clearCache();
+  globalThis.Translator = {
+    async availability() {
+      return 'available';
+    },
+    async create() {
+      return {
+        async translate(text) {
+          if (text.includes('boom')) throw Object.assign(new Error('inference failed'), { code: 'test-boom' });
+          return `ok:${text}`;
+        },
+      };
+    },
+  };
+  const res = await translateBatch(['fine one', 'boom here', 'fine two'], { source: 'en', target: 'de' });
+  assert.equal(res.ok, true);
+  assert.equal(res.results[0].text, 'ok:fine one');
+  assert.equal(res.results[1].text, null, '失败项 text 为 null');
+  assert.match(res.results[1].error, /inference failed|推理失败/);
+  assert.equal(res.results[2].text, 'ok:fine two');
 });
 
 test('translateMany 单条失败不影响其他条目', async () => {
