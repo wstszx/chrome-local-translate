@@ -854,6 +854,92 @@ test('转写：面板可拖动，位置被视口钳制', async () => {
   pointer(window, 'pointerup', { x: -8000, y: -8000, target: head });
 });
 
+test('转写：浮标默认贴输入框边缘外侧，不盖住框内文字（评审 B1）', async () => {
+  const { window } = makeEnv();
+  const els = await inlineReady({ window });
+  const input = window.document.getElementById('i1');
+  typeInto(window, input, '不要被浮标盖住');
+  await waitFor(() => els.pill.hidden === false, '浮标出现');
+
+  // jsdom 没有排版：测试环境里输入框矩形恒为 left=0, top=0, right=100, bottom=20（顶到视口左上角）。
+  // 上方放不下（会出视口）→ 浮标应退化到输入框「下方」外侧，仍然不压住框内文字。
+  const top = parseFloat(els.pill.style.top);
+  assert.ok(!Number.isNaN(top), '浮标应有定位');
+  assert.ok(top >= 20, `输入框贴住视口顶时浮标应退化到下方（top=${top}，框底=20）`);
+
+  // 模拟窄屏：重算后仍应保持在输入框外侧，不叠回框内
+  const origDesc = Object.getOwnPropertyDescriptor(window, 'innerWidth');
+  Object.defineProperty(window, 'innerWidth', { configurable: true, value: 90 });
+  try {
+    window.dispatchEvent(new window.Event('resize'));
+    await tick(30);
+    const top2 = parseFloat(els.pill.style.top);
+    const left2 = parseFloat(els.pill.style.left);
+    assert.ok(!Number.isNaN(left2) && !Number.isNaN(top2), '窄屏下浮标应有定位');
+    assert.ok(
+      top2 >= 20 || top2 + 20 <= 0,
+      `窄屏下浮标仍应在输入框外侧（left=${left2}, top=${top2}）`,
+    );
+  } finally {
+    if (origDesc && origDesc.get) Object.defineProperty(window, 'innerWidth', origDesc);
+    else Object.defineProperty(window, 'innerWidth', { configurable: true, get: () => 1024, set: () => {} });
+    window.dispatchEvent(new window.Event('resize'));
+  }
+});
+
+test('转写：按住浮标可拖走并停住，轻点仍打开面板（评审 B1）', async () => {
+  const { window } = makeEnv();
+  const els = await inlineReady({ window });
+  typeInto(window, window.document.getElementById('i1'), '拖走浮标');
+  await waitFor(() => els.pill.hidden === false, '浮标出现');
+  const before = { left: els.pill.style.left, top: els.pill.style.top };
+
+  // 拖动（位移 > 3px）：位置跟随指针并停住，不触发「打开面板」。
+  // jsdom 里所有元素的 rect 恒为 (0,0,100,20)：在 (60,60) 按下 → 抓取偏移 dx=dy=60，
+  // 移到 (160,140) → left=160-60=100, top=140-60=80。
+  pointer(window, 'pointerdown', { x: 60, y: 60, target: els.pill });
+  assert.equal(els.pill.classList.contains('lt-dragging'), true, '拖动中应加 lt-dragging');
+  pointer(window, 'pointermove', { x: 160, y: 140, target: els.pill });
+  assert.equal(els.pill.style.left, '100px', '浮标应跟随指针（Δx=100 → left=160-60）');
+  assert.equal(els.pill.style.top, '80px', '浮标应跟随指针（Δy=80 → top=140-60）');
+  assert.equal(els.panel.hidden, true, '拖动过程不应打开面板');
+  pointer(window, 'pointerup', { x: 160, y: 140, target: els.pill });
+  assert.equal(els.pill.classList.contains('lt-dragging'), false);
+  assert.equal(els.panel.hidden, true, '拖完松手不应误开面板');
+  assert.notEqual(els.pill.style.left, before.left, '浮标确实被拖走了');
+
+  // 再触发一次重算（scroll/resize 路径）：拖定后的位置应保持，不跳回输入框
+  window.dispatchEvent(new window.Event('resize'));
+  await tick(40);
+  assert.equal(els.pill.style.left, '100px', '重算后仍停在用户拖定的位置');
+  assert.equal(els.pill.style.top, '80px', '重算后仍停在用户拖定的位置');
+
+  // 轻点（位移 ≤ 3px）：打开面板
+  pointer(window, 'pointerdown', { x: 160, y: 140, target: els.pill });
+  pointer(window, 'pointerup', { x: 161, y: 140, target: els.pill });
+  await waitFor(() => els.panel.hidden === false, '轻点浮标应打开面板');
+});
+
+test('转写：换输入框后浮标位置复位，重新贴住新输入框（评审 B1）', async () => {
+  const { window } = makeEnv();
+  const els = await inlineReady({ window });
+  const input1 = window.document.getElementById('i1');
+  const area = window.document.getElementById('t1');
+
+  typeInto(window, input1, '第一个输入框');
+  await waitFor(() => els.pill.hidden === false, '浮标出现');
+  pointer(window, 'pointerdown', { x: 50, y: 50, target: els.pill });
+  pointer(window, 'pointermove', { x: 200, y: 200, target: els.pill });
+  pointer(window, 'pointerup', { x: 200, y: 200, target: els.pill });
+  const draggedLeft = els.pill.style.left;
+  assert.equal(draggedLeft, '150px', '浮标已被拖到别处（200-50）');
+
+  // 切到另一个输入框：浮标应回到默认位置（重新贴住新输入框），而不是留在拖定位置
+  typeInto(window, area, '第二个输入框');
+  await tick(60);
+  assert.notEqual(els.pill.style.left, '150px', '换输入框后不应停留在拖定位置');
+});
+
 test('转写：Esc 关闭面板', async () => {
   const { window } = makeEnv();
   const els = await inlineReady({ window });
@@ -1263,6 +1349,100 @@ test('双语对照：列表项和表格单元格里的译文插在元素内部�
   assert.ok(li.querySelector('.lt-dual-translation'), '列表项里的译文应插在 li 内部');
   assert.ok(td.querySelector('.lt-dual-translation'), '表格单元格里的译文应插在 td 内部');
   assert.equal(li.firstChild.nodeValue, 'First item in English', '原文仍在最前面');
+});
+
+test('双语对照：按钮 / 标签 / 折叠标题不插译文（UI 铬件跳过，评审 A1）', async () => {
+  const { window, sendToContent } = makeEnv();
+  await registerReady({ window });
+  const doc = window.document;
+  doc.body.insertAdjacentHTML(
+    'beforeend',
+    '<div id="ui-area">'
+      + '<button id="btn1">Submit the form</button>'
+      + '<label id="lab1" for="i1">Email address field</label>'
+      + '<details><summary id="sum1">More details here</summary><p id="sum-body">Summary body paragraph</p></details>'
+      + '</div>',
+  );
+
+  const res = await sendToContent({ type: 'lt:translate-page', payload: { mode: 'dual' } });
+  assert.equal(res.ok, true);
+
+  const btn = doc.getElementById('btn1');
+  const lab = doc.getElementById('lab1');
+  const sum = doc.getElementById('sum1');
+  assert.equal(btn.textContent, 'Submit the form', '按钮文案不能被动（会被捾成两行 / 结构非法）');
+  assert.equal(btn.querySelectorAll('.lt-dual-translation').length, 0, 'button 里不能插入块级译文 div');
+  assert.equal(sum.querySelectorAll('.lt-dual-translation').length, 0, 'summary 里不能插入块级译文 div');
+  assert.equal(lab.querySelectorAll('.lt-dual-translation').length, 0, 'label 里不能插入块级译文 div');
+  // 正文照常翻译（details 里的 p 是正常块：原文保留，译文插在它后面）
+  const bodyP = doc.getElementById('sum-body');
+  assert.equal(bodyP.textContent, 'Summary body paragraph', '双语模式原文保留');
+  assert.ok(
+    doc.querySelector('#sum-body + .lt-dual-translation'),
+    'details 里的正文段落应插入译文',
+  );
+  // 整个 UI 区域里唯一的译文块就是 sum-body 后面那个
+  const area = doc.getElementById('ui-area');
+  assert.equal(area.querySelectorAll('.lt-dual-translation').length, 1, '按钮/标签/折叠标题不产生译文块');
+});
+
+test('双语对照：BODY 直属散落文字不会被追加到页面末尾（评审 A2）', async () => {
+  const { window, sendToContent } = makeEnv();
+  await registerReady({ window });
+  const doc = window.document;
+  // 只被内联元素包着、直接挂在 body 下的文字 —— 旧版会把 BODY 当块，译文 appendChild 到页面最末尾
+  doc.body.insertAdjacentHTML('beforeend', '<span id="loose1">Loose text after content.</span>');
+
+  const res = await sendToContent({ type: 'lt:translate-page', payload: { mode: 'dual' } });
+  assert.equal(res.ok, true);
+
+  // 注意：#p1/#p2 的译文块本来就是 body 的直接子元素（插在各自段落后面），这是正常的。
+  // 要禁止的是「散落文字之后出现追加的译文块」（旧版把 BODY 当块 → appendChild 到页面最末尾）。
+  const kids = [...doc.body.children];
+  const looseIdx = kids.indexOf(doc.getElementById('loose1'));
+  assert.ok(looseIdx !== -1, '散落文字应该还在 body 里');
+  for (let i = looseIdx + 1; i < kids.length; i++) {
+    assert.notEqual(kids[i].className, 'lt-dual-translation', '不能在散落文字之后追加译文块');
+  }
+  assert.equal(doc.getElementById('loose1').textContent, 'Loose text after content.', '散落文字保持原样');
+  // 正常段落的双语插入不受影响
+  assert.ok(doc.querySelector('#p1 + .lt-dual-translation'), '正常段落仍应插入译文');
+});
+
+test('双语对照：单元格末尾的隐藏节点不会被译文顶乱（锚定在最后一个真实子节点后）', async () => {
+  const { window, sendToContent } = makeEnv();
+  await registerReady({ window });
+  const doc = window.document;
+  doc.body.insertAdjacentHTML(
+    'beforeend',
+    '<table><tbody><tr><td id="td2">Cell with trailing script<script>window.__ltProbe=1</script></td></tr></tbody></table>',
+  );
+
+  const res = await sendToContent({ type: 'lt:translate-page', payload: { mode: 'dual' } });
+  assert.equal(res.ok, true);
+
+  const td = doc.getElementById('td2');
+  assert.equal(td.firstChild.nodeValue, 'Cell with trailing script', '原文仍在前而');
+  assert.equal(td.lastChild.className, 'lt-dual-translation', '译文插在单元格末尾（包括隐藏节点之后）');
+  assert.equal(td.querySelectorAll('.lt-dual-translation').length, 1, '只插入一条译文');
+});
+
+test('整页翻译：模态弹窗 <dialog> 里的文本也要翻（评审 A3）', async () => {
+  const { window, sendToContent } = makeEnv();
+  await registerReady({ window });
+  const doc = window.document;
+  doc.body.insertAdjacentHTML(
+    'beforeend',
+    '<dialog id="dlg1"><p id="dlg-msg">dialog 里的提示文案</p></dialog>',
+  );
+
+  const res = await sendToContent({ type: 'lt:translate-page', payload: { mode: 'replace' } });
+  assert.equal(res.ok, true);
+  assert.equal(
+    doc.getElementById('dlg-msg').textContent,
+    '【译】dialog 里的提示文案',
+    '弹窗正文不应被 SKIP_TAGS 排除（用户会觉得页面没翻全）',
+  );
 });
 
 test('双语对照：切换回替换模式时，之前插入的译文会被清掉', async () => {

@@ -94,7 +94,8 @@
     port: null,
     debounce: null,
     autoOpenedFor: null,
-    pos: null,            // 用户拖动后的位置（仅本页有效）
+    pos: null,            // 用户拖动后面板的位置（仅本页有效）
+    pillPos: null,        // 用户拖动后浮标的位置（仅本页有效；换输入框时复位跟随）
     pillRaf: 0,
     shadow: null,
   };
@@ -487,6 +488,7 @@
     }
   }
 
+  /** 切换目标输入框 → 撤销状态清零，用户拖出去的浮标也回到默认位置（贴新输入框） */
   function setTarget(target) {
     const prev = state.target;
     if (!target) return target;
@@ -501,6 +503,7 @@
     }
     state.target = target;
     state.field = target && target.kind === 'dom' ? target.el : null; // 兼容旧引用：仅 dom 目标有元素
+    state.pillPos = null;
     if (prev && prev !== target) {
       state.lastReplace = null;
       if (root) root.querySelector('.lt-undo').hidden = true;
@@ -655,11 +658,13 @@
 
     .lt-pill {
       position: fixed; z-index: 2147483000; display: inline-flex; align-items: center; gap: 4px;
-      height: 24px; padding: 0 8px; border-radius: 999px; cursor: pointer;
+      height: 24px; padding: 0 8px; border-radius: 999px; cursor: grab;
       background: var(--lt-grad); color: #ffffff; border: 0; font-size: 12px; font-weight: 600; line-height: 1;
       box-shadow: 0 4px 12px rgba(124, 58, 237, .4); backdrop-filter: blur(4px);
+      touch-action: none; user-select: none;
     }
     .lt-pill:hover { filter: brightness(1.08); }
+    .lt-pill.lt-dragging { cursor: grabbing; opacity: .96; box-shadow: 0 10px 26px rgba(124, 58, 237, .5); }
     .lt-pill[hidden] { display: none !important; }
 
     .lt-panel {
@@ -720,7 +725,7 @@
   `;
 
   const MARKUP = `
-    <button class="lt-pill" hidden type="button" title="把输入内容转写成目标语言（Alt+Shift+Enter）">
+    <button class="lt-pill" hidden type="button" title="点按打开转写面板；按住拖动可移到任意位置（Alt+Shift+Enter 直接转写）">
       <span aria-hidden="true">🌐</span><span class="lt-pill-text">转写</span>
     </button>
     <div class="lt-panel" hidden role="dialog" aria-label="输入框转写">
@@ -790,9 +795,14 @@
       if (e.cancelable) e.preventDefault();
       e.stopPropagation();
     });
+    // 拖动/点击二合一：按住拖走（位移 > 3px），轻点打开面板 —— 都在 pointer 事件里判定；
+    // click 只兑底接住「没有 pointer 前奏的激活」（键盘 Enter、旧内核、自动化测试直接派发 click），
+    // 真浏览器里 pointerup 后补发的 click 靠时间戳去重，不会二次打开。
+    pill.addEventListener('pointerdown', onPillDragStart);
     pill.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
+      if (Date.now() - pillPointerEndedAt < 700) return;
       openPanel({ focus: true, translate: true });
     });
 
@@ -900,9 +910,20 @@
     let top;
 
     if (kind === 'pill') {
-      const narrow = rect.width < 96;
-      left = narrow ? rect.right + 6 : rect.right - nodeRect.width - 6;
-      top = rect.top + Math.max(3, (Math.min(rect.height, 26) - nodeRect.height) / 2);
+      // 用户拖动过 → 停在用户放的位置（窗口变化时仍被视口钜制）
+      if (state.pillPos) {
+        ({ left, top } = state.pillPos);
+      } else {
+        // 默认贴在输入框右上角「外侧」（盖在边框上方），不再压住框内的文字；
+        // 视口放不下（窄屏贴右边）时再退回左上角外侧。
+        left = rect.right - nodeRect.width - 2;
+        top = rect.top - nodeRect.height - 2;
+        if (left < 6 || top < 6) {
+          left = rect.left + 2;
+          top = rect.top - nodeRect.height - 2;
+        }
+        if (top < 6) top = rect.bottom + 6; // 输入框顶到视口顶 → 放到下方
+      }
     } else if (state.pos) {
       ({ left, top } = state.pos);
     } else {
@@ -924,6 +945,7 @@
       margin: 6,
     });
     if (kind === 'panel' && state.pos) state.pos = clamped;
+    if (kind === 'pill' && state.pillPos) state.pillPos = clamped;
     node.style.left = `${clamped.left}px`;
     node.style.top = `${clamped.top}px`;
   }
@@ -942,17 +964,77 @@
   };
 
   /* ------------------------------------------------------------------ */
-  /* 拖动面板                                                            */
+  /* 拖动浮标 / 面板                                                     */
   /* ------------------------------------------------------------------ */
 
   let drag = null;
+  let pillPointerEndedAt = 0; // 浮标 pointer 结束时刻：真浏览器里 pointerup 后会补发 click，用它去重
+  /** 浮标拖动：按住即可拖走；位移 ≤ 3px 视为点击（打开面板），互不干扰 */
+  function onPillDragStart(e) {
+    if (!pill || e.button !== 0) return;
+    e.preventDefault();
+    const rect = pill.getBoundingClientRect();
+    drag = {
+      kind: 'pill',
+      dx: e.clientX - rect.left,
+      dy: e.clientY - rect.top,
+      startX: e.clientX,
+      startY: e.clientY,
+      moved: false,
+      id: e.pointerId,
+    };
+    pill.classList.add('lt-dragging');
+    try {
+      pill.setPointerCapture(e.pointerId);
+    } catch (err) {
+      /* 忽略 */
+    }
+    pill.addEventListener('pointermove', onPillDragMove);
+    pill.addEventListener('pointerup', onPillDragEnd);
+    pill.addEventListener('pointercancel', onPillDragEnd);
+  }
 
+  function onPillDragMove(e) {
+    if (!drag || drag.kind !== 'pill') return;
+    const rect = pill.getBoundingClientRect();
+    const next = U.clampToViewport({
+      left: e.clientX - drag.dx,
+      top: e.clientY - drag.dy,
+      width: rect.width,
+      height: rect.height,
+      viewportWidth: window.innerWidth,
+      viewportHeight: window.innerHeight,
+      margin: 6,
+    });
+    if (Math.abs(e.clientX - drag.startX) > 3 || Math.abs(e.clientY - drag.startY) > 3) drag.moved = true;
+    state.pillPos = next;
+    pill.style.left = `${next.left}px`;
+    pill.style.top = `${next.top}px`;
+  }
+
+  function onPillDragEnd(e) {
+    pill.removeEventListener('pointermove', onPillDragMove);
+    pill.removeEventListener('pointerup', onPillDragEnd);
+    pill.removeEventListener('pointercancel', onPillDragEnd);
+    try {
+      pill.releasePointerCapture(e.pointerId);
+    } catch (err) {
+      /* 忽略 */
+    }
+    const wasClick = drag && !drag.moved;
+    drag = null;
+    pillPointerEndedAt = Date.now();
+    pill.classList.remove('lt-dragging');
+    if (wasClick) openPanel({ focus: true, translate: true });
+  }
+
+  /** 面板拖动 */
   function onDragStart(e) {
     if (!panel || e.button !== 0) return;
     if (e.target.closest('button, select, .lt-out')) return;
     e.preventDefault();
     const rect = panel.getBoundingClientRect();
-    drag = { dx: e.clientX - rect.left, dy: e.clientY - rect.top, startX: e.clientX, startY: e.clientY, moved: false, id: e.pointerId };
+    drag = { kind: 'panel', dx: e.clientX - rect.left, dy: e.clientY - rect.top, startX: e.clientX, startY: e.clientY, moved: false, id: e.pointerId };
     panel.classList.add('lt-dragging');
     const head = root.querySelector('.lt-head');
     try {
@@ -966,7 +1048,7 @@
   }
 
   function onDragMove(e) {
-    if (!drag) return;
+    if (!drag || drag.kind !== 'panel') return;
     const rect = panel.getBoundingClientRect();
     const next = U.clampToViewport({
       left: e.clientX - drag.dx,
