@@ -117,6 +117,27 @@
     return '';
   }
 
+  /**
+   * 这段文本是不是「已经是目标语言」（评审 A6）：混合语言页面里，中文页面夹的英文引用
+   * 反过来、外语页里夹的中文评论等，逐段用脚本粗判一次，同脚本的直接跳过 ——
+   * 既省算力又不产生「把中文再翻一遍」的噪音。判定不了（返回空）时保守地翻。
+   */
+  function isSameLang(text, targetLang) {
+    const t = String(text || '').trim();
+    if (!t || !targetLang) return false;
+    const norm = normalizeCode(targetLang);
+    if (!norm) return false;
+    // 拉丁字母系目标语言（en/fr/de/es/…）没有可靠的廉价判定：罗马字化文本和英文
+    // 单词难以区分，误跳过的代价（该翻的没翻）比多翻一段高 → 保守地翻。
+    const script = roughScript(t);
+    // 判定不了（拉丁字母系或空）→ 保守地翻：罗马字化文本和英文难以区分，
+    // 误跳过的代价（该翻的没翻）比多翻一段高。
+    if (!script) return false;
+    const p = (x) => String(x || '').toLowerCase().split('-')[0];
+    // 中文简繁：粗判分不出用户想要的简/繁时，同脚本（zh）即视为相同，避免漏翻
+    return p(script) === p(norm) || (p(script) === 'zh' && p(norm) === 'zh');
+  }
+
   const hostOf = (url) => {
     try {
       return new URL(url).hostname.replace(/^www\./, '');
@@ -162,6 +183,38 @@
       left: Math.round(clamp(Number(left) || 0, margin, maxLeft)),
       top: Math.round(clamp(Number(top) || 0, margin, maxTop)),
     };
+  }
+
+  /**
+   * 视口优先排序（评审 B1）：整页翻译不再按 DOM 顺序「从头翻到尾」，而是先翻
+   * 用户眼前的段落 —— 长页面 1 秒内就能看到正文译文，而不是等全页跑完。
+   *
+   * 纯函数便于单测：nodes 里每项取 rect.top（无布局时用 0），可见的排在最前，
+   * 其余按「到视口的垂直距离」从近到远。
+   * @template T
+   * @param {T[]} items 每项需带 rect（{top, bottom}，可选）
+   * @param {{viewportTop?: number, viewportBottom?: number}} [vp]
+   * @returns {T[]} 排序后的新数组（不改原数组）
+   */
+  function sortByViewport(items, vp = {}) {
+    const arr = Array.isArray(items) ? items : [];
+    if (arr.length < 2) return arr.slice();
+    const vt = Number.isFinite(vp.viewportTop) ? vp.viewportTop : 0;
+    const vb = Number.isFinite(vp.viewportBottom) ? vp.viewportBottom : Number.POSITIVE_INFINITY;
+    // 注意：不用 Number.isFinite（跨 vm 领域的对象会误判），用自写的有限数判定
+    const isNum = (v) => typeof v === 'number' && v === v && v !== Infinity && v !== -Infinity;
+    const dist = (item) => {
+      const rect = item && item.rect;
+      const top = rect && isNum(rect.top) ? rect.top : Number.POSITIVE_INFINITY;
+      const bottom = rect && isNum(rect.bottom) ? rect.bottom : top;
+      if (!isNum(top)) return Number.POSITIVE_INFINITY - 1; // 无位置信息 → 排可见之后
+      if (bottom >= vt && top <= vb) return 0; // 在视口内（含相交）
+      return top >= vt ? top - vb : vt - bottom; // 视口下方/上方的最近距离
+    };
+    return arr
+      .map((item, i) => ({ item, i, d: dist(item) }))
+      .sort((a, b) => a.d - b.d || a.i - b.i)
+      .map((x) => x.item);
   }
 
   function copyText(text) {
@@ -280,11 +333,13 @@
     needsSpace,
     looksTranslatable,
     roughScript,
+    isSameLang,
     hostOf,
     matchSite,
     debounce,
     sleep,
     clampToViewport,
+    sortByViewport,
     copyText,
     speak,
     designTokens: NS.designTokens, // ui.js / inline.js 通过 U.designTokens 访问

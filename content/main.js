@@ -47,6 +47,7 @@
   const state = {
     settings: null,
     token: 0,
+    sameLangSkipped: 0,
     phase: 'idle', // idle | working | done
     mode: 'replace', // replace | dual | hover
     nodes: new Map(), // TextNode -> {original, translated}（替换模式）
@@ -511,7 +512,16 @@ async function samplePageText() {
         return { ok: true, skipped: 'same-language' };
       }
 
-      const nodes = collectTextNodes(document.body, s.maxNodes || 3000);
+      let nodes = collectTextNodes(document.body, s.maxNodes || 3000);
+      // 混合语言页面：已是目标语言的段落直接跳过（评审 A6），否则中文页里夹的英文、
+      // 外语页里夹的中文评论都会被再翻一遍，又费算力又是噪音。
+      if (s.skipSameLang !== false) {
+        const total0 = nodes.length;
+        nodes = nodes.filter((n) => !U.isSameLang(n.nodeValue || '', s.targetLang));
+        state.sameLangSkipped = total0 - nodes.length;
+      } else {
+        state.sameLangSkipped = 0;
+      }
       if (!nodes.length) {
         if (IS_TOP) {
           ui.setProgress({ done: 1, total: 1, message: '没有找到可翻译的文本' });
@@ -525,7 +535,8 @@ async function samplePageText() {
         state.hoverNodes = nodes;
         enableHoverMode();
         if (IS_TOP) {
-          ui.setProgress({ done: 1, total: 1, message: '悬停对照模式：把鼠标移到段落上即可看到译文' });
+          const skipNote = state.sameLangSkipped ? `（已跳过 ${state.sameLangSkipped} 段目标语言文本）` : '';
+          ui.setProgress({ done: 1, total: 1, message: `悬停对照模式：把鼠标移到段落上即可看到译文${skipNote}` });
           setTimeout(ui.hideProgress, 3200);
           notifyBG('lt:done', { url: location.href, sourceLang: source, target: s.targetLang, nodes: nodes.length, mode: 'hover' });
         }
@@ -537,9 +548,21 @@ async function samplePageText() {
       //   替换模式 → 每个文本节点一条（保持原有 DOM 结构）
       //   双语对照 → 每个段落一条，译文整段插到段落下方
       const items = useDual ? buildBlockItems(nodes) : buildItems(nodes);
+      // 视口优先（评审 B1）：先翻用户眼前的段落 —— 进度条上能看到译文很快出现，
+      // 而不是按 DOM 顺序从页头开始慢慢爬。挂在 item 上的 rect 供排序用。
+      for (const it of items) {
+        const anchor = it.node ? it.node.parentElement : it.block || null;
+        try {
+          const r = anchor ? anchor.getBoundingClientRect() : null;
+          it.rect = r ? { top: r.top, bottom: r.bottom } : null;
+        } catch (err) {
+          it.rect = null;
+        }
+      }
+      const sorted = U.sortByViewport(items, { viewportTop: 0, viewportBottom: window.innerHeight });
       const applyOne = useDual ? applyDual : (it, text) => applyTranslation(it.node, text);
-      const total = items.length;
-      if (!items.length) {
+      const total = sorted.length;
+      if (!sorted.length) {
         if (IS_TOP) {
           ui.setProgress({ done: 1, total: 1, message: '没有找到可翻译的段落' });
           setTimeout(ui.hideProgress, 2600);
@@ -549,11 +572,12 @@ async function samplePageText() {
       }
       let done = 0;
       let failed = 0;
-      if (IS_TOP) ui.setProgress({ done: 0, total, message: `共 ${total} 段，本地推理中…` });
+      const skipNote = state.sameLangSkipped ? `，已跳过 ${state.sameLangSkipped} 段目标语言文本` : '';
+      if (IS_TOP) ui.setProgress({ done: 0, total, message: `共 ${total} 段${skipNote}，先翻当前屏幕…` });
 
-      for (let i = 0; i < items.length; i += BATCH_SIZE) {
+      for (let i = 0; i < sorted.length; i += BATCH_SIZE) {
         if (token !== state.token) return { ok: false, error: 'aborted' };
-        const slice = items.slice(i, i + BATCH_SIZE);
+        const slice = sorted.slice(i, i + BATCH_SIZE);
         let res = null;
         try {
           res = await sendBG({
@@ -590,7 +614,7 @@ async function samplePageText() {
       state.phase = 'done';
       const msg = failed
         ? `完成：成功 ${done - failed} 段，失败 ${failed} 段${state.lastError ? `（${state.lastError}）` : ''}`
-        : `完成：共翻译 ${done} 段`;
+        : `完成：共翻译 ${done} 段${state.sameLangSkipped ? `，跳过 ${state.sameLangSkipped} 段` : ''}`;
       if (IS_TOP) {
         ui.setProgress({ done: total, total, message: msg });
         setTimeout(() => ui.hideProgress(), 3200);

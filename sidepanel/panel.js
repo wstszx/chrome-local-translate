@@ -134,6 +134,7 @@ function syncForm() {
   $('never-sites').value = (settings.neverSites || []).join('\n');
   $('min-chars').value = settings.minAutoChars;
   $('max-nodes').value = settings.maxNodes;
+  $('skip-same-lang').checked = settings.skipSameLang !== false;
   $('concurrency').value = String(settings.concurrency);
   $('cache-enabled').checked = settings.cacheEnabled !== false;
   $('theme').value = settings.theme;
@@ -889,6 +890,7 @@ function bindEvents() {
   );
   $('min-chars').addEventListener('change', () => patchSettings({ minAutoChars: Number($('min-chars').value) || 0 }));
   $('max-nodes').addEventListener('change', () => patchSettings({ maxNodes: Number($('max-nodes').value) || 3000 }));
+  $('skip-same-lang').addEventListener('change', () => patchSettings({ skipSameLang: $('skip-same-lang').checked }));
 
   // 性能与显示
   $('concurrency').addEventListener('change', () => patchSettings({ concurrency: Number($('concurrency').value) || 2 }));
