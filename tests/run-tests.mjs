@@ -978,6 +978,35 @@ function loadContentUtil() {
 
 const CU = loadContentUtil();
 
+test('isSameLang：同脚本文本判定为目标语言，拉丁系保守放行', () => {
+  assert.equal(CU.isSameLang('这是一个中文句子，用来测试。', 'zh'), true);
+  assert.equal(CU.isSameLang('這是一個繁體句子', 'zh'), true, '简繁同脚本视为相同');
+  assert.equal(CU.isSameLang('これは日本語の文章です。', 'ja'), true);
+  assert.equal(CU.isSameLang('한국어 문장입니다.', 'ko'), true);
+  assert.equal(CU.isSameLang('Привет мир, это тест.', 'ru'), true);
+  assert.equal(CU.isSameLang('Hello world, this is English.', 'zh'), false, '目标语言非拉丁系，英文应翻');
+  assert.equal(CU.isSameLang('Hello world, this is English.', 'en'), false, '拉丁系目标语言无可靠判定，保守翻');
+  assert.equal(CU.isSameLang('', 'zh'), false);
+  assert.equal(CU.isSameLang('Hello', ''), false);
+});
+
+test('sortByViewport：可见的排最前，其余按到视口距离', () => {
+  const mk = (name, top, bottom) => ({ name, rect: { top, bottom } });
+  const items = [
+    mk('below-far', 3000, 3100),
+    mk('above', -800, -700),
+    mk('visible-2', 100, 200),
+    mk('below-near', 900, 1000),
+    mk('visible-1', 10, 60),
+    mk('no-rect', NaN, NaN),
+  ];
+  const out = CU.sortByViewport(items, { viewportTop: 0, viewportBottom: 800 }).map((x) => x.name);
+  // 可见的距离都是 0，按稳定索引保持原序；然后视口下方近的、上方远的；无 rect 的排最后
+  assert.deepEqual(out, ['visible-2', 'visible-1', 'below-near', 'above', 'below-far', 'no-rect']);
+  // 少于 2 项原样返回
+  assert.deepEqual(CU.sortByViewport([items[0]]).map((x) => x.name), ['below-far']);
+});
+
 test('内容脚本工具：语言代码归一化与名称', () => {
   assert.equal(CU.normalizeCode('zh-CN'), 'zh');
   assert.equal(CU.normalizeCode('zh-TW'), 'zh-Hant');

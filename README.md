@@ -73,7 +73,10 @@ Chrome 规定：**在语言包还没下载好时，创建模型必须由「用�
 - 自动跳过 `code/pre/script/style/textarea`、`translate="no"`、`notranslate` 的内容
 - 底部右下的进度条实时显示 `已翻译 n/N 段`
 - **还原原文** 一键回滚（每个节点都保留了原始值）
-- 翻译完成后会继续跟进**动态加载的内容**（MutationObserver，去抖 900ms）
+- **视口优先**：先翻当前屏幕里的段落，长页面 1 秒内就能看到正文译文（进度条上还有
+  「取消」按钮，随时中断）；翻译完成后会继续跟进**动态加载的内容**（MutationObserver，去抖 900ms）
+- 混合语言页面：**已是目标语言的段落自动跳过**（可在侧边栏「设置 → 整页翻译」里关闭），
+  中文页里夹的英文引用照翻、外语页里夹的中文评论不再被「翻译回中文」
 
 ### 输入框转写（在网页输入框里打字时）
 
@@ -389,7 +392,7 @@ chrome-local-translate/
 ```bash
 npm run validate             # 清单体检：快捷键数量上限、文件引用是否存在、权限名、内容脚本能否是 ESM…
 npm test                     # 先跑 validate，再跑 42 个用例：分段、缓存、降级、错误映射、流式、术语表、自检、位置钳制…
-npm run test:dom             # 59 个用例：在 jsdom 里跑真实的内容脚本（拖动 / 位置记忆 / 整页还原 / 输入框转写 / 影子根 / 上下文失效）
+npm run test:dom             # 69 个用例：在 jsdom 里跑真实的内容脚本（拖动 / 位置记忆 / 整页还原 / 输入框转写 / 影子根 / 上下文失效 / 同语言跳过 / 取消翻译 / agent nonce）
 LT_ONLY="关键字" npm run test:dom   # 只跑名字里含该关键字的用例，排障时用
 npm run test:all             # 上面两个都跑
 npm run preview              # 重新生成 demo/ui-preview.html
@@ -397,6 +400,9 @@ npm run icons                # 重新生成图标
 ```
 
 `test:dom` 需要 jsdom（可选依赖）：`npm i -D jsdom`；没装会自动跳过，不影响 `npm test`。
+`npm run test:dom` 本身以 `LT_STRICT=1` 运行（jsdom 缺失/加载失败直接报错，防止 CI 假绿）；
+想本地宽松跳过用 `node tests/test-ui-dom.mjs`。另外：仓库放在 WSL 的 9p 挂载盘（`/mnt/*`）上时，
+jsdom 可能因小文件 I/O 抖动而加载卡住 —— 把仓库（或 node_modules）放到 Linux 本地文件系统即可。
 它把 `content/agent.js`、`content/util.js`、`content/ui.js`、`content/inline.js`、`content/main.js` 原样加载进 jsdom，
 用一个假后台（含假流式端口）应答，所以测的是**真实交互代码**，而不是复制出来的简化版：
 

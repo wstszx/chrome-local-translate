@@ -476,6 +476,7 @@ blockquote > .lt-dual-translation {
   const REQUEST = '__lt_agent_req';
   const RESPONSE = '__lt_agent_res';
   const HOST_ATTR = 'data-lt-host-id';
+  const NONCE_ATTR = 'data-lt-agent-nonce';
 
   /** host → ShadowRoot（含 closed） */
   const REGISTRY = new WeakMap();
@@ -688,6 +689,35 @@ blockquote > .lt-dual-translation {
 
   // ---- 3) 应答隔离世界的请求 ----
 
+  /**
+   * 一次性 nonce（评审 A5）：隔离世界首次 agentCall 时生成随机值写到 <html> 属性上，
+   * 首个请求携带；这里读到后立刻删除属性并记住，之后所有请求必须带同一个 nonce 才会
+   * 被应答 —— 页面脚本无法再伪造请求（它们拿不到这个只有两侧共享的值）。
+   *
+   * 注意两点：
+   *   - 首个请求本身就是握手：验对后建立会话，后续请求 nonce 必须一致；
+   *   - 属性被页面脚本抢先删掉 → 视为握手失败，通道保持关闭（宁可不可用，不可被冒用）。
+   */
+  let sessionNonce = '';
+  function verifyNonce(candidate) {
+    if (sessionNonce) return candidate === sessionNonce;
+    if (typeof candidate !== 'string' || !candidate) return false;
+    let fromDom = '';
+    try {
+      fromDom = document.documentElement.getAttribute(NONCE_ATTR) || '';
+    } catch (err) {
+      return false;
+    }
+    if (!fromDom || candidate !== fromDom) return false;
+    try {
+      document.documentElement.removeAttribute(NONCE_ATTR);
+    } catch (err) {
+      /* 删不掉也照样建立会话：值已经验过，页面再读到也不过是同一个值 */
+    }
+    sessionNonce = candidate;
+    return true;
+  }
+
   function respond(id, payload) {
     try {
       window.postMessage({ [RESPONSE]: true, id, ...payload }, '*');
@@ -700,8 +730,13 @@ blockquote > .lt-dual-translation {
     if (event.source !== window) return;
     const data = event.data;
     if (!data || data[REQUEST] !== true || typeof data.action !== 'string') return;
+    // nonce 不对（或页面脚本伪造）→ 静默丢弃，不给任何探测通道的应答
+    if (!verifyNonce(data.nonce)) return;
 
     const { id, action } = data;
+    if (typeof id !== 'string' || !id) return;
+    if (data.hostId !== undefined && typeof data.hostId !== 'string') return;
+    if (action === 'write' && typeof data.text !== 'string') return;
     let host = null;
     let root = null;
     try {
@@ -744,6 +779,11 @@ blockquote > .lt-dual-translation {
         const el = findEditable(root, host);
         if (!el) {
           respond(id, { ok: false, error: 'no-editable' });
+          return;
+        }
+        // 长度上限：正常输入框用不到几十 KB，超过直接拒绝（防手滑/滥用）
+        if (data.text.length > 100000) {
+          respond(id, { ok: false, error: 'text-too-long' });
           return;
         }
         const ok = writeValue(el, data.text);
@@ -880,6 +920,27 @@ blockquote > .lt-dual-translation {
     return '';
   }
 
+  /**
+   * 这段文本是不是「已经是目标语言」（评审 A6）：混合语言页面里，中文页面夹的英文引用
+   * 反过来、外语页里夹的中文评论等，逐段用脚本粗判一次，同脚本的直接跳过 ——
+   * 既省算力又不产生「把中文再翻一遍」的噪音。判定不了（返回空）时保守地翻。
+   */
+  function isSameLang(text, targetLang) {
+    const t = String(text || '').trim();
+    if (!t || !targetLang) return false;
+    const norm = normalizeCode(targetLang);
+    if (!norm) return false;
+    // 拉丁字母系目标语言（en/fr/de/es/…）没有可靠的廉价判定：罗马字化文本和英文
+    // 单词难以区分，误跳过的代价（该翻的没翻）比多翻一段高 → 保守地翻。
+    const script = roughScript(t);
+    // 判定不了（拉丁字母系或空）→ 保守地翻：罗马字化文本和英文难以区分，
+    // 误跳过的代价（该翻的没翻）比多翻一段高。
+    if (!script) return false;
+    const p = (x) => String(x || '').toLowerCase().split('-')[0];
+    // 中文简繁：粗判分不出用户想要的简/繁时，同脚本（zh）即视为相同，避免漏翻
+    return p(script) === p(norm) || (p(script) === 'zh' && p(norm) === 'zh');
+  }
+
   const hostOf = (url) => {
     try {
       return new URL(url).hostname.replace(/^www\./, '');
@@ -925,6 +986,38 @@ blockquote > .lt-dual-translation {
       left: Math.round(clamp(Number(left) || 0, margin, maxLeft)),
       top: Math.round(clamp(Number(top) || 0, margin, maxTop)),
     };
+  }
+
+  /**
+   * 视口优先排序（评审 B1）：整页翻译不再按 DOM 顺序「从头翻到尾」，而是先翻
+   * 用户眼前的段落 —— 长页面 1 秒内就能看到正文译文，而不是等全页跑完。
+   *
+   * 纯函数便于单测：nodes 里每项取 rect.top（无布局时用 0），可见的排在最前，
+   * 其余按「到视口的垂直距离」从近到远。
+   * @template T
+   * @param {T[]} items 每项需带 rect（{top, bottom}，可选）
+   * @param {{viewportTop?: number, viewportBottom?: number}} [vp]
+   * @returns {T[]} 排序后的新数组（不改原数组）
+   */
+  function sortByViewport(items, vp = {}) {
+    const arr = Array.isArray(items) ? items : [];
+    if (arr.length < 2) return arr.slice();
+    const vt = Number.isFinite(vp.viewportTop) ? vp.viewportTop : 0;
+    const vb = Number.isFinite(vp.viewportBottom) ? vp.viewportBottom : Number.POSITIVE_INFINITY;
+    // 注意：不用 Number.isFinite（跨 vm 领域的对象会误判），用自写的有限数判定
+    const isNum = (v) => typeof v === 'number' && v === v && v !== Infinity && v !== -Infinity;
+    const dist = (item) => {
+      const rect = item && item.rect;
+      const top = rect && isNum(rect.top) ? rect.top : Number.POSITIVE_INFINITY;
+      const bottom = rect && isNum(rect.bottom) ? rect.bottom : top;
+      if (!isNum(top)) return Number.POSITIVE_INFINITY - 1; // 无位置信息 → 排可见之后
+      if (bottom >= vt && top <= vb) return 0; // 在视口内（含相交）
+      return top >= vt ? top - vb : vt - bottom; // 视口下方/上方的最近距离
+    };
+    return arr
+      .map((item, i) => ({ item, i, d: dist(item) }))
+      .sort((a, b) => a.d - b.d || a.i - b.i)
+      .map((x) => x.item);
   }
 
   function copyText(text) {
@@ -1043,11 +1136,13 @@ blockquote > .lt-dual-translation {
     needsSpace,
     looksTranslatable,
     roughScript,
+    isSameLang,
     hostOf,
     matchSite,
     debounce,
     sleep,
     clampToViewport,
+    sortByViewport,
     copyText,
     speak,
     designTokens: NS.designTokens, // ui.js / inline.js 通过 U.designTokens 访问
@@ -1990,6 +2085,9 @@ blockquote > .lt-dual-translation {
   let agentSeq = 0;
   const agentPending = new Map();
   let agentListenerBound = false;
+  /** 一次性 nonce（评审 A5）：首个 agentCall 时生成，写进 <html> 属性供主世界 agent 握手 */
+  let agentNonce = '';
+  let agentNoncePlaced = false;
 
   function bindAgentListener() {
     if (agentListenerBound) return;
@@ -2016,7 +2114,18 @@ blockquote > .lt-dual-translation {
       }, timeout);
       agentPending.set(id, { resolve, timer });
       try {
-        window.postMessage({ [REQUEST]: true, id, action, ...payload }, '*');
+        // 首次调用时生成一次性 nonce 并写到 <html> 上：主世界 agent 读到即握手成功
+        // 并立刻删除属性；页面脚本拿不到这个只有两侧共享的值，无法伪造后续请求。
+        if (!agentNoncePlaced) {
+          agentNoncePlaced = true;
+          agentNonce = `lt-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+          try {
+            document.documentElement.setAttribute('data-lt-agent-nonce', agentNonce);
+          } catch (err) {
+            /* 属性写不上去 → agent 验不到，通道保持关闭（优雅降级到无 agent 路径） */
+          }
+        }
+        window.postMessage({ [REQUEST]: true, id, nonce: agentNonce, action, ...payload }, '*');
       } catch (err) {
         clearTimeout(timer);
         agentPending.delete(id);
@@ -3544,6 +3653,7 @@ blockquote > .lt-dual-translation {
   const state = {
     settings: null,
     token: 0,
+    sameLangSkipped: 0,
     phase: 'idle', // idle | working | done
     mode: 'replace', // replace | dual | hover
     nodes: new Map(), // TextNode -> {original, translated}（替换模式）
@@ -4008,7 +4118,16 @@ async function samplePageText() {
         return { ok: true, skipped: 'same-language' };
       }
 
-      const nodes = collectTextNodes(document.body, s.maxNodes || 3000);
+      let nodes = collectTextNodes(document.body, s.maxNodes || 3000);
+      // 混合语言页面：已是目标语言的段落直接跳过（评审 A6），否则中文页里夹的英文、
+      // 外语页里夹的中文评论都会被再翻一遍，又费算力又是噪音。
+      if (s.skipSameLang !== false) {
+        const total0 = nodes.length;
+        nodes = nodes.filter((n) => !U.isSameLang(n.nodeValue || '', s.targetLang));
+        state.sameLangSkipped = total0 - nodes.length;
+      } else {
+        state.sameLangSkipped = 0;
+      }
       if (!nodes.length) {
         if (IS_TOP) {
           ui.setProgress({ done: 1, total: 1, message: '没有找到可翻译的文本' });
@@ -4022,7 +4141,8 @@ async function samplePageText() {
         state.hoverNodes = nodes;
         enableHoverMode();
         if (IS_TOP) {
-          ui.setProgress({ done: 1, total: 1, message: '悬停对照模式：把鼠标移到段落上即可看到译文' });
+          const skipNote = state.sameLangSkipped ? `（已跳过 ${state.sameLangSkipped} 段目标语言文本）` : '';
+          ui.setProgress({ done: 1, total: 1, message: `悬停对照模式：把鼠标移到段落上即可看到译文${skipNote}` });
           setTimeout(ui.hideProgress, 3200);
           notifyBG('lt:done', { url: location.href, sourceLang: source, target: s.targetLang, nodes: nodes.length, mode: 'hover' });
         }
@@ -4034,9 +4154,21 @@ async function samplePageText() {
       //   替换模式 → 每个文本节点一条（保持原有 DOM 结构）
       //   双语对照 → 每个段落一条，译文整段插到段落下方
       const items = useDual ? buildBlockItems(nodes) : buildItems(nodes);
+      // 视口优先（评审 B1）：先翻用户眼前的段落 —— 进度条上能看到译文很快出现，
+      // 而不是按 DOM 顺序从页头开始慢慢爬。挂在 item 上的 rect 供排序用。
+      for (const it of items) {
+        const anchor = it.node ? it.node.parentElement : it.block || null;
+        try {
+          const r = anchor ? anchor.getBoundingClientRect() : null;
+          it.rect = r ? { top: r.top, bottom: r.bottom } : null;
+        } catch (err) {
+          it.rect = null;
+        }
+      }
+      const sorted = U.sortByViewport(items, { viewportTop: 0, viewportBottom: window.innerHeight });
       const applyOne = useDual ? applyDual : (it, text) => applyTranslation(it.node, text);
-      const total = items.length;
-      if (!items.length) {
+      const total = sorted.length;
+      if (!sorted.length) {
         if (IS_TOP) {
           ui.setProgress({ done: 1, total: 1, message: '没有找到可翻译的段落' });
           setTimeout(ui.hideProgress, 2600);
@@ -4046,11 +4178,12 @@ async function samplePageText() {
       }
       let done = 0;
       let failed = 0;
-      if (IS_TOP) ui.setProgress({ done: 0, total, message: `共 ${total} 段，本地推理中…` });
+      const skipNote = state.sameLangSkipped ? `，已跳过 ${state.sameLangSkipped} 段目标语言文本` : '';
+      if (IS_TOP) ui.setProgress({ done: 0, total, message: `共 ${total} 段${skipNote}，先翻当前屏幕…` });
 
-      for (let i = 0; i < items.length; i += BATCH_SIZE) {
+      for (let i = 0; i < sorted.length; i += BATCH_SIZE) {
         if (token !== state.token) return { ok: false, error: 'aborted' };
-        const slice = items.slice(i, i + BATCH_SIZE);
+        const slice = sorted.slice(i, i + BATCH_SIZE);
         let res = null;
         try {
           res = await sendBG({
@@ -4087,7 +4220,7 @@ async function samplePageText() {
       state.phase = 'done';
       const msg = failed
         ? `完成：成功 ${done - failed} 段，失败 ${failed} 段${state.lastError ? `（${state.lastError}）` : ''}`
-        : `完成：共翻译 ${done} 段`;
+        : `完成：共翻译 ${done} 段${state.sameLangSkipped ? `，跳过 ${state.sameLangSkipped} 段` : ''}`;
       if (IS_TOP) {
         ui.setProgress({ done: total, total, message: msg });
         setTimeout(() => ui.hideProgress(), 3200);

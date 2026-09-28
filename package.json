@@ -7,7 +7,7 @@
   "scripts": {
     "validate": "node tools/validate-manifest.mjs",
     "test": "node tools/validate-manifest.mjs && node tests/run-tests.mjs",
-    "test:dom": "node tests/test-ui-dom.mjs",
+    "test:dom": "LT_STRICT=1 node tests/test-ui-dom.mjs",
     "test:all": "node tools/validate-manifest.mjs && node tests/run-tests.mjs && node tests/test-ui-dom.mjs",
     "preview": "node tools/build-preview.mjs",
     "icons": "python3 tools/make_icons.py"

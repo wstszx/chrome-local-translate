@@ -20,6 +20,13 @@ let JSDOM;
 try {
   ({ JSDOM } = require('jsdom'));
 } catch (err) {
+  // 评审 C2：以前这里无条件静默退出（exit 0），CI 里 jsdom 没装上会「假绿」。
+  // 现在：LT_STRICT=1（或 CI 环境变量存在）→ 直接失败；本地手动跑才允许跳过。
+  const strict = process.env.LT_STRICT === '1' || !!process.env.CI;
+  if (strict) {
+    console.error(`✗ jsdom 不可用（LT_STRICT 模式不允许跳过）：${err && err.message}`);
+    process.exit(1);
+  }
   console.log('⚠️  未安装 jsdom，跳过 DOM 测试（npm i -D jsdom 后可运行）');
   process.exit(0);
 }
@@ -1427,20 +1434,127 @@ test('双语对照：单元格末尾的隐藏节点不会被译文顶乱（锚�
   assert.equal(td.querySelectorAll('.lt-dual-translation').length, 1, '只插入一条译文');
 });
 
-test('整页翻译：模态弹窗 <dialog> 里的文本也要翻（评审 A3）', async () => {
+test('整页翻译：已是目标语言的段落被跳过（评审 A6）', async () => {
   const { window, sendToContent } = makeEnv();
   await registerReady({ window });
   const doc = window.document;
   doc.body.insertAdjacentHTML(
     'beforeend',
-    '<dialog id="dlg1"><p id="dlg-msg">dialog 里的提示文案</p></dialog>',
+    '<p id="zh-keep">这是中文段落，目标语言也是中文，不应被翻。</p>'
+      + '<p id="en-go">This English paragraph should be translated.</p>',
+  );
+
+  const res = await sendToContent({ type: 'lt:translate-page', payload: { mode: 'replace' } });
+  assert.equal(res.ok, true, `整页翻译应成功（${res.error || ''}）`);
+  assert.equal(
+    doc.getElementById('zh-keep').textContent,
+    '这是中文段落，目标语言也是中文，不应被翻。',
+    '同语言段落应保持原样',
+  );
+  assert.equal(
+    doc.getElementById('en-go').textContent,
+    '【译】This English paragraph should be translated.',
+    '外语段落应被翻译',
+  );
+});
+
+/** 伪造一条不带/带错 nonce 的 agent 请求（模拟页面脚本试探通道） */
+function forgedAgentMessage(window, data) {
+  window.postMessage(data);
+}
+
+function makeAgentProbe(window) {
+  return new Promise((resolve) => {
+    const handler = (event) => {
+      const d = event.data;
+      if (d && d.__lt_agent_res === true) {
+        window.removeEventListener('message', handler);
+        resolve(d);
+      }
+    };
+    window.addEventListener('message', handler);
+  });
+}
+
+test('agent 通道：页面脚本伪造的请求被 nonce 拦截（评审 A5）', async () => {
+  const { window } = makeEnv();
+  await inlineReady({ window });
+  // 在封闭影子根里挂一个输入框，让「若无 nonce 拦截，write 就会成功」的路径真实存在
+  const { host, area } = mountClosedShadow(window);
+  typeInsideShadow(window, area, host, '机密原文');
+
+  // 1) 完全不带 nonce 的伪造请求 → 无任何应答（监听不到 __lt_agent_res）
+  let responded = false;
+  const handler1 = (event) => {
+    if (event.data && event.data.__lt_agent_res === true) responded = true;
+  };
+  window.addEventListener('message', handler1);
+  forgedAgentMessage(window, {
+    __lt_agent_req: true,
+    id: 'forged-1',
+    action: 'probe',
+    hostId: 'lt-host',
+  });
+  await tick(60);
+  window.removeEventListener('message', handler1);
+  assert.equal(responded, false, '无 nonce 的请求不应得到任何应答');
+
+  // 2) 带「猜出来的」错误 nonce → 同样被拦
+  let responded2 = false;
+  const handler2 = (event) => {
+    if (event.data && event.data.__lt_agent_res === true) responded2 = true;
+  };
+  window.addEventListener('message', handler2);
+  forgedAgentMessage(window, {
+    __lt_agent_req: true,
+    id: 'forged-2',
+    nonce: 'guess-what',
+    action: 'probe',
+    hostId: 'lt-host',
+  });
+  await tick(60);
+  window.removeEventListener('message', handler2);
+  assert.equal(responded2, false, '错误 nonce 的请求不应得到任何应答');
+});
+
+test('整页翻译：进度条「取消」按钮中断后续批次（评审 B1）', async () => {
+  const { window, sendToContent } = makeEnv();
+  await registerReady({ window });
+  const doc = window.document;
+  for (let i = 0; i < 12; i++) {
+    doc.body.insertAdjacentHTML('beforeend', `<p class="bulk">Paragraph number ${i} to translate.</p>`);
+  }
+
+  // 触发整页翻译（异步批次），随后立即点取消
+  const translating = sendToContent({ type: 'lt:translate-page', payload: { mode: 'replace' } });
+  const host = window.document.querySelector('[data-lt-ui="1"]');
+  await waitFor(() => host && host.shadowRoot && !host.shadowRoot.querySelector('.lt-toast').hidden, '进度条出现');
+  const stopBtn = host.shadowRoot.querySelector('.lt-stop');
+  assert.ok(stopBtn, '应有「取消」按钮');
+  click(window, stopBtn);
+
+  const res = await translating;
+  // 取消后：本批之前已应用的不回滚，但进度条应收起、phase 回 idle
+  const toast = host.shadowRoot.querySelector('.lt-toast');
+  assert.equal(toast.hidden, true, '取消后进度条应收起');
+  assert.ok(window.__LOCAL_TRANSLATE__.main, '内容脚本仍健在');
+});
+
+test('整页翻译：模态弹窗 <dialog> 里的文本也要翻（评审 A3）', async () => {
+  const { window, sendToContent } = makeEnv();
+  await registerReady({ window });
+  const doc = window.document;
+  // 注意用英文文案：目标语言是 zh，中文文案会被 A6 的「跳过同语言段落」正确地放行原样
+  doc.body.insertAdjacentHTML(
+    'beforeend',
+    '<dialog id="dlg1"><p id="dlg-msg">Dialog message text goes here.</p></dialog>',
   );
 
   const res = await sendToContent({ type: 'lt:translate-page', payload: { mode: 'replace' } });
   assert.equal(res.ok, true);
   assert.equal(
     doc.getElementById('dlg-msg').textContent,
-    '【译】dialog 里的提示文案',
+    '【译】Dialog message text goes here.',
     '弹窗正文不应被 SKIP_TAGS 排除（用户会觉得页面没翻全）',
   );
 });
