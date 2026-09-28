@@ -299,6 +299,9 @@
   let agentSeq = 0;
   const agentPending = new Map();
   let agentListenerBound = false;
+  /** 一次性 nonce（评审 A5）：首个 agentCall 时生成，写进 <html> 属性供主世界 agent 握手 */
+  let agentNonce = '';
+  let agentNoncePlaced = false;
 
   function bindAgentListener() {
     if (agentListenerBound) return;
@@ -325,7 +328,18 @@
       }, timeout);
       agentPending.set(id, { resolve, timer });
       try {
-        window.postMessage({ [REQUEST]: true, id, action, ...payload }, '*');
+        // 首次调用时生成一次性 nonce 并写到 <html> 上：主世界 agent 读到即握手成功
+        // 并立刻删除属性；页面脚本拿不到这个只有两侧共享的值，无法伪造后续请求。
+        if (!agentNoncePlaced) {
+          agentNoncePlaced = true;
+          agentNonce = `lt-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+          try {
+            document.documentElement.setAttribute('data-lt-agent-nonce', agentNonce);
+          } catch (err) {
+            /* 属性写不上去 → agent 验不到，通道保持关闭（优雅降级到无 agent 路径） */
+          }
+        }
+        window.postMessage({ [REQUEST]: true, id, nonce: agentNonce, action, ...payload }, '*');
       } catch (err) {
         clearTimeout(timer);
         agentPending.delete(id);

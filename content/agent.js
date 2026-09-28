@@ -22,6 +22,7 @@
   const REQUEST = '__lt_agent_req';
   const RESPONSE = '__lt_agent_res';
   const HOST_ATTR = 'data-lt-host-id';
+  const NONCE_ATTR = 'data-lt-agent-nonce';
 
   /** host → ShadowRoot（含 closed） */
   const REGISTRY = new WeakMap();
@@ -234,6 +235,35 @@
 
   // ---- 3) 应答隔离世界的请求 ----
 
+  /**
+   * 一次性 nonce（评审 A5）：隔离世界首次 agentCall 时生成随机值写到 <html> 属性上，
+   * 首个请求携带；这里读到后立刻删除属性并记住，之后所有请求必须带同一个 nonce 才会
+   * 被应答 —— 页面脚本无法再伪造请求（它们拿不到这个只有两侧共享的值）。
+   *
+   * 注意两点：
+   *   - 首个请求本身就是握手：验对后建立会话，后续请求 nonce 必须一致；
+   *   - 属性被页面脚本抢先删掉 → 视为握手失败，通道保持关闭（宁可不可用，不可被冒用）。
+   */
+  let sessionNonce = '';
+  function verifyNonce(candidate) {
+    if (sessionNonce) return candidate === sessionNonce;
+    if (typeof candidate !== 'string' || !candidate) return false;
+    let fromDom = '';
+    try {
+      fromDom = document.documentElement.getAttribute(NONCE_ATTR) || '';
+    } catch (err) {
+      return false;
+    }
+    if (!fromDom || candidate !== fromDom) return false;
+    try {
+      document.documentElement.removeAttribute(NONCE_ATTR);
+    } catch (err) {
+      /* 删不掉也照样建立会话：值已经验过，页面再读到也不过是同一个值 */
+    }
+    sessionNonce = candidate;
+    return true;
+  }
+
   function respond(id, payload) {
     try {
       window.postMessage({ [RESPONSE]: true, id, ...payload }, '*');
@@ -246,8 +276,13 @@
     if (event.source !== window) return;
     const data = event.data;
     if (!data || data[REQUEST] !== true || typeof data.action !== 'string') return;
+    // nonce 不对（或页面脚本伪造）→ 静默丢弃，不给任何探测通道的应答
+    if (!verifyNonce(data.nonce)) return;
 
     const { id, action } = data;
+    if (typeof id !== 'string' || !id) return;
+    if (data.hostId !== undefined && typeof data.hostId !== 'string') return;
+    if (action === 'write' && typeof data.text !== 'string') return;
     let host = null;
     let root = null;
     try {
@@ -290,6 +325,11 @@
         const el = findEditable(root, host);
         if (!el) {
           respond(id, { ok: false, error: 'no-editable' });
+          return;
+        }
+        // 长度上限：正常输入框用不到几十 KB，超过直接拒绝（防手滑/滥用）
+        if (data.text.length > 100000) {
+          respond(id, { ok: false, error: 'text-too-long' });
           return;
         }
         const ok = writeValue(el, data.text);
