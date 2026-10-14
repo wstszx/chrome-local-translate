@@ -1089,17 +1089,41 @@ blockquote > .lt-dual-translation {
   }
 
   /**
+   * 这个错误是不是「扩展上下文真的没了」（页面里这份脚本没救了，只能刷新页面）？
+   *
+   * 关键是把两类错误分开：
+   *   ① runtime.id 没了 / 「Extension context invalidated.」
+   *      → 扩展被重新加载或更新过，这份脚本确实再也连不上，只能标记失效；
+   *   ② 「The message port closed before a response was received.」
+   *      「Could not establish connection. Receiving end does not exist.」
+   *      → 在 MV3 里绝大多数是**瞬时**的：Service Worker 正在重启 / 还没应答就被
+   *      Chrome 回收了。扩展上下文（runtime.id）还在，下一条消息就正常了。
+   *
+   * 老代码把 ② 也当成「上下文失效」→ markDead()：后台抖动一次，这个页面上的
+   * 转写和翻译就**永久**停摆（必须刷新页面才恢复），表现出来就是
+   * 「第一次能用、后面就不能用」。所以这里只认 ①，② 交给调用方当可重试错误处理。
+   */
+  function isContextGone(err) {
+    if (!extAlive()) return true;
+    const msg = String((err && err.message) || err);
+    return /extension context invalidated/i.test(msg);
+  }
+
+  /**
    * 最后一道防线：把漏网的「扩展上下文失效」未捕获异常/拒绝拦截下来。
    *
    * 旧版 Chrome 在上下文失效后的行为并不一致：有的版本抛错、有的只给 lastError、
    * 还有的既不抛也不回 —— 逐个调用点包 try/catch 总有遗漏。这里在页面全局兜底：
-   * 只要冒出来的未捕获错误是「上下文失效」类，就标记脚本失效并阻止它在控制台
-   * 刷英文报错（preventDefault）。返回 true 表示这个错误已被识别并拦截。
+   * 只要冒出来的未捕获错误是「上下文失效」类，就阻止它在控制台刷英文报错
+   * （preventDefault）。返回 true 表示这个错误已被识别并拦截。
+   *
+   * 注意：只有上下文**真的没了**才调用 onStale 把脚本弄死；上下文还活着时
+   * （瞬时的 message port closed）只静默拦下，不影响继续使用。
    */
   function installStaleGuard(onStale) {
     const handle = (reason) => {
       if (!isContextInvalidated(reason)) return false;
-      if (typeof onStale === 'function') {
+      if (isContextGone(reason) && typeof onStale === 'function') {
         try {
           onStale();
         } catch (err) {
@@ -1127,6 +1151,7 @@ blockquote > .lt-dual-translation {
   NS.util = {
     extAlive,
     isContextInvalidated,
+    isContextGone,
     installStaleGuard,
     staleText: () => STALE_TEXT,
     normalizeCode,
@@ -1878,6 +1903,8 @@ blockquote > .lt-dual-translation {
     lastReplace: null,    // { el, original, translated }
     requestId: 0,
     port: null,
+    resumePending: false,  // 转写中途端口断了 → 页面恢复后补跑一次
+    resumeTries: 0,        // 连续自动补跑的次数（防止后台反复断开时无限重试）
     debounce: null,
     autoOpenedFor: null,
     pos: null,            // 用户拖动后面板的位置（仅本页有效）
@@ -2357,9 +2384,19 @@ blockquote > .lt-dual-translation {
 
   /** 把「上下文失效」类错误统一转成友好错误；其它错误原样返回 */
   function normalizeErr(err) {
-    if (isStale() || U.isContextInvalidated(err)) {
+    // 只有「上下文真的没了」才把脚本标记失效（isStale 已含 runtime.id 检查）
+    if (isStale() || U.isContextGone(err)) {
       markDead();
       return staleError();
+    }
+    if (U.isContextInvalidated(err)) {
+      // 上下文还在 → 只是这一次消息通道断了（Service Worker 正在重启 /
+      // 应答前被回收）。给可重试的人话，**不能 markDead**：否则后台抖一次，
+      // 这一页的转写就永久停摆（必须刷新页面），表现就是「第一次能用、后面不能用」。
+      const e = err instanceof Error ? err : new Error(String((err && err.message) || err));
+      e.code = 'backend-unreachable';
+      e.message = '后台暂时没有应答（可能正在重启），请稍等一两秒再试一次。';
+      return e;
     }
     return err instanceof Error ? err : new Error(String((err && err.message) || err));
   }
@@ -2405,6 +2442,84 @@ blockquote > .lt-dual-translation {
     });
   }
 
+  /** 收起「转写中」的转圈（端口断开 / 页面离开时用） */
+  function clearLoadingUi() {
+    state.loading = false;
+    try {
+      if (root) outputEl().classList.remove('lt-loading');
+    } catch (err) {
+      /* UI 还没建好 */
+    }
+  }
+
+  /** UI 还没建好时也能安全地更新状态行 */
+  function safeStateLine(text, kind) {
+    try {
+      if (root) setStateLine(text, kind);
+    } catch (err) {
+      /* 忽略 */
+    }
+  }
+
+  /**
+   * 转写进行到一半端口断了（后台被回收 / 标签页在后台时断开）→ 收起转圈，
+   * 记下「页面恢复后补跑一次」，由 pageshow / visibilitychange / 短延时唤醒。
+   */
+  function noteStreamInterrupted() {
+    if (!state.loading) return;
+    clearLoadingUi();
+    if (state.resumeTries >= 3) {
+      // 后台一直在断：不再自动重试刷后台，把选择权交回给用户
+      state.resumePending = false;
+      safeStateLine('连接已断开，请点「重新翻译」', 'error');
+      return;
+    }
+    state.resumeTries += 1;
+    state.resumePending = true;
+    if (document.hidden) {
+      safeStateLine('连接已断开，回到页面后自动重试', 'error');
+    } else {
+      safeStateLine('连接已断开，正在重试…', 'error');
+      setTimeout(resumeInterrupted, 300);
+    }
+  }
+
+  /** 页面从 bfcache 回来 / 标签页重新可见：把被中断的转写补跑一次 */
+  function resumeInterrupted() {
+    if (!state.resumePending) return;
+    state.resumePending = false;
+    if (state.dead || !state.open) return;
+    requestTranslation({ immediate: true });
+  }
+
+  /**
+   * 页面即将离开（进往返缓存 bfcache，或真正卸载）→ 主动把流式端口断掉。
+   * 不这样做的话，Chrome 会在页面进 bfcache 时强制关通道，控制台就会刷：
+   * 「Unchecked runtime.lastError: The page keeping the extension port is moved
+   *  into back/forward cache, so the message channel is closed.」
+   * 主动断开同时能让后台立刻停下在跑的请求；页面要是从缓存里回来了，
+   * pageshow 再补跑一次。
+   */
+  function onPageHide() {
+    const port = state.port;
+    if (!port) return;
+    state.port = null;
+    if (state.loading) {
+      clearLoadingUi();
+      state.resumePending = true; // 真正卸载时也无害：页面不会再回来
+    }
+    try {
+      port.postMessage({ type: 'abort' }); // 让后台把在跑的请求停掉
+    } catch (err) {
+      /* 端口可能已经断了 */
+    }
+    try {
+      port.disconnect();
+    } catch (err) {
+      /* 忽略 */
+    }
+  }
+
   function ensurePort() {
     if (state.port) return state.port;
     if (isStale()) {
@@ -2415,15 +2530,27 @@ blockquote > .lt-dual-translation {
       const port = chrome.runtime.connect({ name: 'lt-stream' });
       port.onMessage.addListener(onPortMessage);
       port.onDisconnect.addListener(() => {
+        // 必须同步读一下 lastError：端口被 Chrome 强制关闭（典型场景是页面进了
+        // 往返缓存）时它带着报错信息，不读的话控制台会刷
+        // 「Unchecked runtime.lastError: The page keeping the extension port is
+        //  moved into back/forward cache, so the message channel is closed.」
+        try {
+          void chrome.runtime.lastError;
+        } catch (err) {
+          /* 扩展上下文已失效，拿不到也没关系 */
+        }
         state.port = null;
+        // 转写还在跑就断了 → 收起转圈，等页面恢复后补跑
+        noteStreamInterrupted();
         // 端口断开往往就是扩展被重载了（也可能是后台被回收，那种情况下次调用会重连）
         if (!U.extAlive()) markDead();
       });
       state.port = port;
       return port;
     } catch (err) {
-      // connect() 同步抛错（「Extension context invalidated.」等）→ 走统一的失效处理
-      markDead();
+      // connect() 同步抛错：只有「上下文真的没了」（Extension context invalidated）
+      // 才标记失效；其它异常不要弄死脚本，交给调用方回退到普通消息通道
+      if (U.isContextGone(err)) markDead();
       return null;
     }
   }
@@ -2435,12 +2562,14 @@ blockquote > .lt-dual-translation {
       applyTranslation(msg.text);
     } else if (msg.type === 'done') {
       state.loading = false;
+      state.resumeTries = 0; // 这条通道刚成功跑完 → 补跑额度重新计数
       if (state.translation) applyTranslation(state.translation);
       else if (!msg.text) setStateLine('没有拿到译文，请重试', 'error');
     } else if (msg.type === 'download') {
       setStateLine(`正在下载语言包 ${Math.round((msg.progress || 0) * 100)}%`, 'loading');
     } else if (msg.type === 'error') {
       state.loading = false;
+      state.resumeTries = 0;
       setStateLine(msg.error || '转写失败', 'error');
     }
   }
@@ -3547,6 +3676,16 @@ blockquote > .lt-dual-translation {
     document.addEventListener('mousedown', onOutsideMouseDown, true);
     window.addEventListener('scroll', schedulePlace, { passive: true, capture: true });
     window.addEventListener('resize', schedulePlace, { passive: true });
+    // 页面进 bfcache 时主动断开流式端口（避免 Chrome 强制关通道刷
+    // 「Unchecked runtime.lastError: … moved into back/forward cache …」）
+    window.addEventListener('pagehide', onPageHide);
+    // 页面从 bfcache 回来 / 标签页重新可见 → 补跑被中断的转写
+    window.addEventListener('pageshow', (e) => {
+      if (e && e.persisted) resumeInterrupted();
+    });
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) resumeInterrupted();
+    });
     // 有些弹窗打开时就自动聚焦了输入框（我们还没收到 focusin），这里补一次
     setTimeout(() => {
       const el = deepActiveElement();
@@ -3588,6 +3727,7 @@ blockquote > .lt-dual-translation {
         ? {
             open: state.open,
             dead: !!state.dead,
+            loading: !!state.loading,
             target: targetLang(),
             kind: state.target ? state.target.kind : null,
             field: state.target
@@ -3695,9 +3835,20 @@ blockquote > .lt-dual-translation {
   }
 
   function normalizeErr(err) {
-    if (isStale() || U.isContextInvalidated(err)) {
+    // 只有「上下文真的没了」才把脚本标记失效（isStale 已含 runtime.id 检查）
+    if (isStale() || U.isContextGone(err)) {
       markDead();
       return staleError();
+    }
+    if (U.isContextInvalidated(err)) {
+      // 上下文还在 → 只是这一次消息通道断了（Service Worker 正在重启 /
+      // 应答前被回收）。给一句可重试的人话，**绝不能 markDead**：否则后台
+      // 抖一次，这一页的转写和翻译就永久停摆（必须刷新页面），表现就是
+      // 「第一次能用、后面就不能用」。
+      const e = err instanceof Error ? err : new Error(String((err && err.message) || err));
+      e.code = 'backend-unreachable';
+      e.message = '后台暂时没有应答（可能正在重启），请稍等一两秒再试一次。';
+      return e;
     }
     return err instanceof Error ? err : new Error(String((err && err.message) || err));
   }

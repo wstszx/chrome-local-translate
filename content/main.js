@@ -89,9 +89,20 @@
   }
 
   function normalizeErr(err) {
-    if (isStale() || U.isContextInvalidated(err)) {
+    // 只有「上下文真的没了」才把脚本标记失效（isStale 已含 runtime.id 检查）
+    if (isStale() || U.isContextGone(err)) {
       markDead();
       return staleError();
+    }
+    if (U.isContextInvalidated(err)) {
+      // 上下文还在 → 只是这一次消息通道断了（Service Worker 正在重启 /
+      // 应答前被回收）。给一句可重试的人话，**绝不能 markDead**：否则后台
+      // 抖一次，这一页的转写和翻译就永久停摆（必须刷新页面），表现就是
+      // 「第一次能用、后面就不能用」。
+      const e = err instanceof Error ? err : new Error(String((err && err.message) || err));
+      e.code = 'backend-unreachable';
+      e.message = '后台暂时没有应答（可能正在重启），请稍等一两秒再试一次。';
+      return e;
     }
     return err instanceof Error ? err : new Error(String((err && err.message) || err));
   }

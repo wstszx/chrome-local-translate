@@ -341,6 +341,12 @@ let currentTranslation = '';
 let streamPort = null;
 let streamTimer = null;
 
+/**
+ * 流式通道的看门狗时长（毫秒）：后台这么久既没给完结果也没断开就当它卡住了，
+ * 放弃流式、退回普通消息拿一次完整译文。测试里可以用全局变量压到很短。
+ */
+const STREAM_STALL_MS = Number(globalThis.__LT_STREAM_STALL_MS) > 0 ? Number(globalThis.__LT_STREAM_STALL_MS) : 25000;
+
 function setOutMeta(text) {
   $('out-meta').textContent = text;
 }
@@ -352,6 +358,12 @@ function setOutput(html, isPlaceholder = false) {
 }
 
 function stopStream() {
+  // 顺手把上一轮的看门狗也收掉：它属于那一轮，留着只会在下一轮跑到一半时
+  // 对一个已经结算的 promise 空 reject（无害但是噪音）
+  if (streamTimer) {
+    clearTimeout(streamTimer);
+    streamTimer = null;
+  }
   if (streamPort) {
     try {
       streamPort.disconnect();
@@ -385,6 +397,7 @@ async function translateCurrent() {
     await new Promise((resolve, reject) => {
       stopStream();
       let got = false;
+      let finished = false; // 后台有没有给出「完整结果」（done / error）
       let port;
       try {
         port = chrome.runtime.connect({ name: 'lt-stream' });
@@ -405,22 +418,39 @@ async function translateCurrent() {
             reject(new Error('empty'));
             return;
           }
+          finished = true;
           resolve();
         } else if (msg.type === 'error') {
+          finished = true;
           reject(new Error(msg.error));
         }
       });
       port.onDisconnect.addListener(() => {
-        if (!got && !currentTranslation) reject(new Error('port-disconnected'));
+        // 同步读一下 lastError：端口被 Chrome 强制关闭（典型场景是本页进了
+        // 往返缓存）时它带着报错信息，不读的话控制台会刷
+        // 「Unchecked runtime.lastError: The page keeping the extension port is
+        //  moved into back/forward cache, so the message channel is closed.」
+        void chrome.runtime.lastError;
+        // 自己 stopStream() 主动关掉的端口（新一轮已经接管）：不用管
+        if (streamPort !== port) return;
+        streamPort = null;
+        // 后台在给完完整结果之前就断了（Service Worker 被回收等）→ 别把半截
+        // 文本当成结果：reject 掉，让外层退回普通消息拿一次完整译文。
+        if (!finished) reject(new Error('port-disconnected'));
         else resolve();
       });
       port.postMessage({ type: 'start', ...payload });
       streamTimer = setTimeout(() => {
-        if (!got && !currentTranslation) reject(new Error('timeout'));
-      }, 25000);
+        // 看门狗必须**无条件**收尾：以前只在「一个分片都没收到」时才 reject，
+        // 于是后台卡在半路（有分片、没 done、没断开）时这个 await 会永远等下去，
+        // 按钮停在禁用态 —— 表现就是「第一次能用，后面点不动」。
+        reject(new Error(got ? 'stream-stalled' : 'timeout'));
+      }, STREAM_STALL_MS);
     });
   } catch (err) {
     // 流式失败 → 普通翻译（同时能拿到更准确的错误信息）
+    // 先把半路的端口收掉，否则它还在推分片，会把下面这条完整译文覆盖成半截的
+    stopStream();
     try {
       const res = await send({ type: 'lt:translate', payload });
       currentTranslation = res.text || '';

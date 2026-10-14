@@ -1617,6 +1617,162 @@ test('转写：上一轮还在流式输出时又触发一次，旧的不能把�
   assert.equal(els.state.textContent.includes('失败'), false, `不该出现失败状态：${els.state.textContent}`);
 });
 
+test('转写：页面进往返缓存(bfcache) → 断端口不留转圈，回来后自动补跑', async () => {
+  // Chrome 在页面进 bfcache 时会强制关掉扩展端口。不主动处理的话有两个后果：
+  //  1) 控制台刷「Unchecked runtime.lastError: The page keeping the extension port
+  //     is moved into back/forward cache, so the message channel is closed.」
+  //  2) 面板永远停在「转写中…」（后台已经把请求 abort 掉了，没人收尾）
+  const { window, ports, streamStarts } = makeEnv();
+  const els = await inlineReady({ window });
+  const input = window.document.getElementById('i1');
+
+  typeInto(window, input, '进往返缓存之前只写了一半的句子还需要继续翻译');
+  await waitFor(() => els.pill.hidden === false, '浮标出现');
+  click(window, els.pill); // 打开面板并开始流式
+  await waitFor(() => els.out.classList.contains('lt-loading'), '转写进行中（转圈已挂上）');
+  assert.equal(streamStarts.length, 1, '打开面板应发出一次 start');
+
+  // 页面即将进 bfcache → 内容脚本主动断端口，而不是等 Chrome 强制关
+  window.dispatchEvent(new window.Event('pagehide'));
+  assert.equal(els.out.classList.contains('lt-loading'), false, '断开后不该还挂着转圈');
+  assert.equal(els.state.textContent.includes('失败'), false, `不该出现失败状态：${els.state.textContent}`);
+
+  // 页面从 bfcache 里被救回来 → 应该自动连上、补跑一次
+  const back = new window.Event('pageshow');
+  Object.defineProperty(back, 'persisted', { value: true });
+  window.dispatchEvent(back);
+  await waitFor(() => streamStarts.length === 2, '恢复后应自动补发一次转写请求');
+  assert.equal(ports.length, 2, '补跑应重新连一个端口');
+  await waitFor(() => els.out.textContent === '【译】进往返缓存之前只写了一半的句子还需要继续翻译', '补跑完成后译文完整');
+  assert.equal(els.state.textContent.includes('失败'), false, `不该出现失败状态：${els.state.textContent}`);
+});
+
+test('转写：流式中途端口断开 → 自动重连并完成（不会就此卡住）', async () => {
+  const { window, ports, streamStarts } = makeEnv();
+  const els = await inlineReady({ window });
+  const input = window.document.getElementById('i1');
+
+  typeInto(window, input, '断掉之后还要能用');
+  await waitFor(() => els.pill.hidden === false, '浮标出现');
+  click(window, els.pill);
+  await waitFor(() => els.out.classList.contains('lt-loading'), '转写进行中');
+
+  ports[0].disconnect(); // 模拟后台被回收 / 通道被关
+  await tick(30);
+  assert.equal(window.__LOCAL_TRANSLATE__.inline.status().dead, false, '端口断开不该弄死页面脚本');
+  assert.equal(els.out.classList.contains('lt-loading'), false, '断开后不该一直挂着转圈');
+
+  await waitFor(() => streamStarts.length >= 2, '应自动重连并补发一次转写请求');
+  // 注意：断开前那条端口的分片定时器还会把旧文本推完，所以不能只看译文；
+  // 要等「第二次 start 之后 loading 归零」才算重连的这一轮真的跑完了。
+  await waitFor(
+    () => streamStarts.length >= 2 && window.__LOCAL_TRANSLATE__.inline.status().loading === false,
+    '重连后的转写必须真正跑完',
+  );
+  assert.equal(els.out.textContent, '【译】断掉之后还要能用', '重连后译文完整');
+  assert.equal(els.out.classList.contains('lt-loading'), false, '完成后不该还挂着转圈');
+  assert.equal(els.state.textContent.includes('失败'), false, `不该出现失败状态：${els.state.textContent}`);
+});
+
+/* --------------------- 后台应答偶发中断（不该永久弄死页面脚本） --------------------- */
+
+/**
+ * MV3 的经典瞬时故障：Service Worker 在应答之前被 Chrome 回收，回调会带着
+ * 「The message port closed before a response was received.」回来。
+ * 这跟「扩展被重新加载」是两码事 —— 扩展上下文其实还活着（runtime.id 还在）。
+ */
+function injectTransientPortClosed(window, type) {
+  const realSend = window.chrome.runtime.sendMessage;
+  const state = { pending: 1 };
+  window.chrome.runtime.sendMessage = (message, callback) => {
+    if (state.pending > 0 && message && message.type === type) {
+      state.pending -= 1;
+      setTimeout(() => {
+        window.chrome.runtime.lastError = { message: 'The message port closed before a response was received.' };
+        try {
+          callback && callback(undefined);
+        } finally {
+          window.chrome.runtime.lastError = undefined;
+        }
+      }, 0);
+      return;
+    }
+    return realSend(message, callback);
+  };
+  return state;
+}
+
+test('转写：后台应答偶发中断（message port closed）不该把页面脚本弄死', async () => {
+  const { window } = makeEnv();
+  const els = await inlineReady({ window });
+  const input = window.document.getElementById('i1');
+
+  typeInto(window, input, '第一次能用');
+  await waitFor(() => els.pill.hidden === false, '浮标出现');
+  click(window, els.pill);
+  await waitFor(() => els.out.textContent === '【译】第一次能用', '第一次转写成功');
+
+  const fault = injectTransientPortClosed(window, 'lt:settings:set');
+  els.lang.value = 'ja'; // 切换目标语言 → saveSettings() 会往后台发一条设置
+  els.lang.dispatchEvent(new window.Event('change'));
+  await waitFor(() => fault.pending === 0, '瞬时错误已投递');
+  await tick(30);
+
+  const st = window.__LOCAL_TRANSLATE__.inline.status();
+  assert.equal(st && st.dead, false, '一次瞬时消息失败不该让页面里的脚本永久停摆');
+  assert.equal(els.panel.hidden, false, '面板应保持打开、可继续操作');
+  assert.equal(/刷新本页|重新加载/.test(els.state.textContent), false, `不该提示「刷新页面」：${els.state.textContent}`);
+
+  // 故障过后：下一次转写必须照常可用
+  typeInto(window, input, '第二次也要能用');
+  await waitFor(() => els.out.textContent === '【译】第二次也要能用', '故障后的下一次转写必须成功');
+});
+
+test('页面翻译：后台应答偶发中断（message port closed）不该弄死页面脚本', async () => {  const { window, messages, sendToContent } = makeEnv();
+  await registerReady({ window });
+
+  const first = await sendToContent({ type: 'lt:translate-page', payload: { mode: 'replace' } });
+  assert.equal(first.ok, true, `第一次页面翻译应成功：${JSON.stringify(first)}`);
+  const before = messages.filter((m) => m.type === 'lt:translateBatch').length;
+  assert.ok(before >= 1, '第一次应当真的发了批量翻译');
+
+  await sendToContent({ type: 'lt:restore-page', payload: {} });
+  const fault = injectTransientPortClosed(window, 'lt:detect');
+  const second = await sendToContent({ type: 'lt:translate-page', payload: { mode: 'replace' } });
+  assert.equal(second.ok, false, `这一次应当失败并把原因报出来：${JSON.stringify(second)}`);
+  assert.equal(fault.pending, 0, '瞬时错误应已投递');
+
+  const notice = window.document.querySelector('[data-lt-ui="1"]')?.shadowRoot?.querySelector('.lt-stale');
+  assert.ok(!notice || notice.hidden, '一次瞬时失败不该弹出「扩展已被重新加载」的失效提示');
+
+  const third = await sendToContent({ type: 'lt:translate-page', payload: { mode: 'replace' } });
+  assert.equal(third.ok, true, `恢复后应再次成功：${JSON.stringify(third)}`);
+  assert.ok(
+    messages.filter((m) => m.type === 'lt:translateBatch').length > before,
+    '恢复后应当真的发了批量翻译（脚本还活着）',
+  );
+});
+
+test('页面全局守卫：未捕获的瞬时断线不该同时弄死转写和翻译', async () => {
+  const { window } = makeEnv();
+  const els = await inlineReady({ window });
+  const input = window.document.getElementById('i1');
+  typeInto(window, input, '先输点字，让浮标出现');
+  await waitFor(() => els.pill.hidden === false, '浮标出现');
+
+  // 页面上冒出一个未捕获的拒绝，文案是瞬时的「message port closed」
+  //（真实场景：某个忘了 catch 的 chrome.* 调用在 SW 重启时炸了）
+  const ev = new window.Event('unhandledrejection');
+  Object.defineProperty(ev, 'reason', { value: new Error('The message port closed before a response was received.') });
+  window.dispatchEvent(ev);
+  await tick(20);
+
+  assert.equal(window.__LOCAL_TRANSLATE__.inline.status().dead, false, '转写不该被一次瞬时错误弄死');
+  assert.equal(els.pill.hidden, false, '浮标不该因此消失');
+  const notice = window.document.querySelector('[data-lt-ui="1"]')?.shadowRoot?.querySelector('.lt-stale');
+  assert.ok(!notice || notice.hidden, '页面翻译也不该弹出「扩展已被重新加载」的失效提示');
+});
+
 /* --------------------- 扩展上下文失效（Extension context invalidated） --------------------- */
 
 test('上下文失效：报的是人话（不是英文报错），并给出「刷新页面」的出口', async () => {
@@ -1716,6 +1872,246 @@ test('扩展重载后：新脚本会清掉上一次实例残留的 UI（不会�
   await waitFor(() => countHosts() === 1, '重新注入后旧的宿主被清掉');
   assert.equal(countHosts(), 1, '重新注入后应当只剩一个宿主（旧的被清掉）');
   assert.equal(window.document.querySelectorAll('[data-lt-ui="1"]').length, 1, '气泡宿主同样只保留一个');
+});
+
+/* ------------------------------ 侧边栏（sidepanel/panel.js） ------------------------------ */
+
+/**
+ * 侧边栏是 ES module，而且顶部就自执行了一个 async main() —— 只能「先挂好全局，
+ * 再动态 import」把它拉起来。panel.js 在一个进程里只会被 import 一次，
+ * 所以下面的面板用例共用同一个环境（和 CU 一样的套路）。
+ */
+let panelEnvPromise = null;
+
+function makePanelEnv() {
+  const dom = new JSDOM(read('sidepanel/panel.html'), {
+    url: 'chrome-extension://lt-test/sidepanel/panel.html',
+    runScripts: 'outside-only', // 页面里那个 <script type="module"> 不要让 jsdom 跑，我们自己 import
+    pretendToBeVisual: true,
+  });
+  const { window } = dom;
+  const messages = [];
+  const ports = [];
+  const streamStarts = [];
+  const portMode = { stall: false }; // 让下一条端口「只给一个分片就卡住」
+  const settings = { uiLang: 'zh', sourceLang: 'auto', targetLang: 'zh', engine: 'auto', tone: 'default', glossary: '' };
+
+  const chrome = {
+    runtime: {
+      id: 'lt-test-extension',
+      lastError: undefined,
+      sendMessage(message, callback) {
+        messages.push(message);
+        const respond = (res) => callback && callback(res);
+        setTimeout(() => {
+          const type = message && message.type;
+          const payload = (message && message.payload) || {};
+          if (type === 'lt:settings:get') respond({ ok: true, settings });
+          else if (type === 'lt:settings:set') respond({ ok: true, settings: { ...settings, ...payload.patch } });
+          else if (type === 'lt:translate') {
+            respond({
+              ok: true,
+              text: CANNED[payload.text] || `【译】${payload.text}`,
+              engine: 'translator',
+              sourceLang: 'en',
+              targetLang: payload.target || 'zh',
+            });
+          } else if (type === 'lt:cache:size') respond({ ok: true, size: 0 });
+          else if (type === 'lt:probe') {
+            respond({ ok: true, support: { translator: true, nano: false }, translator: 'available' });
+          } else respond({ ok: true });
+        }, 0);
+      },
+      onMessage: { addListener() {} },
+      connect({ name }) {
+        const msgHandlers = [];
+        const discHandlers = [];
+        const stall = portMode.stall; // 下一条端口只推一个分片就「卡住」（后台挂死）
+        portMode.stall = false;
+        const port = {
+          name,
+          closed: false,
+          postMessage(msg) {
+            if (!msg || msg.type !== 'start') return;
+            streamStarts.push(msg);
+            const full = CANNED[msg.text] || `【译】${msg.text}`;
+            const pieces = full.match(/[\s\S]{1,4}/g) || [];
+            if (stall) {
+              // 只给一个分片，既没有 done 也没有断开 —— 模拟后台卡在半路
+              setTimeout(() => {
+                if (port.closed) return;
+                msgHandlers.forEach((fn) => fn({ type: 'chunk', text: pieces[0] || full }));
+              }, 4);
+              return;
+            }
+            let acc = '';
+            pieces.forEach((piece, i) => {
+              setTimeout(() => {
+                if (port.closed) return; // 真实环境：断开之后不会再有消息过来
+                acc += piece;
+                msgHandlers.forEach((fn) => fn({ type: 'chunk', text: acc }));
+                if (i === pieces.length - 1) msgHandlers.forEach((fn) => fn({ type: 'done', text: acc }));
+              }, 4 * (i + 1));
+            });
+          },
+          disconnect() {
+            if (port.closed) return;
+            port.closed = true;
+            discHandlers.forEach((fn) => fn());
+          },
+          onMessage: { addListener: (fn) => msgHandlers.push(fn) },
+          onDisconnect: { addListener: (fn) => discHandlers.push(fn) },
+        };
+        ports.push(port);
+        return port;
+      },
+    },
+    tabs: {
+      query: async () => [{ id: 1, url: 'https://example.com/article', title: '测试页', active: true }],
+      sendMessage: async () => ({ ok: true }),
+      create: async () => ({}),
+      onActivated: { addListener() {} },
+      onUpdated: { addListener() {} },
+    },
+  };
+
+  // panel.js 全是按「调用时再取全局」写的（document/chrome/location 顶层变量），
+  // 所以把 jsdom 的这些全局挂到 node 的 globalThis 上再 import。
+  globalThis.__LT_STREAM_STALL_MS = 300; // 把流式看门狗压短，好在测试里等它
+  globalThis.window = window;
+  globalThis.document = window.document;
+  globalThis.location = window.location;
+  globalThis.chrome = chrome;
+  exposeWindowGlobals(window);
+
+  return { window, messages, ports, streamStarts, portMode, chrome };
+}
+
+/** jsdom window 里有、但 node 全局没有的浏览器构造器（panel.js 直接用 `new Option(...)` 这类裸引用） */
+const WINDOW_GLOBALS = [
+  'Option',
+  'HTMLElement',
+  'HTMLInputElement',
+  'HTMLSelectElement',
+  'HTMLTextAreaElement',
+  'HTMLButtonElement',
+  'Node',
+  'Event',
+  'CustomEvent',
+  'FocusEvent',
+  'MouseEvent',
+  'KeyboardEvent',
+  'InputEvent',
+  'DOMParser',
+  'MutationObserver',
+  'CSS',
+];
+
+function exposeWindowGlobals(window) {
+  for (const key of WINDOW_GLOBALS) {
+    if (key in window) globalThis[key] = window[key];
+  }
+  globalThis.getComputedStyle = window.getComputedStyle.bind(window);
+  if (window.requestAnimationFrame) {
+    globalThis.requestAnimationFrame = window.requestAnimationFrame.bind(window);
+    globalThis.cancelAnimationFrame = window.cancelAnimationFrame.bind(window);
+  }
+}
+
+async function ensurePanelEnv() {
+  if (!panelEnvPromise) {
+    panelEnvPromise = (async () => {
+      const env = makePanelEnv();
+      await import('../sidepanel/panel.js'); // 顶部的 async main() 自己会跑
+      await waitFor(
+        () => env.window.document.getElementById('engine-pill').textContent !== '检测中…',
+        '侧边栏初始化完成',
+      );
+      await tick(20);
+      return env;
+    })();
+  }
+  return panelEnvPromise;
+}
+
+test('侧边栏：连续两次翻译都必须能用（走流式通道，按钮不会卡在禁用态）', async () => {
+  const { window, messages, ports } = await ensurePanelEnv();
+  const $ = (id) => window.document.getElementById(id);
+  const fallbacks = () => messages.filter((m) => m.type === 'lt:translate').length;
+  const portCount = ports.length;
+  const fallbackBefore = fallbacks();
+
+  $('input').value = 'Hello world';
+  $('do-translate').click();
+  await waitFor(() => $('output').textContent.includes('你好，世界'), '第一次翻译完成');
+  assert.equal($('do-translate').disabled, false, '第一次结束后按钮必须恢复可用');
+  assert.equal(fallbacks(), fallbackBefore, '第一次本该走流式通道，不该退回普通消息');
+
+  $('input').value = 'Local models are great.';
+  $('do-translate').click();
+  await waitFor(() => $('output').textContent.includes('本地模型很棒。'), '第二次翻译必须完成');
+  assert.equal($('do-translate').disabled, false, '第二次结束后按钮同样必须恢复可用');
+  assert.equal(ports.length, portCount + 2, '第二次应当重新连一条流式端口（旧的已被收掉）');
+});
+
+test('侧边栏：流式端口中途断开 → 退回普通消息拿完整译文，之后还能继续用', async () => {
+  const { window, messages, ports, portMode } = await ensurePanelEnv();
+  const $ = (id) => window.document.getElementById(id);
+  const fallbackBefore = messages.filter((m) => m.type === 'lt:translate').length;
+  const portsBefore = ports.length;
+
+  portMode.stall = true; // 下一条端口：只推一个分片就卡住（既没有 done 也没有断开）
+  $('input').value = 'Hello world';
+  $('do-translate').click();
+  await waitFor(() => ports.length > portsBefore, '流式端口已连上');
+  const port = ports[ports.length - 1];
+  await waitFor(() => $('output').textContent.includes('你好'), '已收到第一个分片（后台卡在半路）');
+
+  // 后台（Service Worker）被回收：既没有 done，也不会再有分片
+  port.disconnect();
+
+  await waitFor(
+    () => $('output').textContent.includes('你好，世界'),
+    '应当退回普通消息拿到完整译文（不能停在半截文本上）',
+  );
+  assert.equal($('do-translate').disabled, false, '结束/失败之后按钮必须恢复可用');
+  assert.ok(
+    messages.filter((m) => m.type === 'lt:translate').length > fallbackBefore,
+    '端口断开后应当走一次普通翻译兜底',
+  );
+
+  // 断过一次之后，下一次翻译必须照常能用
+  $('input').value = 'Local models are great.';
+  $('do-translate').click();
+  await waitFor(() => $('output').textContent.includes('本地模型很棒。'), '断开后的下一次翻译必须完成');
+  assert.equal($('do-translate').disabled, false, '按钮始终要停在可用态');
+});
+
+test('侧边栏：后台卡死（不给结果也不断开）→ 看门狗收尾，按钮不会永久禁用', async () => {
+  const { window, messages, ports, portMode } = await ensurePanelEnv();
+  const $ = (id) => window.document.getElementById(id);
+  const fallbackBefore = messages.filter((m) => m.type === 'lt:translate').length;
+  const portsBefore = ports.length;
+
+  portMode.stall = true; // 只推一个分片就卡住：没有 done，也不会断开
+  $('input').value = 'Hello world';
+  $('do-translate').click();
+  await waitFor(() => ports.length > portsBefore, '流式端口已连上');
+  await waitFor(() => $('output').textContent.includes('你好'), '已收到一个分片，之后后台卡住');
+
+  // 不主动断开 —— 老代码在这里会永远 await 下去，按钮停在禁用态
+  await waitFor(() => $('do-translate').disabled === false, '看门狗必须让按钮恢复可用');
+  assert.ok(
+    messages.filter((m) => m.type === 'lt:translate').length > fallbackBefore,
+    '看门狗超时后应当退回普通翻译拿完整结果',
+  );
+  assert.equal($('output').textContent, '你好，世界', '最终应当拿到完整译文而不是半截');
+
+  // 卡死过一次之后还必须能继续用
+  $('input').value = 'Local models are great.';
+  $('do-translate').click();
+  await waitFor(() => $('output').textContent.includes('本地模型很棒。'), '卡死后的下一次翻译必须完成');
+  assert.equal($('do-translate').disabled, false);
 });
 
 /* ------------------------------ 运行 ------------------------------ */

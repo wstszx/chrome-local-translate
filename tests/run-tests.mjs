@@ -967,9 +967,11 @@ test('AbortSignal 能中断长文本翻译', async () => {
 /* ------------------------------ 内容脚本工具（在 vm 里加载） ------------------------------ */
 
 /** content/util.js 是 IIFE + 全局命名空间，这里用 vm 加载后取出暴露的工具 */
-function loadContentUtil() {
+function loadContentUtil({ alive = false } = {}) {
   const file = join(dirname(fileURLToPath(import.meta.url)), '..', 'content', 'util.js');
   const sandbox = { navigator: {}, window: {}, document: {}, console };
+  // alive = 扩展上下文还活着（runtime.id 在）；否则模拟「扩展被重新加载」
+  if (alive) sandbox.chrome = { runtime: { id: 'lt-test-extension' } };
   sandbox.globalThis = sandbox;
   vm.createContext(sandbox);
   vm.runInContext(readFileSync(file, 'utf8'), sandbox, { filename: 'content/util.js' });
@@ -1209,8 +1211,24 @@ test('上下文检测：认识「Extension context invalidated.」及其同类�
   assert.equal(CU.isContextInvalidated(new Error('quota exceeded')), false);
 });
 
-test('上下文检测：给用户的说明必须是中文、且包含「刷新」这个动作', () => {
-  const text = CU.staleText();
+test('上下文检测：区分「真的失效」和「后台瞬时断线」（后者绝不能弄死页面脚本）', () => {
+  const alive = loadContentUtil({ alive: true });
+  // 上下文还在：MV3 里这两条绝大多数是 Service Worker 重启造成的瞬时故障
+  assert.equal(alive.isContextGone(new Error('The message port closed before a response was received.')), false);
+  assert.equal(alive.isContextGone(new Error('Could not establish connection. Receiving end does not exist.')), false);
+  // 普通业务错误更不该算
+  assert.equal(alive.isContextGone(new Error('quota exceeded')), false);
+  // 只有规范的 invalidation 文案才是「这份脚本没救了」
+  assert.equal(alive.isContextGone(new Error('Extension context invalidated.')), true);
+
+  // runtime.id 没了 = 扩展被重新加载/更新，什么错误都回不去了
+  const gone = loadContentUtil({ alive: false });
+  assert.equal(gone.isContextGone(new Error('The message port closed before a response was received.')), true);
+  assert.equal(gone.isContextGone(new Error('quota exceeded')), true);
+  assert.equal(gone.isContextGone(null), true);
+});
+
+test('上下文检测：给用户的说明必须是中文、且包含「刷新」这个动作', () => {  const text = CU.staleText();
   assert.equal(typeof text, 'string');
   assert.match(text, /刷新/);
   assert.equal(/[A-Za-z]{6,}/.test(text.replace(/chrome:\/\/extensions/g, '')), false, '不要夹英文报错原文');

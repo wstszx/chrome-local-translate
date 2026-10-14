@@ -630,6 +630,14 @@ chrome.runtime.onConnect.addListener((port) => {
   });
 
   port.onDisconnect.addListener(() => {
+    // 同步读一下 lastError：对端页面进 bfcache 被强制关通道时这里会带着
+    // 「The page keeping the extension port is moved into back/forward cache…」，
+    // 不读的话 Service Worker 控制台会刷「Unchecked runtime.lastError: …」
+    try {
+      void chrome.runtime.lastError;
+    } catch (err) {
+      /* 忽略 */
+    }
     runId += 1; // 让在跑的请求失效
     if (controller && !finished) controller.abort();
     controller = null;

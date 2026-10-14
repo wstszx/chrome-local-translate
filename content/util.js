@@ -286,17 +286,41 @@
   }
 
   /**
+   * 这个错误是不是「扩展上下文真的没了」（页面里这份脚本没救了，只能刷新页面）？
+   *
+   * 关键是把两类错误分开：
+   *   ① runtime.id 没了 / 「Extension context invalidated.」
+   *      → 扩展被重新加载或更新过，这份脚本确实再也连不上，只能标记失效；
+   *   ② 「The message port closed before a response was received.」
+   *      「Could not establish connection. Receiving end does not exist.」
+   *      → 在 MV3 里绝大多数是**瞬时**的：Service Worker 正在重启 / 还没应答就被
+   *      Chrome 回收了。扩展上下文（runtime.id）还在，下一条消息就正常了。
+   *
+   * 老代码把 ② 也当成「上下文失效」→ markDead()：后台抖动一次，这个页面上的
+   * 转写和翻译就**永久**停摆（必须刷新页面才恢复），表现出来就是
+   * 「第一次能用、后面就不能用」。所以这里只认 ①，② 交给调用方当可重试错误处理。
+   */
+  function isContextGone(err) {
+    if (!extAlive()) return true;
+    const msg = String((err && err.message) || err);
+    return /extension context invalidated/i.test(msg);
+  }
+
+  /**
    * 最后一道防线：把漏网的「扩展上下文失效」未捕获异常/拒绝拦截下来。
    *
    * 旧版 Chrome 在上下文失效后的行为并不一致：有的版本抛错、有的只给 lastError、
    * 还有的既不抛也不回 —— 逐个调用点包 try/catch 总有遗漏。这里在页面全局兜底：
-   * 只要冒出来的未捕获错误是「上下文失效」类，就标记脚本失效并阻止它在控制台
-   * 刷英文报错（preventDefault）。返回 true 表示这个错误已被识别并拦截。
+   * 只要冒出来的未捕获错误是「上下文失效」类，就阻止它在控制台刷英文报错
+   * （preventDefault）。返回 true 表示这个错误已被识别并拦截。
+   *
+   * 注意：只有上下文**真的没了**才调用 onStale 把脚本弄死；上下文还活着时
+   * （瞬时的 message port closed）只静默拦下，不影响继续使用。
    */
   function installStaleGuard(onStale) {
     const handle = (reason) => {
       if (!isContextInvalidated(reason)) return false;
-      if (typeof onStale === 'function') {
+      if (isContextGone(reason) && typeof onStale === 'function') {
         try {
           onStale();
         } catch (err) {
@@ -324,6 +348,7 @@
   NS.util = {
     extAlive,
     isContextInvalidated,
+    isContextGone,
     installStaleGuard,
     staleText: () => STALE_TEXT,
     normalizeCode,
