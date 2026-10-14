@@ -1750,7 +1750,10 @@
       refreshTheme();
       refreshLiveButton();
       refreshLanguageSelect();
-      if (!state.settings.inlineEnabled || state.settings.inlineMode === 'off') closePanel();
+      if (!state.settings.inlineEnabled || state.settings.inlineMode === 'off' || siteBlocked()) closePanel();
+      // 浮标也要按新设置立刻重算：点了「不再在此站显示」后黑名单是广播回来的，
+      // 不在这里收一次，浮标就会一直挂到刷新页面为止；目标语言改了标签同样要跟着换。
+      if (root) updatePill();
       return false;
     }
 

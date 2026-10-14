@@ -332,6 +332,7 @@
     bubble.querySelector('.lt-close').addEventListener('click', (e) => {
       e.stopPropagation();
       hideBubble();
+      emit('close'); // 让主脚本作废在途请求，避免迟到的译文又把气泡弹回来
     });
     bubble.querySelector('.lt-copy').addEventListener('click', async (e) => {
       e.stopPropagation();

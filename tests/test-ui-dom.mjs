@@ -2114,6 +2114,205 @@ test('侧边栏：后台卡死（不给结果也不断开）→ 看门狗收尾�
   assert.equal($('do-translate').disabled, false);
 });
 
+/* ------------------------------ 整页翻译的边界 ------------------------------ */
+
+test('整页翻译：不碰 script/style/template/noscript/表单控件/注释', async () => {
+  const { window, sendToContent } = makeEnv();
+  await registerReady({ window });
+  const doc = window.document;
+  const wrap = doc.createElement('div');
+  wrap.innerHTML =
+    '<input id="pr-in" value="Hello world" />' +
+    '<textarea id="pr-ta">Hello world</textarea>' +
+    '<select id="pr-sel"><option>Hello world</option></select>' +
+    '<script id="pr-js">var x = "Hello world";<\/script>' +
+    '<style id="pr-css">.a::after{content:"Hello world"}<\/style>' +
+    '<noscript id="pr-ns">Hello world</noscript>' +
+    '<template id="pr-tpl"><p>Hello world</p></template>';
+  doc.body.appendChild(wrap);
+  doc.body.appendChild(doc.createComment(' Hello world '));
+
+  const res = await sendToContent({ type: 'lt:translate-page', payload: { mode: 'replace' } });
+  assert.equal(res.ok, true, JSON.stringify(res));
+  assert.equal(doc.getElementById('pr-in').value, 'Hello world', 'input 的 value 不该被改');
+  assert.equal(doc.getElementById('pr-ta').value, 'Hello world', 'textarea 的值不该被改');
+  assert.equal(doc.getElementById('pr-sel').options[0].text, 'Hello world', 'option 文案不该被改');
+  assert.equal(doc.getElementById('pr-js').textContent.includes('【译】'), false, 'script 不该翻译');
+  assert.equal(doc.getElementById('pr-css').textContent.includes('【译】'), false, 'style 不该翻译');
+  assert.equal(doc.getElementById('pr-tpl').content.textContent, 'Hello world', 'template 不该翻译');
+  assert.equal(doc.getElementById('pr-ns').textContent, 'Hello world', 'noscript 是惰性内容，不该翻译');
+  assert.equal(doc.getElementById('pr-in').childNodes.length, 0, 'input 不该被塞进子节点');
+});
+
+test('整页翻译：maxNodes 上限真的生效', async () => {
+  const { window, sendToContent } = makeEnv();
+  await registerReady({ window });
+  // 上限走设置下发，顺带验证主脚本会合并部分设置（不会把其它字段冲成 undefined）
+  const patch = await sendToContent({ type: 'lt:settings-changed', payload: { maxNodes: 2 } });
+  assert.equal(patch && patch.ok, true, JSON.stringify(patch));
+  const doc = window.document;
+  const ids = [];
+  for (let i = 0; i < 6; i += 1) {
+    const p = doc.createElement('p');
+    p.textContent = `Hello world paragraph ${i}`;
+    p.id = `mp${i}`;
+    doc.body.appendChild(p);
+    ids.push(p.id);
+  }
+  const res = await sendToContent({ type: 'lt:translate-page', payload: { mode: 'replace' } });
+  assert.equal(res.ok, true, JSON.stringify(res));
+  const translated = ids.filter((id) => doc.getElementById(id).textContent.includes('【译】'));
+  assert.ok(translated.length <= 2, `只该翻译 ≤2 段，实际 ${translated.length} 段：${translated}`);
+  assert.equal(res.failed, 0, JSON.stringify(res));
+});
+
+test('整页翻译：翻完之后新增的节点，恢复再翻也要被覆盖', async () => {
+  const { window, sendToContent } = makeEnv();
+  await registerReady({ window });
+  await sendToContent({ type: 'lt:translate-page', payload: { mode: 'replace' } });
+  const p = window.document.createElement('p');
+  p.id = 'dyn';
+  p.textContent = 'Hello world dynamic';
+  window.document.body.appendChild(p);
+  const r1 = await sendToContent({ type: 'lt:restore-page', payload: {} });
+  assert.equal(r1.ok, true, JSON.stringify(r1));
+  assert.equal(window.document.getElementById('dyn').textContent, 'Hello world dynamic');
+  const r2 = await sendToContent({ type: 'lt:translate-page', payload: { mode: 'replace' } });
+  assert.equal(r2.ok, true, JSON.stringify(r2));
+  assert.match(window.document.getElementById('dyn').textContent, /【译】Hello world dynamic/);
+});
+
+test('整页翻译：没翻译过就还原，不该报错', async () => {
+  const { window, sendToContent } = makeEnv();
+  await registerReady({ window });
+  const res = await sendToContent({ type: 'lt:restore-page', payload: {} });
+  assert.equal(res.ok, true, JSON.stringify(res));
+});
+
+/* ------------------------------ 划词翻译 ------------------------------ */
+
+test('划词翻译：连续两次选择，气泡必须换成新译文', async () => {
+  const { window, messages } = makeEnv();
+  await registerReady({ window });
+  const fire = (id) => {
+    const el = window.document.getElementById(id);
+    selectText(window, el);
+    el.dispatchEvent(new window.MouseEvent('mouseup', { bubbles: true, cancelable: true }));
+  };
+  fire('p1');
+  await waitFor(() => {
+    const b = bubbleEl(window);
+    return b && !b.hidden && b.textContent.includes('你好，世界');
+  }, '第一次译文');
+  fire('p2');
+  await waitFor(() => bubbleEl(window).textContent.includes('本地模型很棒。'), '第二次译文');
+  const bubble = bubbleEl(window);
+  assert.ok(!bubble.textContent.includes('你好，世界'), `气泡还留着上一次的译文：${bubble.textContent}`);
+  assert.equal(messages.filter((m) => m.type === 'lt:translate').length, 2, '应发出两次请求');
+});
+
+test('划词翻译：点页面空白处 / 按 Esc 都能收起气泡', async () => {
+  const { window } = makeEnv();
+  await registerReady({ window });
+  const p = window.document.getElementById('p1');
+  const fire = () => {
+    selectText(window, p);
+    p.dispatchEvent(new window.MouseEvent('mouseup', { bubbles: true, cancelable: true }));
+  };
+  fire();
+  await waitFor(() => {
+    const b = bubbleEl(window);
+    return b && !b.hidden && b.textContent.includes('你好，世界');
+  }, '气泡出现');
+
+  // 用户点页面别处（选区随之清空）→ 气泡要自己收起，不能一直糊在页面上
+  window.getSelection().removeAllRanges();
+  window.document.body.dispatchEvent(new window.MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+  await tick(20);
+  assert.ok(bubbleEl(window).hidden, '点击页面空白处后气泡应收起');
+
+  fire();
+  await waitFor(() => !bubbleEl(window).hidden, '气泡再次出现');
+  window.document.dispatchEvent(new window.KeyboardEvent('keyup', { key: 'Escape', bubbles: true }));
+  await tick(20);
+  assert.ok(bubbleEl(window).hidden, 'Esc 后气泡应收起');
+
+  // 还在转圈时就关掉（✕ 按钮）：迟到的译文不能把气泡又弹回来
+  fire();
+  await waitFor(() => {
+    const b = bubbleEl(window);
+    return b && !b.hidden && b.querySelector('.lt-state .lt-spin');
+  }, '气泡处于加载中');
+  click(window, bubbleEl(window).querySelector('.lt-close'));
+  assert.ok(bubbleEl(window).hidden, '点 ✕ 后气泡应立即收起');
+  await tick(80); // 等后台应答落地
+  assert.ok(bubbleEl(window).hidden, '迟到的译文不该把已关闭的气泡又弹回来');
+});
+
+test('划词翻译：解释结果缺正文时不该显示 undefined/null', async () => {
+  const { window, sendToContent } = makeEnv();
+  await registerReady({ window });
+  const p = window.document.getElementById('p1');
+  selectText(window, p);
+  await tick(20);
+  const res = await sendToContent({ type: 'lt:explain-selection', payload: {} });
+  assert.equal(res && res.ok, true, JSON.stringify(res));
+  const bubble = bubbleEl(window);
+  assert.ok(bubble && !bubble.hidden, '解释应弹出气泡');
+  assert.ok(!/undefined|null/.test(bubble.textContent), `气泡里出现了 undefined/null：${bubble.textContent}`);
+});
+
+/* ------------------------------ 转写面板 ------------------------------ */
+
+test('转写：追加模式 → 还原要回到原文', async () => {
+  const { window } = makeEnv({ inline: { inlineInsert: 'append' } });
+  const els = await inlineReady({ window });
+  const input = window.document.getElementById('i1');
+  typeInto(window, input, 'Hello world');
+  await waitFor(() => els.pill.hidden === false, '浮标出现');
+  click(window, els.pill);
+  await waitFor(() => els.out.textContent.includes('你好，世界'), '译文出现');
+  click(window, els.append);
+  await waitFor(() => input.value.includes('你好，世界'), '已追加译文');
+  assert.ok(input.value.includes('Hello world'), `追加模式必须保留原文：${JSON.stringify(input.value)}`);
+  click(window, els.undo);
+  await tick(20);
+  assert.equal(input.value, 'Hello world', `还原后应回到原文：${JSON.stringify(input.value)}`);
+});
+
+test('转写：设置实时下发 → 下一次请求带上新的目标语言', async () => {
+  const { window, sendToContent, streamStarts } = makeEnv();
+  const els = await inlineReady({ window });
+  const input = window.document.getElementById('i1');
+  typeInto(window, input, 'Hello world');
+  await waitFor(() => els.pill.hidden === false, '浮标出现');
+  click(window, els.pill);
+  await waitFor(() => els.out.textContent.includes('你好，世界'), '第一次译文');
+
+  const res = await sendToContent({ type: 'lt:settings-changed', payload: { targetLang: 'ja' } });
+  assert.equal(res && res.ok, true, JSON.stringify(res));
+  await tick(30);
+  typeInto(window, input, 'Hello world again');
+  await waitFor(
+    () => streamStarts.some((s) => s.target === 'ja'),
+    `设置下发后请求应带 target=ja：${JSON.stringify(streamStarts.map((s) => s.target))}`,
+  );
+});
+
+test('转写：设置把当前站点加进黑名单 → 浮标当场消失（不用刷新页面）', async () => {
+  const { window, sendToContent } = makeEnv();
+  const els = await inlineReady({ window });
+  const input = window.document.getElementById('i1');
+  typeInto(window, input, 'Hello world');
+  await waitFor(() => els.pill.hidden === false, '浮标出现');
+  const res = await sendToContent({ type: 'lt:settings-changed', payload: { inlineNeverSites: ['example.com'] } });
+  assert.equal(res && res.ok, true, JSON.stringify(res));
+  await tick(30);
+  typeInto(window, input, 'Hello world more');
+  await tick(50);
+  assert.ok(els.pill.hidden, `黑名单生效后浮标应隐藏：hidden=${els.pill.hidden}`);
+});
+
 /* ------------------------------ 运行 ------------------------------ */
 
 const ONLY = process.env.LT_ONLY || '';

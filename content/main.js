@@ -166,6 +166,15 @@
 
   let selectionRequest = 0;
 
+  /**
+   * 关闭划词气泡。必须顺带让在途请求作废：否则「还在转圈时按 Esc / 点空白处」
+   * 这种关闭动作会被迟到的译文推翻 —— 气泡刚被关掉又自己弹回来。
+   */
+  function dismissBubble() {
+    selectionRequest += 1;
+    ui.hideBubble();
+  }
+
   async function translateSelection(text, rect, { showSource = true, context = '' } = {}) {
     if (!state.settings) return;
     const req = ++selectionRequest;
@@ -702,7 +711,7 @@ async function samplePageText() {
     }
     if (!silent) {
       ui.hideProgress();
-      ui.hideBubble();
+      dismissBubble();
     }
     return true;
   }
@@ -960,6 +969,10 @@ async function samplePageText() {
       if (state.lastSelection) translateSelection(state.lastSelection.text, state.lastSelection.rect);
     });
     ui.on('explain', (text) => explainText(text || '', null));
+    // 气泡右上角的 ✕ 是 ui.js 自己隐藏的，这里只负责让在途请求作废（同 dismissBubble）
+    ui.on('close', () => {
+      selectionRequest += 1;
+    });
     ui.on('copied', (ok) => {
       if (!ok) console.warn('[本地翻译] 复制失败');
     });
@@ -969,10 +982,10 @@ async function samplePageText() {
       if (state.settings && state.settings.selectionDblclick) onMouseUp(e);
     }, true);
     document.addEventListener('keyup', (e) => {
-      if (e.key === 'Escape') ui.hideBubble();
+      if (e.key === 'Escape') dismissBubble();
       if (e.shiftKey && ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(e.key)) onMouseUp(e);
     });
-    ui.bindOutside(() => ui.hideBubble());
+    ui.bindOutside(() => dismissBubble());
 
     chrome.runtime.onMessage.addListener(onMessage);
 

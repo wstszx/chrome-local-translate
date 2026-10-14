@@ -459,8 +459,17 @@ async function handle(message, sender) {
       const target = typeof payload.tabId === 'number' ? payload.tabId : tabId;
       if (typeof target !== 'number') return { ok: false, error: '找不到目标标签页' };
       const live = await sendToTopFrame(target, { type: 'lt:status' });
-      if (live && live.ok) setTabState(target, { ...live, phase: live.phase });
-      return { ok: true, status: live && live.ok ? live : tabState.get(target) || null };
+      if (live && live.ok) {
+        // 实时状态只覆盖「它真的给了值」的字段：内容脚本的应答里没有 title，
+        // 整包盖上去会把注册时记下的 url/title 每次轮询都抹成 undefined。
+        const patch = {};
+        for (const key of Object.keys(live)) {
+          if (key === 'ok') continue;
+          if (live[key] !== undefined) patch[key] = live[key];
+        }
+        setTabState(target, patch);
+      }
+      return { ok: true, status: tabState.get(target) || null };
     }
     case 'lt:selection:translate':
     case 'lt:selection:explain': {

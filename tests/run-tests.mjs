@@ -19,6 +19,8 @@ import {
   chunkText,
   clearCache,
   detectLanguage,
+  getCached,
+  putCache,
   ensureNanoModel,
   humanizeError,
   parseGlossary,
@@ -31,6 +33,7 @@ import {
   __internals,
 } from '../lib/engine.js';
 import { detectByHeuristic, langLabel, looksTranslatable, normalizeCode, needsSpace } from '../lib/languages.js';
+import { DEFAULT_SETTINGS, sanitizePatch, sanitizeSettings, sanitizeValue } from '../lib/settings.js';
 import { CLAIM_TTL, isClaimUsable, pickBestResponse, scoreResponse, summarizeFrames } from '../lib/frames.js';
 
 /* ------------------------------ 迷你测试框架 ------------------------------ */
@@ -269,6 +272,51 @@ test('chunkText 短文本原样返回', () => {
   assert.equal(chunks[0].text, 'Hello 世界');
 });
 
+test('chunkText 精确往返：切开再拼回一字不差（句子之间的空格不能丢）', () => {
+  const { joinParts } = __internals;
+  const norm = (t) => t.trim().replace(/\s*\n\s*/g, '\n');
+  const cases = [
+    'The quick brown fox jumps over the lazy dog. '.repeat(60),
+    `Hello world 这是一段中英混合的文本 with latin words inside. ${'More sentences follow here. '.repeat(30)}`,
+    '这是一个用来测试分段的句子。'.repeat(60),
+    `${'First paragraph ends here. '.repeat(20)}\n\n${'Second paragraph ends here. '.repeat(20)}`,
+    'word '.repeat(400), // 没有句号的超长文本（只能硬切）
+  ];
+  for (const text of cases) {
+    for (const max of [60, 120, 500]) {
+      const chunks = chunkText(text, max);
+      for (const c of chunks) assert.ok(c.text.length <= max, `分段超长: ${c.text.length}`);
+      const joined = joinParts(chunks, chunks.map((c) => c.text));
+      assert.equal(norm(joined), norm(text), `max=${max} 拼回去内容不一致`);
+      assert.ok(!/[a-z][A-Z]/.test(joined), '不该把单词粘在一起');
+    }
+  }
+});
+
+test('normalizeCode + langLabel：繁体代码不会被标成简体', () => {
+  for (const tag of ['zh-TW', 'zh-HK', 'zh-Hant', 'zh_MO', 'zh-Hant-TW']) {
+    const code = normalizeCode(tag);
+    assert.equal(code, 'zh-Hant', `${tag} 应归一为 zh-Hant，实际 ${code}`);
+    assert.match(langLabel(code), /繁/, `${tag} 的标签不该显示成简体：${langLabel(code)}`);
+  }
+  assert.equal(normalizeCode('zh-CN'), 'zh');
+  assert.match(langLabel(normalizeCode('zh-CN')), /简/);
+});
+
+test('joinParts：优先照抄分块时记下的原文分隔符，没有记录才靠启发式', () => {
+  const { joinParts } = __internals;
+  // 生产路径：chunkText 会把「原文里这两块之间是什么分隔符」记在 sep 上
+  const mk = (sep) => [{ text: 'a', para: false, sep: '' }, { text: 'b', para: false, sep }];
+  assert.equal(joinParts(mk(' '), ['(see below)', 'Next part.']), '(see below) Next part.', '原文有空格就补空格');
+  assert.equal(joinParts(mk(''), ['(see below)', 'Next part.']), '(see below)Next part.', '原文没空格就粘着');
+  assert.equal(joinParts(mk(''), ['价值 3.', '14 元']), '价值 3.14 元', '小数本来就连写');
+  // 兜底路径：没有 sep 记录时（如流式中途拼装）按启发式判定
+  const two = [{ text: 'a', para: false }, { text: 'b', para: false }];
+  assert.equal(joinParts(two, ['He said "the end."', 'Next sentence.']), 'He said "the end." Next sentence.', '引号收尾也要认出句号');
+  assert.equal(joinParts(two, ['«终章»', '下一章']), '«终章»下一章', 'CJK 之间不补空格');
+  assert.equal(joinParts(two, ['一半', 'The other half.']), '一半The other half.');
+});
+
 /* ------------------------------ 术语表 / 提示词 ------------------------------ */
 
 test('parseGlossary 支持多种写法', () => {
@@ -279,6 +327,16 @@ test('parseGlossary 支持多种写法', () => {
     { from: 'c', to: '丙' },
     { from: 'd', to: '丁' },
   ]);
+});
+
+test('parseGlossary：注释 / 空行 / 数组 / 非字符串都安全', () => {
+  assert.deepEqual(parseGlossary('# 注释\n\n   \n只有一列'), []);
+  assert.deepEqual(parseGlossary(['a=1', 'b:2']), [
+    { from: 'a', to: '1' },
+    { from: 'b', to: '2' },
+  ]);
+  assert.deepEqual(parseGlossary(null), []);
+  assert.deepEqual(parseGlossary(123), []);
 });
 
 test('buildSystemPrompt 包含目标语言、语气与术语表', () => {
@@ -432,6 +490,37 @@ test('长文本会自动分段后合并（CJK 用拼接不插空格）', async (
   assert.ok(calls.length > 2, `应多次调用，实际 ${calls.length}`);
   assert.ok(res.text.includes('«'), '每段译文都带标记');
   assert.ok(!/。\s*。/.test(res.text));
+});
+
+test('分段翻译的合并结果与不分段一字不差（回归：曾把 "dog." 和 "The" 粘成 "dog.The"）', async () => {
+  resetGlobals();
+  installFakeTranslator();
+  // 假翻译器只是把原文大写并给每段套上 «» —— 于是「分段再合并」应当与原文一字不差
+  const strip = (t) => t.replace(/[«»]/g, '');
+  const norm = (t) => t.trim().replace(/\s*\n\s*/g, '\n');
+  const cases = [
+    ['The quick brown fox jumps over the lazy dog. '.repeat(60), 'en', 'de'],
+    [`Hello world 这是一段中英混合的文本 with latin words inside. ${'More sentences follow here. '.repeat(30)}`, 'en', 'zh'],
+    ['这是一个用来测试分段的句子。'.repeat(60), 'zh', 'en'],
+  ];
+  for (const [text, source, target] of cases) {
+    const res = await translate({ text, source, target, maxChars: 150, useCache: false });
+    assert.equal(norm(strip(res.text)), norm(text.toUpperCase()), `${source}->${target} 合并结果与原文不一致`);
+  }
+  resetGlobals();
+});
+
+test('分段流式翻译的合并结果同样一字不差', async () => {
+  resetGlobals();
+  installFakeTranslator();
+  const text = 'The quick brown fox jumps over the lazy dog. '.repeat(60);
+  let last = '';
+  for await (const acc of translateStream({ text, source: 'en', target: 'fr', maxChars: 150, useCache: false })) {
+    last = acc;
+  }
+  const norm = (t) => t.trim().replace(/\s*\n\s*/g, '\n');
+  assert.equal(norm(last.replace(/[«»]/g, '')), norm(text.toUpperCase()), '流式分段合并结果与原文不一致');
+  resetGlobals();
 });
 
 test('首次使用且没有用户手势 → need-gesture', async () => {
@@ -1228,10 +1317,54 @@ test('上下文检测：区分「真的失效」和「后台瞬时断线」（�
   assert.equal(gone.isContextGone(null), true);
 });
 
-test('上下文检测：给用户的说明必须是中文、且包含「刷新」这个动作', () => {  const text = CU.staleText();
+test('上下文检测：给用户的说明必须是中文、且包含「刷新」这个动作', () => {
+  const text = CU.staleText();
   assert.equal(typeof text, 'string');
   assert.match(text, /刷新/);
   assert.equal(/[A-Za-z]{6,}/.test(text.replace(/chrome:\/\/extensions/g, '')), false, '不要夹英文报错原文');
+});
+
+test('缓存：非字符串 text 也能读写（不抛错，且与同内容字符串同键）', async () => {
+  resetGlobals();
+  await putCache(12345, 'NUM', { engine: 'auto', source: 'auto', target: 'zh' });
+  assert.equal(await getCached(12345, { engine: 'auto', source: 'auto', target: 'zh' }), 'NUM', '数字不该让 putCache 抛 TypeError');
+  assert.equal(await getCached('12345', { engine: 'auto', source: 'auto', target: 'zh' }), 'NUM', '数字与其字符串形式应同键');
+  await putCache('12345', 'STR', { engine: 'auto', source: 'auto', target: 'zh' });
+  assert.equal(await getCached(12345, { engine: 'auto', source: 'auto', target: 'zh' }), 'STR', '后写覆盖前写');
+  await putCache(null, 'NULL', { engine: 'auto', source: 'auto', target: 'zh' });
+  assert.equal(await getCached(undefined, { engine: 'auto', source: 'auto', target: 'zh' }), 'NULL', 'null 与 undefined 视作同一个空串');
+  resetGlobals();
+});
+
+/* ------------------------------ 设置消毒 ------------------------------ */
+
+test('设置消毒：非法值被拒、合法值原样保留、超范围数字夹紧', () => {
+  const cur = { ...DEFAULT_SETTINGS };
+  assert.equal(sanitizeValue('targetLang', 'ja', cur.targetLang), 'ja');
+  assert.equal(sanitizeValue('targetLang', 'zh-TW', cur.targetLang), 'zh-TW', '繁体代码要放行');
+  assert.equal(sanitizeValue('targetLang', 12345, cur.targetLang), 'zh', '数字目标语言要被拒');
+  assert.equal(sanitizeValue('targetLang', 'xx-YY', cur.targetLang), 'zh', '未知语言要被拒');
+  assert.equal(sanitizeValue('inlineTargetLang', '', 'zh'), '', '空串 = 跟随主语言');
+  assert.equal(sanitizeValue('maxNodes', 'abc', 3000), 3000, '字符串节点上限要被拒');
+  assert.equal(sanitizeValue('maxNodes', 500, 3000), 500);
+  assert.equal(sanitizeValue('maxNodes', 999999, 3000), 20000, '超范围要夹紧');
+  assert.equal(sanitizeValue('inlineEnabled', 'yes', true), true, '字符串布尔要被拒');
+  assert.equal(sanitizeValue('inlineInsert', 'copy', 'replace'), 'copy');
+  assert.equal(sanitizeValue('inlineInsert', 'banana', 'replace'), 'replace', '枚举外的值要被拒');
+  assert.equal(sanitizeValue('inlineNeverSites', ['a.com', 5, ' '], []).join(','), 'a.com', '列表里的脏项要滤掉');
+  assert.equal(sanitizeValue('没有这个键', 1, 'x'), 'x', '未知键丢弃');
+});
+
+test('设置消毒：patch 只保留合法键，读 storage 时把脏值纠正回默认值', () => {
+  const patch = sanitizePatch({ ...DEFAULT_SETTINGS }, { targetLang: 'ja', engine: 'nope', maxNodes: 'abc', bogus: 1 });
+  assert.deepEqual(patch, { targetLang: 'ja', engine: 'auto', maxNodes: 3000 });
+  const out = sanitizeSettings({ targetLang: 42, maxNodes: 'x', inlineMode: 'weird', glossary: 'a=b', bogus: 1 });
+  assert.equal(out.targetLang, 'zh');
+  assert.equal(out.maxNodes, 3000);
+  assert.equal(out.inlineMode, 'button');
+  assert.equal(out.glossary, 'a=b');
+  assert.equal('bogus' in out, false, '不该把未知键带出来');
+  assert.equal(out.skipSameLang, true, '没提到的键应保持默认值');
 });
 
 /* ------------------------------ 运行 ------------------------------ */

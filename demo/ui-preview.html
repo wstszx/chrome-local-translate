@@ -1525,6 +1525,7 @@ blockquote > .lt-dual-translation {
     bubble.querySelector('.lt-close').addEventListener('click', (e) => {
       e.stopPropagation();
       hideBubble();
+      emit('close'); // 让主脚本作废在途请求，避免迟到的译文又把气泡弹回来
     });
     bubble.querySelector('.lt-copy').addEventListener('click', async (e) => {
       e.stopPropagation();
@@ -3561,7 +3562,10 @@ blockquote > .lt-dual-translation {
       refreshTheme();
       refreshLiveButton();
       refreshLanguageSelect();
-      if (!state.settings.inlineEnabled || state.settings.inlineMode === 'off') closePanel();
+      if (!state.settings.inlineEnabled || state.settings.inlineMode === 'off' || siteBlocked()) closePanel();
+      // 浮标也要按新设置立刻重算：点了「不再在此站显示」后黑名单是广播回来的，
+      // 不在这里收一次，浮标就会一直挂到刷新页面为止；目标语言改了标签同样要跟着换。
+      if (root) updatePill();
       return false;
     }
 
@@ -3911,6 +3915,15 @@ blockquote > .lt-dual-translation {
   /* ----------------------------- 划词气泡 ----------------------------- */
 
   let selectionRequest = 0;
+
+  /**
+   * 关闭划词气泡。必须顺带让在途请求作废：否则「还在转圈时按 Esc / 点空白处」
+   * 这种关闭动作会被迟到的译文推翻 —— 气泡刚被关掉又自己弹回来。
+   */
+  function dismissBubble() {
+    selectionRequest += 1;
+    ui.hideBubble();
+  }
 
   async function translateSelection(text, rect, { showSource = true, context = '' } = {}) {
     if (!state.settings) return;
@@ -4448,7 +4461,7 @@ async function samplePageText() {
     }
     if (!silent) {
       ui.hideProgress();
-      ui.hideBubble();
+      dismissBubble();
     }
     return true;
   }
@@ -4706,6 +4719,10 @@ async function samplePageText() {
       if (state.lastSelection) translateSelection(state.lastSelection.text, state.lastSelection.rect);
     });
     ui.on('explain', (text) => explainText(text || '', null));
+    // 气泡右上角的 ✕ 是 ui.js 自己隐藏的，这里只负责让在途请求作废（同 dismissBubble）
+    ui.on('close', () => {
+      selectionRequest += 1;
+    });
     ui.on('copied', (ok) => {
       if (!ok) console.warn('[本地翻译] 复制失败');
     });
@@ -4715,10 +4732,10 @@ async function samplePageText() {
       if (state.settings && state.settings.selectionDblclick) onMouseUp(e);
     }, true);
     document.addEventListener('keyup', (e) => {
-      if (e.key === 'Escape') ui.hideBubble();
+      if (e.key === 'Escape') dismissBubble();
       if (e.shiftKey && ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(e.key)) onMouseUp(e);
     });
-    ui.bindOutside(() => ui.hideBubble());
+    ui.bindOutside(() => dismissBubble());
 
     chrome.runtime.onMessage.addListener(onMessage);
 
