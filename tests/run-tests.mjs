@@ -1041,6 +1041,34 @@ test('humanizeError 给出中文可读提示', () => {
   assert.match(humanizeError({ code: 'unsupported-pair' }), /不支持/);
   assert.match(humanizeError(Object.assign(new Error('x'), { name: 'AbortError' })), /取消/);
   assert.match(humanizeError(new Error('weird')), /weird/);
+  const chromeGeneric = Object.assign(new Error('Other generic failures occurred.'), { name: 'UnknownError' });
+  assert.match(humanizeError(chromeGeneric), /重置本地会话/);
+  // 不要把原始英文消息拼两遍
+  assert.equal(humanizeError({ code: 'generic-failure', detail: 'Other generic failures occurred.' }).match(/Other generic failures/g).length, 1);
+});
+
+test('内置翻译的通用内部错误会重建会话重试一次', async () => {
+  resetGlobals();
+  let created = 0;
+  globalThis.Translator = {
+    async availability() {
+      return 'available';
+    },
+    async create() {
+      created += 1;
+      const broken = created === 1;
+      return {
+        inputQuota: 5000,
+        async translate(text) {
+          if (broken) throw Object.assign(new Error('Other generic failures occurred.'), { name: 'UnknownError' });
+          return `«${text}»`;
+        },
+      };
+    },
+  };
+  const res = await translate({ text: 'retry after generic failure', source: 'en', target: 'de', useCache: false });
+  assert.equal(res.text, '«retry after generic failure»');
+  assert.equal(created, 2);
 });
 
 test('AbortSignal 能中断长文本翻译', async () => {
