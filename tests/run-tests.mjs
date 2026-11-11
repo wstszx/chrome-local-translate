@@ -281,6 +281,8 @@ test('chunkText 精确往返：切开再拼回一字不差（句子之间的空�
     '这是一个用来测试分段的句子。'.repeat(60),
     `${'First paragraph ends here. '.repeat(20)}\n\n${'Second paragraph ends here. '.repeat(20)}`,
     'word '.repeat(400), // 没有句号的超长文本（只能硬切）
+    // 句间空格不一致：回归——sep 的归属曾错位一格，分块边界会丢/多空格
+    `${'A'.repeat(20)}. ${'B'.repeat(20)}. ${'C'.repeat(20)}. ${'D'.repeat(20)}.${'E'.repeat(20)}.`,
   ];
   for (const text of cases) {
     for (const max of [60, 120, 500]) {
@@ -305,8 +307,8 @@ test('normalizeCode + langLabel：繁体代码不会被标成简体', () => {
 
 test('joinParts：优先照抄分块时记下的原文分隔符，没有记录才靠启发式', () => {
   const { joinParts } = __internals;
-  // 生产路径：chunkText 会把「原文里这两块之间是什么分隔符」记在 sep 上
-  const mk = (sep) => [{ text: 'a', para: false, sep: '' }, { text: 'b', para: false, sep }];
+  // 生产路径：chunkText 把「本块与下一块之间的原文分隔符」记在**前一块**的 sep 上
+  const mk = (sep) => [{ text: 'a', para: false, sep }, { text: 'b', para: false, sep: '' }];
   assert.equal(joinParts(mk(' '), ['(see below)', 'Next part.']), '(see below) Next part.', '原文有空格就补空格');
   assert.equal(joinParts(mk(''), ['(see below)', 'Next part.']), '(see below)Next part.', '原文没空格就粘着');
   assert.equal(joinParts(mk(''), ['价值 3.', '14 元']), '价值 3.14 元', '小数本来就连写');
@@ -1373,6 +1375,10 @@ test('设置消毒：非法值被拒、合法值原样保留、超范围数字�
   assert.equal(sanitizeValue('targetLang', 12345, cur.targetLang), 'zh', '数字目标语言要被拒');
   assert.equal(sanitizeValue('targetLang', 'xx-YY', cur.targetLang), 'zh', '未知语言要被拒');
   assert.equal(sanitizeValue('inlineTargetLang', '', 'zh'), '', '空串 = 跟随主语言');
+  assert.equal(sanitizeValue('targetLang', 'auto', cur.targetLang), 'zh', '目标语言不能是「自动检测」');
+  assert.equal(sanitizeValue('inlineTargetLang', 'auto', 'zh'), 'zh', '转写目标语言不能是「自动检测」');
+  assert.equal(sanitizeValue('sourceLang', 'auto', cur.sourceLang), 'auto', '源语言允许自动检测');
+  assert.equal(sanitizeValue('tone', 'academic', cur.tone), 'academic', '学术语气必须能保存');
   assert.equal(sanitizeValue('maxNodes', 'abc', 3000), 3000, '字符串节点上限要被拒');
   assert.equal(sanitizeValue('maxNodes', 500, 3000), 500);
   assert.equal(sanitizeValue('maxNodes', 999999, 3000), 20000, '超范围要夹紧');

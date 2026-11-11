@@ -4349,6 +4349,7 @@ async function samplePageText() {
         if (token !== state.token) return { ok: false, error: 'aborted' };
         const slice = sorted.slice(i, i + BATCH_SIZE);
         let res = null;
+        let fatal = '';
         try {
           res = await sendBG({
             type: 'lt:translateBatch',
@@ -4365,8 +4366,18 @@ async function samplePageText() {
           });
         } catch (err) {
           res = null;
+          // 后台断开 / 上下文失效等原因必须留下来，否则用户只看到「失败 N 段」
+          fatal = normalizeErr(err).message;
         }
         if (token !== state.token) return { ok: false, error: 'aborted' };
+        // 整批请求都没有应答（不是个别段落失败）：立刻停手，别对剩下的每一批
+        // 重复失败——并把原因报给用户。
+        if (!res || res.ok === false) {
+          state.lastError = fatal || (res && res.error) || '后台没有应答';
+          failed += total - done;
+          done = total;
+          break;
+        }
         const results = (res && res.results) || [];
         slice.forEach((it, idx) => {
           const r = results[idx];

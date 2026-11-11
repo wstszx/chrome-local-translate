@@ -485,7 +485,7 @@ async function explainCurrent() {
   setOutMeta('Gemini Nano 解释中…');
   setOutput('<span class="spinner"></span>', true);
   try {
-    const res = await send({ type: 'lt:explain', payload: { text, lang: settings.uiLang } });
+    const res = await send({ type: 'lt:explain', payload: { text, lang: (settings && settings.uiLang) || 'zh' } });
     setOutput(renderText(res.text));
     setOutMeta('Gemini Nano 解释');
   } catch (err) {
@@ -598,7 +598,7 @@ async function translateSelection(explain = false) {
       return;
     }
     if (explain) {
-      const res = await send({ type: 'lt:explain', payload: { text, lang: settings.uiLang } });
+      const res = await send({ type: 'lt:explain', payload: { text, lang: (settings && settings.uiLang) || 'zh' } });
       box.innerHTML = `<div class="muted small">Gemini Nano 解释：</div>${renderText(res.text)}`;
     } else {
       const res = await send({ type: 'lt:translate', payload: { text, source: 'auto', target: $('tgt-lang').value } });
