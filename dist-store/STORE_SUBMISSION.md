@@ -1,6 +1,6 @@
-# Chrome Web Store 上架资料（1.5.5）
+# Chrome Web Store 上架资料（1.5.6）
 
-> 已打包：`dist-store/chrome-local-translate-1.5.5.zip`（141.5 KB，manifest.json 在包根）
+> 已打包：`dist-store/chrome-local-translate-1.5.6.zip`（manifest.json 在包根，含 Translator API 官方语言列表对齐：新增 kn、mr）
 > 已通过：`npm run validate` + `npm test`（72/72 + 16/16）
 > 已修正：`privacy.html` 第二节「不收集」——与代码实际行为一致（零网络请求），否则数据安全申报对不上。
 
@@ -57,7 +57,7 @@
 
 ## 3. 提交前 checklist
 
-- [x] `manifest.json` MV3，版本 1.5.5，`npm run validate` 通过
+- [x] `manifest.json` MV3，版本 1.5.6，`npm run validate` 通过
 - [x] ZIP 内只有生产文件（无 node_modules / tests / demo / docs）
 - [x] `privacy.html` 已换真实邮箱 `mywstszx@gmail.com`
 - [ ] `privacy.html` 已托管到公开 URL，并把该 URL 填入商店表单
