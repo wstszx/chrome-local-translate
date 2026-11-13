@@ -34,8 +34,13 @@ function makeChrome() {
     get: async (key) => {
       if (typeof key === 'string') return { [key]: obj[key] };
       if (key == null) return { ...obj };
+      if (Array.isArray(key)) {
+        const out = {};
+        for (const k of key) out[k] = obj[k];
+        return out;
+      }
       const out = {};
-      for (const k of Object.keys(key)) out[k] = obj[k];
+      for (const k of Object.keys(key)) out[k] = obj[k] !== undefined ? obj[k] : key[k];
       return out;
     },
     set: async (o) => { Object.assign(obj, o); },

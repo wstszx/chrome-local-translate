@@ -23,6 +23,7 @@
     <nav class="tabs">
       <button type="button" class="tab-btn active" data-tab="text">文本</button>
       <button type="button" class="tab-btn" data-tab="page">页面</button>
+      <button type="button" class="tab-btn" data-tab="history">历史</button>
       <button type="button" class="tab-btn" data-tab="settings">设置</button>
     </nav>
 
@@ -79,6 +80,21 @@
           </div>
           <div class="progress"><i id="page-bar"></i></div>
           <div class="muted small" id="page-status">未翻译</div>
+          <div class="muted small" id="page-guide" hidden></div>
+        </div>
+
+        <div class="card">
+          <div class="label">此站点偏好 <span class="muted small" id="site-host">—</span></div>
+          <div class="muted small" id="site-pref-summary">尚未为此站点保存偏好。</div>
+          <div class="row">
+            <button type="button" class="grow" id="site-save-pref">记住当前语言/模式</button>
+            <button type="button" id="site-clear-pref">清除此站点偏好</button>
+          </div>
+          <div class="row">
+            <button type="button" class="grow" id="site-toggle-auto">此站点自动翻译：关</button>
+            <button type="button" id="site-toggle-never">加入永不翻译</button>
+          </div>
+          <p class="hint">按站点记住目标语言、显示模式与自动翻译策略（仅保存在本机），可减少重复设置。</p>
         </div>
 
         <div class="card">
@@ -112,6 +128,20 @@
             </div>
           </div>
         </div>
+      </section>
+
+      <!-- ============================ 历史 ============================ -->
+      <section class="tab-panel" id="tab-history">
+        <div class="card">
+          <div class="label">翻译历史 <span class="muted small">（仅保存在本机）</span></div>
+          <label class="chk"><input type="checkbox" id="history-enabled" /> 保存翻译与解释记录</label>
+          <div class="row">
+            <button type="button" class="grow" id="history-refresh">刷新</button>
+            <button type="button" id="history-clear">清空历史</button>
+          </div>
+          <p class="hint">最近记录会显示在下方，点击“载入”可放回文本页继续编辑或回译。</p>
+        </div>
+        <div id="history-list" class="history-list"></div>
       </section>
 
       <!-- ============================ 设置 ============================ -->

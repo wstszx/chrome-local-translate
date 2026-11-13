@@ -145,6 +145,7 @@ function syncForm() {
   $('skip-same-lang').checked = settings.skipSameLang !== false;
   $('concurrency').value = String(settings.concurrency);
   $('cache-enabled').checked = settings.cacheEnabled !== false;
+  if ($('history-enabled')) $('history-enabled').checked = settings.historyEnabled !== false;
   $('theme').value = settings.theme;
   document.documentElement.dataset.theme = settings.theme || 'auto';
   document.documentElement.lang = settings.uiLang === 'en' ? 'en' : 'zh-CN';
@@ -506,6 +507,104 @@ async function explainCurrent() {
 
 /* ------------------------------ 页面翻译 ------------------------------ */
 
+function activeHost() {
+  if (!activeTab || !activeTab.url) return '';
+  try {
+    return new URL(activeTab.url).hostname.toLowerCase();
+  } catch (err) {
+    return '';
+  }
+}
+
+function getSitePref(host) {
+  if (!host || !settings || !settings.sitePrefs) return null;
+  return settings.sitePrefs[host] || null;
+}
+
+function renderSitePrefUI() {
+  const host = activeHost();
+  const hostEl = $('site-host');
+  const summary = $('site-pref-summary');
+  const btnAuto = $('site-toggle-auto');
+  const btnNever = $('site-toggle-never');
+  if (hostEl) hostEl.textContent = host || '—';
+  const pref = getSitePref(host);
+  if (!host) {
+    if (summary) summary.textContent = '当前标签页不支持站点偏好。';
+    if (btnAuto) { btnAuto.disabled = true; btnAuto.textContent = '此站点自动翻译：—'; }
+    if (btnNever) { btnNever.disabled = true; btnNever.textContent = '加入永不翻译'; }
+    return;
+  }
+  if (btnAuto) btnAuto.disabled = false;
+  if (btnNever) btnNever.disabled = false;
+  const parts = [];
+  if (pref) {
+    if (pref.targetLang) parts.push(`目标：${langLabel(pref.targetLang)}`);
+    if (pref.sourceLang) parts.push(`源：${pref.sourceLang === 'auto' ? '自动' : langLabel(pref.sourceLang)}`);
+    if (pref.displayMode) parts.push(`模式：${pref.displayMode === 'dual' ? '双语' : pref.displayMode === 'hover' ? '悬停' : '替换'}`);
+    if (pref.autoTranslate === true) parts.push('自动翻译：开');
+    if (pref.autoTranslate === false) parts.push('自动翻译：关');
+    if (pref.neverTranslate) parts.push('永不翻译：开');
+  }
+  if (summary) summary.textContent = parts.length ? parts.join(' · ') : '尚未为此站点保存偏好。';
+  const autoOn = !!(pref && pref.autoTranslate);
+  const neverOn = !!(pref && pref.neverTranslate);
+  if (btnAuto) btnAuto.textContent = `此站点自动翻译：${autoOn ? '开' : '关'}`;
+  if (btnNever) btnNever.textContent = neverOn ? '从永不翻译移除' : '加入永不翻译';
+}
+
+async function updateSitePrefForActive(mutator) {
+  const host = activeHost();
+  if (!host) return;
+  const current = { ...(settings && settings.sitePrefs ? settings.sitePrefs : {}) };
+  const prev = { ...(current[host] || {}) };
+  const next = mutator(prev) || {};
+  const cleaned = {};
+  if (next.targetLang) cleaned.targetLang = next.targetLang;
+  if (next.sourceLang) cleaned.sourceLang = next.sourceLang;
+  if (next.displayMode) cleaned.displayMode = next.displayMode;
+  if (next.autoTranslate === true || next.autoTranslate === false) cleaned.autoTranslate = next.autoTranslate;
+  if (next.neverTranslate === true || next.neverTranslate === false) cleaned.neverTranslate = next.neverTranslate;
+  if (Object.keys(cleaned).length) current[host] = cleaned;
+  else delete current[host];
+  settings = (await send({ type: 'lt:settings:set', payload: { patch: { sitePrefs: current } } })).settings;
+  renderSitePrefUI();
+}
+
+function formatHistoryTime(ts) {
+  try { return new Date(ts).toLocaleString(); } catch (err) { return ''; }
+}
+
+async function loadHistory() {
+  const listEl = $('history-list');
+  if (!listEl) return;
+  listEl.innerHTML = '<div class="muted small"><span class="spinner"></span>加载中…</div>';
+  try {
+    const res = await send({ type: 'lt:history:get' });
+    const items = (res && res.items) || [];
+    if (!items.length) {
+      listEl.innerHTML = '<div class="muted small">暂无历史记录。翻译或解释后会在此显示最近内容（仅本机保存）。</div>';
+      return;
+    }
+    listEl.innerHTML = items.map((it) => {
+      const meta = [formatHistoryTime(it.at), it.kind === 'explain' ? '解释' : '翻译', it.engine || '', it.sourceLang && it.targetLang ? `${langLabel(it.sourceLang)} → ${langLabel(it.targetLang)}` : ''].filter(Boolean).join(' · ');
+      return `<div class="history-item" data-id="${escapeHtml(it.id)}">
+        <div class="history-meta">${escapeHtml(meta)}</div>
+        <div class="history-text">${escapeHtml(String(it.text || '').slice(0, 400))}</div>
+        <div class="history-trans">${escapeHtml(String(it.translation || '').slice(0, 600))}</div>
+        <div class="history-actions">
+          <button type="button" class="mini" data-action="load" data-id="${escapeHtml(it.id)}">载入</button>
+          <button type="button" class="mini" data-action="copy" data-id="${escapeHtml(it.id)}">复制译文</button>
+          <button type="button" class="mini" data-action="remove" data-id="${escapeHtml(it.id)}">删除</button>
+        </div>
+      </div>`;
+    }).join('');
+    listEl._items = items;
+  } catch (err) {
+    listEl.innerHTML = `<div class="muted small">加载失败：${escapeHtml(err.message)}</div>`;
+  }
+}
+
 async function refreshActiveTab() {
   try {
     const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
@@ -518,10 +617,12 @@ async function refreshActiveTab() {
   if (!activeTab) {
     titleEl.textContent = '无活动标签页';
     urlEl.textContent = '';
+    renderSitePrefUI();
     return;
   }
   titleEl.textContent = activeTab.title || '（无标题）';
   urlEl.textContent = activeTab.url || '';
+  renderSitePrefUI();
   await refreshPageStatus();
 }
 
@@ -550,17 +651,36 @@ function renderPageStatus() {
   } else {
     bar.style.width = '0%';
   }
+  const target = st.target || (settings && settings.targetLang) || '';
+  const modeLabel = st.mode === 'dual' ? '双语对照' : st.mode === 'hover' ? '悬停对照' : st.mode === 'replace' ? '替换原文' : '';
   const label =
     phase === 'working'
-      ? `翻译中… ${st.done || 0}/${st.total || '?'} 段`
+      ? `翻译中：${st.done || 0}/${st.total || '?'} 段${modeLabel ? ` · ${modeLabel}` : ''}`
       : phase === 'done'
-        ? `已翻译 ${st.translated || st.nodes || 0} 段${st.mode === 'hover' ? '（悬停对照模式）' : ''}${st.sourceLang ? ` · ${langLabel(st.sourceLang)} → ${langLabel(st.target || '')}` : ''}`
+        ? `已翻译 ${st.translated || st.nodes || 0} 段${modeLabel ? ` · ${modeLabel}` : ''}${st.sourceLang ? ` · ${langLabel(st.sourceLang)} → ${langLabel(target)}` : ''}${st.failed ? ` · 失败 ${st.failed} 段` : ''}`
         : st.error
           ? `失败：${st.error}`
           : '未翻译';
   $('page-status').textContent = label;
-}
 
+  const guide = $('page-guide');
+  if (guide) {
+    let tip = '';
+    if (phase === 'working') {
+      tip = '正在本地翻译当前页面。你可以稍候查看进度；如长时间无响应，可在“设置 > 性能与显示”重置本地会话后重试。';
+    } else if (phase === 'done') {
+      tip = st.mode === 'hover'
+        ? '悬停对照已启用：将鼠标移到段落上查看译文。需要固定译文可改用“翻译整页”或“双语对照”。'
+        : '翻译完成。可使用“还原原文”恢复页面，或在下方为此站点记住偏好以便下次自动应用。';
+    } else if (st.error) {
+      tip = '翻译失败：请检查当前页面是否可注入脚本（chrome:// 等页面不支持）、语言包/模型是否就绪，或点击“刷新状态/重新检测”。';
+    } else {
+      tip = '未翻译：可点击“翻译整页”“双语对照”或“悬停对照”。若希望下次自动处理此站点，可在下方保存站点偏好。';
+    }
+    guide.textContent = tip;
+    guide.hidden = false;
+  }
+}
 async function translatePage(mode) {
   if (!activeTab || typeof activeTab.id !== 'number') return;
   $('page-translate').disabled = true;
@@ -863,6 +983,7 @@ function bindEvents() {
         refreshActiveTab();
         refreshModelList();
       }
+      if (name === 'history') loadHistory();
       if (name === 'settings') refreshDiag();
     });
   });
@@ -933,6 +1054,7 @@ function bindEvents() {
   // 性能与显示
   $('concurrency').addEventListener('change', () => patchSettings({ concurrency: Number($('concurrency').value) || 2 }));
   $('cache-enabled').addEventListener('change', () => patchSettings({ cacheEnabled: $('cache-enabled').checked }));
+  // (history-enabled listener added in history section if present)
   $('cache-clear').addEventListener('click', async () => {
     await send({ type: 'lt:cache:clear' });
     const size = await send({ type: 'lt:cache:size' });
@@ -1027,6 +1149,67 @@ function bindEvents() {
   });
   $('sel-translate').addEventListener('click', () => translateSelection(false));
   $('sel-explain').addEventListener('click', () => translateSelection(true));
+
+  $('site-save-pref').addEventListener('click', () => updateSitePrefForActive((prev) => ({
+    ...prev,
+    targetLang: $('tgt-lang').value,
+    sourceLang: $('src-lang').value,
+    displayMode: $('display-mode').value,
+  })));
+  $('site-clear-pref').addEventListener('click', () => updateSitePrefForActive(() => ({})));
+  $('site-toggle-auto').addEventListener('click', () => updateSitePrefForActive((prev) => ({
+    ...prev,
+    autoTranslate: !(prev && prev.autoTranslate),
+    neverTranslate: !(prev && prev.autoTranslate) ? false : !!(prev && prev.neverTranslate),
+  })));
+  $('site-toggle-never').addEventListener('click', () => updateSitePrefForActive((prev) => ({
+    ...prev,
+    neverTranslate: !(prev && prev.neverTranslate),
+    autoTranslate: !(prev && prev.neverTranslate) ? false : !!(prev && prev.autoTranslate),
+  })));
+
+  // 历史
+  if ($('history-enabled')) {
+    $('history-enabled').addEventListener('change', () => patchSettings({ historyEnabled: $('history-enabled').checked }));
+  }
+  if ($('history-refresh')) $('history-refresh').addEventListener('click', loadHistory);
+  if ($('history-clear')) $('history-clear').addEventListener('click', async () => {
+    await send({ type: 'lt:history:clear' });
+    loadHistory();
+  });
+  if ($('history-list')) {
+    $('history-list').addEventListener('click', async (e) => {
+      const btn = e.target.closest('button[data-action]');
+      if (!btn) return;
+      const action = btn.dataset.action;
+      const id = btn.dataset.id;
+      const items = $('history-list')._items || [];
+      const item = items.find((x) => x.id === id);
+      if (action === 'remove') {
+        await send({ type: 'lt:history:remove', payload: { id } });
+        loadHistory();
+        return;
+      }
+      if (!item) return;
+      if (action === 'copy') {
+        await navigator.clipboard.writeText(item.translation || '');
+        btn.textContent = '已复制';
+        setTimeout(() => (btn.textContent = '复制译文'), 1200);
+        return;
+      }
+      if (action === 'load') {
+        // 切到文本页并载入
+        const tabBtn = document.querySelector('.tab-btn[data-tab="text"]');
+        if (tabBtn) tabBtn.click();
+        $('input').value = item.text || '';
+        $('count').textContent = `${($('input').value || '').length} 字`;
+        currentTranslation = item.translation || '';
+        setOutput(renderText(currentTranslation));
+        setOutMeta(item.kind === 'explain' ? '历史记录（解释）' : '历史记录');
+        showError($('text-error'), '');
+      }
+    });
+  }
   $('download-models').addEventListener('click', downloadPair);
   $('nano-download').addEventListener('click', downloadNano);
   $('diag-refresh').addEventListener('click', refreshDiag);
@@ -1106,6 +1289,9 @@ function bindEvents() {
     if (msg.type === 'lt:page-status' && activeTab && msg.payload && msg.payload.tabId === activeTab.id) {
       pageStatus = msg.payload.status || {};
       renderPageStatus();
+    } else if (msg.type === 'lt:history-updated') {
+      const active = document.querySelector('.tab-panel.active');
+      if (active && active.id === 'tab-history') loadHistory();
     } else if (msg.type === 'lt:inline-hint' && msg.payload) {
       // 快捷键没找到输入框之类的状况，直接说给用户听（否则只有「按了没反应」）
       const box = $('inline-hint');
@@ -1125,6 +1311,7 @@ function bindEvents() {
     } else if (msg.type === 'lt:settings' && msg.payload) {
       settings = msg.payload;
       syncForm();
+      renderSitePrefUI();
     }
   });
 

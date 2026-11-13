@@ -32,6 +32,40 @@ import {
 import { getSettings, setSettings, onSettingsChanged } from './lib/settings.js';
 import { isClaimUsable, pickBestResponse, summarizeFrames } from './lib/frames.js';
 
+const HISTORY_KEY = 'translationHistory';
+const HISTORY_LIMIT = 60;
+
+async function getHistory() {
+  const res = await chrome.storage.local.get(HISTORY_KEY).catch(() => ({}));
+  const list = res && Array.isArray(res[HISTORY_KEY]) ? res[HISTORY_KEY] : [];
+  return list.filter((x) => x && typeof x === 'object');
+}
+
+async function saveHistory(list) {
+  await chrome.storage.local.set({ [HISTORY_KEY]: list.slice(0, HISTORY_LIMIT) }).catch(() => {});
+}
+
+async function appendHistory(entry) {
+  const s = await getSettings();
+  if (!s.historyEnabled) return;
+  if (!entry || !String(entry.text || '').trim() || !String(entry.translation || '').trim()) return;
+  const list = await getHistory();
+  const item = {
+    id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    at: Date.now(),
+    text: String(entry.text).slice(0, 2000),
+    translation: String(entry.translation).slice(0, 4000),
+    sourceLang: entry.sourceLang || 'auto',
+    targetLang: entry.targetLang || '',
+    engine: entry.engine || '',
+    kind: entry.kind || 'translate',
+    url: entry.url ? String(entry.url).slice(0, 300) : '',
+  };
+  list.unshift(item);
+  await saveHistory(list);
+  broadcast({ type: 'lt:history-updated' });
+}
+
 /* ------------------------------------------------------------------ */
 /* 「哪个 frame 在打字」——认领表 + 逐个 frame 问答                      */
 /* ------------------------------------------------------------------ */
@@ -391,7 +425,7 @@ async function handle(message, sender) {
     /* ---------- 翻译 ---------- */
     case 'lt:translate': {
       const s = await settings();
-      return callEngine('translate', {
+      const res = await callEngine('translate', {
         text: payload.text,
         source: payload.source || s.sourceLang,
         target: payload.target || s.targetLang,
@@ -401,6 +435,18 @@ async function handle(message, sender) {
         context: payload.context || s.context,
         useCache: s.cacheEnabled !== false,
       });
+      if (res && res.ok && !res.skipped && payload.record !== false) {
+        appendHistory({
+          text: payload.text,
+          translation: res.text,
+          sourceLang: res.sourceLang,
+          targetLang: res.targetLang,
+          engine: res.engine,
+          kind: payload.kind || 'translate',
+          url: payload.url || (sender && sender.tab && sender.tab.url) || '',
+        }).catch(() => {});
+      }
+      return res;
     }
 
     case 'lt:translateBatch': {
@@ -420,19 +466,45 @@ async function handle(message, sender) {
 
     case 'lt:explain': {
       const host = await pickHost();
-      try {
+      const doExplain = async () => {
         if (host === 'offscreen') {
           const res = await callOffscreen('explain', { text: payload.text, lang: payload.lang || 'zh' });
           return { ok: true, text: res.text };
         }
         const text = await explain(payload.text, { lang: payload.lang || 'zh' });
         return { ok: true, text };
+      };
+      try {
+        const res = await doExplain();
+        if (res.ok && payload.record !== false) {
+          appendHistory({
+            text: payload.text,
+            translation: res.text,
+            sourceLang: 'auto',
+            targetLang: payload.lang || 'zh',
+            engine: 'nano',
+            kind: 'explain',
+            url: payload.url || (sender && sender.tab && sender.tab.url) || '',
+          }).catch(() => {});
+        }
+        return res;
       } catch (err) {
         if (host === 'sw' && (err.code === 'no-nano' || err.name === 'NotAllowedError')) {
           engineHost = 'offscreen';
           try {
             const res = await callOffscreen('explain', { text: payload.text, lang: payload.lang || 'zh' });
-            return { ok: true, text: res.text };
+            if (res.ok && payload.record !== false) {
+              appendHistory({
+                text: payload.text,
+                translation: res.text,
+                sourceLang: 'auto',
+                targetLang: payload.lang || 'zh',
+                engine: 'nano',
+                kind: 'explain',
+                url: payload.url || (sender && sender.tab && sender.tab.url) || '',
+              }).catch(() => {});
+            }
+            return res;
           } catch (err2) {
             return { ok: false, error: humanizeError(err2), code: err2 && err2.code };
           }
@@ -505,6 +577,20 @@ async function handle(message, sender) {
     case 'lt:cache:clear':
       await clearCache();
       return { ok: true, size: 0 };
+
+    case 'lt:history:get':
+      return { ok: true, items: await getHistory() };
+    case 'lt:history:clear':
+      await saveHistory([]);
+      broadcast({ type: 'lt:history-updated' });
+      return { ok: true };
+    case 'lt:history:remove': {
+      const id = payload && payload.id;
+      const list = (await getHistory()).filter((x) => x.id !== id);
+      await saveHistory(list);
+      broadcast({ type: 'lt:history-updated' });
+      return { ok: true, items: list };
+    }
     case 'lt:engine:reset': {
       // 释放并重建两条链路的原生会话：Nano 会话 + 内置翻译会话。
       // 万一哪个实例被外部弄坏了（比如被 abort 成 destroy），点一下就能恢复，

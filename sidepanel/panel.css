@@ -466,6 +466,37 @@ button.mini {
   line-height: 1.55;
 }
 
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.history-item {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px;
+  background: var(--bg-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.history-meta {
+  color: var(--fg-muted);
+  font-size: 11px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.history-text, .history-trans {
+  font-size: 12.5px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.history-text { color: var(--fg-muted); }
+.history-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+#page-guide { margin-top: 6px; white-space: pre-wrap; }
+
 /* 页脚：静态赞助/项目入口，低调不抢主界面 */
 .footer {
   display: flex;

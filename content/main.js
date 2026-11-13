@@ -178,7 +178,7 @@
   async function translateSelection(text, rect, { showSource = true, context = '' } = {}) {
     if (!state.settings) return;
     const req = ++selectionRequest;
-    const s = state.settings;
+    const s = effectivePageSettings(state.settings);
     const engineLabel = s.engine === 'nano' ? 'Gemini Nano' : s.engine === 'translator' ? '本地翻译模型' : '本地模型';
     state.lastSelection = { text, rect, showSource, context };
     ui.showBubble({
@@ -487,8 +487,8 @@ async function samplePageText() {
 
   async function startPageTranslation({ mode = '' } = {}) {
     if (!state.settings) await whenSettingsReady();
-    const s = state.settings;
-    if (!s) return { ok: false, error: '尚未加载设置' };
+    const base = state.settings;
+    if (!base) return { ok: false, error: '尚未加载设置' };
     if (isStale()) {
       markDead();
       return { ok: false, error: U.staleText(), code: 'context-invalidated' };
@@ -497,6 +497,7 @@ async function samplePageText() {
     // 清理上一次的结果（restoreAll 会让旧的 token 失效，所以必须先清理再取 token）
     restoreAll({ silent: true });
     const token = ++state.token;
+    const s = effectivePageSettings(base);
     const want = mode || s.displayMode || 'replace';
     const useHover = want === 'hover';
     const useDual = want === 'dual';
@@ -839,7 +840,9 @@ async function samplePageText() {
     if (!baseline) for (const key of Object.keys(settings)) settingsTouched.add(key);
     markSettingsReady();
     if (merged.theme) ui.setTheme(merged.theme);
-    if (merged.autoTranslate && state.phase === 'idle' && !state.autoDone) {
+    const pref = currentSitePref();
+    const canAuto = merged.autoTranslate || (pref && pref.autoTranslate === true);
+    if (canAuto && state.phase === 'idle' && !state.autoDone) {
       state.autoDone = true;
       maybeAutoTranslate();
     }
@@ -881,16 +884,41 @@ async function samplePageText() {
     };
   }
 
-  async function maybeAutoTranslate() {
-    const s = state.settings;
-    if (!s || !s.autoTranslate || !IS_TOP) return; // 子 frame 不自动翻译（避免广告/小挂件被翻）
+  function currentSitePref() {
     const host = U.hostOf(location.href);
-    if (U.matchSite(host, s.neverSites)) return;
-    if (s.autoTranslateSites && s.autoTranslateSites.length && !U.matchSite(host, s.autoTranslateSites)) return;
+    return host && state.settings && state.settings.sitePrefs ? state.settings.sitePrefs[host] || null : null;
+  }
+
+  function effectivePageSettings(base = state.settings) {
+    const s = base || {};
+    const pref = currentSitePref();
+    if (!pref) return s;
+    const out = { ...s };
+    if (pref.targetLang) out.targetLang = pref.targetLang;
+    if (pref.sourceLang) out.sourceLang = pref.sourceLang;
+    if (pref.displayMode) out.displayMode = pref.displayMode;
+    return out;
+  }
+
+  async function maybeAutoTranslate() {
+    const base = state.settings;
+    if (!base || !IS_TOP) return; // 子 frame 不自动翻译（避免广告/小挂件被翻）
+    const host = U.hostOf(location.href);
+    const pref = currentSitePref();
+    if (pref && pref.neverTranslate) return;
+    if (U.matchSite(host, base.neverSites)) return;
+
+    const siteAuto = pref && pref.autoTranslate === true;
+    const globalAuto = !!base.autoTranslate;
+    if (!globalAuto && !siteAuto) return;
+
+    if (!siteAuto && globalAuto && base.autoTranslateSites && base.autoTranslateSites.length && !U.matchSite(host, base.autoTranslateSites)) return;
+
+    const s = effectivePageSettings(base);
     const docLang = U.normalizeCode(document.documentElement.lang || '');
     if (docLang && docLang === U.normalizeCode(s.targetLang)) return;
     const sample = await samplePageText();
-    if (sample.length < (s.minAutoChars || 300)) return;
+    if (sample.length < (base.minAutoChars || 300)) return;
     const rough = U.roughScript(sample);
     if (rough && U.normalizeCode(rough) === U.normalizeCode(s.targetLang)) return;
     await U.sleep(600);
