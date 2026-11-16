@@ -1,8 +1,23 @@
 # Chrome Web Store 上架资料（1.5.7）
 
-> 已打包：`dist-store/chrome-local-translate-1.5.7.zip`（manifest.json 在包根；含 MV3 i18n `_locales/en`、`_locales/zh_CN`，默认语言英文，面向多国市场）
-> 已通过：`npm run validate` + `npm test`
-> 说明：v1.5.5 当前 Pending review；本包为后续更新版本。
+> 已打包：`dist-store/chrome-local-translate-1.5.7.zip`（manifest.json 在包根；含 MV3 i18n `_locales/en`、`_locales/zh_CN`，`default_locale: "en"`，面向多国市场）
+> 已通过：`npm run validate` + `npm test`（73/73 + 16/16）
+> 商品：`本地翻译 · Chrome 内置模型` / Listing 默认显示名 `Local Translate – On-Device AI`（ID `ncenacdchlmblbdlljdkjjhhnjimmeje`，发布者 `mywstszx`）
+> 控制台：https://chrome.google.com/webstore/devconsole/6482309c-c541-4e2e-9f85-ba5b5fb25664/ncenacdchlmblbdlljdkjjhhnjimmeje/edit
+
+## 当前控制台状态（2026-11-16 更新）
+- **Status**：`Pending review`（Draft: “This draft is pending review.”；Published 仍为 1.5.5，公开）。
+- **Package**：已上传 Draft **1.5.7**（Languages: English, Chinese (China)）。首次上传因 `en` 的 manifest 描述超 132 字符被拒，已修复 `_locales/en/messages.json` 的 `extDescription` 后重新打包上传。
+- **Store listing（English – en, default）**：已更新并保存草稿。
+  - Title（from package）：`Local Translate – On-Device AI`
+  - Summary（from package）：`Private offline translation with Chrome's on-device AI. Translate selections, pages, and input text. No API key; data stays local.`
+  - Description：已替换为英文（见下方“英文详细描述（实际已填）”），覆盖站点偏好/记忆、翻译历史、本地状态与引导、39 种语言对齐等新功能。
+  - Screenshots：已移除旧图并为 **Localized screenshots** 与 **Global screenshots** 各上传 3 张：
+    1. `dist-store/store-promo-1-inpage-selection.png`（网页内划词气泡）
+    2. `dist-store/store-promo-2-inpage-dual.png`（整页双语对照）
+    3. `dist-store/store-promo-3-inpage-inline.png`（输入框实时转写）
+- **提交**：已点击 “Submit for review”（勾选通过审核后自动发布），提交成功。
+- **备注**：`<all_urls>` 为核心功能所需，控制台可能继续提示 Broad Host Permissions / 审核时间较长；zh_CN 可在后台单独补充本地化 Listing 文案（包内已含 `_locales/zh_CN`）。
 
 ## 1. 商店信息（照填）
 
@@ -18,7 +33,7 @@
 | 图标 | `icons/icon-128.png`（128×128 PNG） |
 | 推广图片（可选，强烈建议） | 440×280 / 920×680 / 1400×560（至少 1 张） |
 | 截图（必填，至少 1 张） | 1280×800 或 640×400，建议 3-4 张并突出**网页内翻译**：划词气泡、整页双语对照、输入框转写、侧边栏协同（已生成美化版见 `dist-store/store-promo-1-inpage-selection.png`、`store-promo-2-inpage-dual.png`、`store-promo-3-inpage-inline.png`） |
-| 隐私权政策网址（必填） | 必须托管公开 URL —— 把 `privacy.html` 放到 GitHub Pages 或任意公开域名后填入。 |
+| 隐私权政策网址（必填） | `https://chrome-local-translate-privacy.wstszx.workers.dev/privacy.html`（Cloudflare，项目 `chrome-local-translate-privacy`） |
 
 ### 详细描述（可直接粘贴）
 
@@ -40,12 +55,30 @@
 >
 > 隐私：**没有任何网络请求**。文本只在「页面 → 扩展后台 → 本地模型」本机链路上处理，不经过任何服务器。译文缓存只存 `chrome.storage.local`（可随时清空）。
 
-### 英文详细描述（对应英文商店区）
+### 英文详细描述（实际已填，English – en Listing）
 
-> Translate with Chrome's built-in on-device models — no API key, fully offline.
-> Uses Translator API (default) and Gemini Nano for glossary, tone and explanation.
-> Features: selection bubble translation, full-page translation (replace / bilingual / hover), input-box rewrite in iframes & Shadow DOM, glossary & style control, local cache.
-> Requires Chrome 138+ desktop. All text stays on your device.
+> Translate privately on your device with Chrome’s built-in on-device AI — no API key, no cloud inference, and your text never leaves your machine.
+>
+> This extension uses Chrome’s local AI capabilities:
+> • Translator API (built-in translation model): fast, high-quality translation for supported language pairs.
+> • Gemini Nano (Prompt API): advanced mode for glossary, tone/style control, contextual translation, and explanations, with automatic fallback when needed.
+>
+> Key features:
+> • Selection translation: translate highlighted text in-page with a draggable bubble (copy, read aloud, explain).
+> • Full-page translation: translate while preserving page structure, with replace / bilingual / hover modes and one-click restore. Viewport-first with dynamic content updates.
+> • Input rewrite: translate text as you type in inputs, textareas, and contenteditable fields (including iframes and Shadow DOM), with streaming output and replace/append/restore.
+> • Site preferences & memory: remember per-site translation preferences and behavior.
+> • Translation history: keep a local history of translations for quick reference.
+> • Local status & guidance: clearer on-device model status and setup guidance.
+> • Glossary & tone control: custom terms and styles (faithful, natural, formal, casual, technical, academic) via Nano.
+> • Shortcuts: Alt+Shift+T translate page, Alt+Shift+S translate selection, Alt+Shift+R restore, Alt+Shift+Y open side panel.
+> • Local cache & syncable settings.
+>
+> Language support: aligned with the Chrome Translator API language list (39 languages, including recent additions such as Kannada and Marathi), with actual availability depending on your device and installed language packs.
+>
+> Requirements: Chrome 138+ on desktop (Windows / macOS / Linux / ChromeOS). On first use, open the side panel and download the language pair/model as prompted.
+>
+> Privacy: no network requests. Text is processed only on-device (page → extension → local model). Translation cache is stored locally in chrome.storage.local and can be cleared at any time.
 
 ## 2. 数据安全与隐私申报（关键，照此填）
 
@@ -55,15 +88,22 @@
 - 远程代码：否（无远程加载的 JS/CSS，全部随包）。
 - **单用途说明（Single Purpose）**：本扩展的唯一用途是本地离线翻译网页文本。`<all_urls>` + `activeTab` 仅用于向正在阅读的页面注入翻译 UI（气泡 / 整页翻译 / 输入框转写），不读取或外传与翻译无关的页面内容。
 
-> ✅ `privacy.html` 的联系邮箱已换成真实可收信地址 `mywstszx@gmail.com`。**仍需**把这个页面托管到公开 URL，并把 URL 填入商店表单的隐私政策栏。
+> ✅ `privacy.html` 联系邮箱：`mywstszx@gmail.com`。隐私政策已托管：`https://chrome-local-translate-privacy.wstszx.workers.dev/privacy.html`（商店表单已填写）。
 
-## 3. 提交前 checklist
+## 3. 提交 checklist（1.5.7 当前状态）
 
-- [x] `manifest.json` MV3，版本 1.5.7，`npm run validate` 通过；已加入 `default_locale` 与 `_locales/en`、`_locales/zh_CN`（名称/描述/命令本地化）
+- [x] `manifest.json` MV3，版本 1.5.7，`npm run validate` + `npm test` 通过；已加入 `default_locale` 与 `_locales/en`、`_locales/zh_CN`（名称/描述/命令本地化）
 - [x] ZIP 内只有生产文件（无 node_modules / tests / demo / docs）
 - [x] `privacy.html` 已换真实邮箱 `mywstszx@gmail.com`
-- [ ] `privacy.html` 已托管到公开 URL，并把该 URL 填入商店表单
-- [x] 已生成 3 张 1280×800 美化宣传截图（含网页内翻译功能）：`dist-store/store-promo-1-inpage-selection.png`（网页内划词气泡）、`dist-store/store-promo-2-inpage-dual.png`（整页双语对照）、`dist-store/store-promo-3-inpage-inline.png`（输入框实时转写）；源文件 `dist-store/promo-1-selection.html`、`promo-2-dual.html`、`promo-3-inline.html`（可按需微调后重新截图）
-- [ ] 做 1 张 440×280 或 1400×560 推广图（可用 `icons/icon-128.png` 拼一个）
-- [ ] 在 Chrome Web Store 开发者控制台新建商品 → 上传上面的 ZIP
-- [ ] 最后点「提交审核」；审核通常 1-3 天，期间在 `chrome://extensions` 里保持开发者模式自测一遍
+- [x] `privacy.html` 已托管到公开 URL，并填入商店表单：`https://chrome-local-translate-privacy.wstszx.workers.dev/privacy.html`
+- [x] 3 张 1280×800 美化宣传截图（含网页内翻译功能）已生成并上传至 Listing（Localized + Global）：`dist-store/store-promo-1-inpage-selection.png`、`dist-store/store-promo-2-inpage-dual.png`、`dist-store/store-promo-3-inpage-inline.png`（源：`dist-store/promo-1-selection.html`、`promo-2-dual.html`、`promo-3-inline.html`）
+- [ ] （可选）制作 440×280 或 1400×560 推广图
+- [x] 开发者控制台上传 1.5.7 Draft 包（`dist-store/chrome-local-translate-1.5.7.zip`）
+- [x] 更新 Listing 文案（英文默认）并保存 Draft
+- [x] 已提交审核（2026-11-16，Status: Pending review，选择通过审核后自动发布）
+
+## 4. 本地仓库记录
+- 分支/提交：`main` @ `34c685c`（已推送 `origin/main`）
+  - `d5dd328` chore: 国际化应用名称并升级至 1.5.7
+  - `34c685c` fix: shorten en extension description to 132 chars for store
+- 工作区：`privacy.html` 有未提交修改；`dist-store/` 下存在未跟踪素材/截图/脚本，`dist-privacy/` 未跟踪（打包 zip 已生成但被忽略）。
