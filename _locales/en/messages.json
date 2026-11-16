@@ -1,0 +1,34 @@
+{
+  "extName": {
+    "message": "Local Translate – On-Device AI",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "Private, offline translation with Chrome's built-in on-device models. Translate selections, full pages, and input text with glossary and tone controls. No API key; text stays on your device.",
+    "description": "Extension description"
+  },
+  "actionTitle": {
+    "message": "Local Translate (On-Device)",
+    "description": "Browser action title"
+  },
+  "cmdTranslatePage": {
+    "message": "Translate the entire page",
+    "description": "Command description"
+  },
+  "cmdTranslateSelection": {
+    "message": "Translate selected text",
+    "description": "Command description"
+  },
+  "cmdRestorePage": {
+    "message": "Restore original page",
+    "description": "Command description"
+  },
+  "cmdOpenPanel": {
+    "message": "Open side panel",
+    "description": "Command description"
+  },
+  "cmdRewriteInput": {
+    "message": "Rewrite text in the current input field (no default shortcut; press Alt+Shift+Enter on the page)",
+    "description": "Command description"
+  }
+}

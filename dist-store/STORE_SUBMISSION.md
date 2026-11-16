@@ -1,21 +1,23 @@
-# Chrome Web Store 上架资料（1.5.6）
+# Chrome Web Store 上架资料（1.5.7）
 
-> 已打包：`dist-store/chrome-local-translate-1.5.6.zip`（manifest.json 在包根，含 Translator API 官方语言列表对齐：新增 kn、mr）
-> 已通过：`npm run validate` + `npm test`（72/72 + 16/16）
-> 已修正：`privacy.html` 第二节「不收集」——与代码实际行为一致（零网络请求），否则数据安全申报对不上。
+> 已打包：`dist-store/chrome-local-translate-1.5.7.zip`（manifest.json 在包根；含 MV3 i18n `_locales/en`、`_locales/zh_CN`，默认语言英文，面向多国市场）
+> 已通过：`npm run validate` + `npm test`
+> 说明：v1.5.5 当前 Pending review；本包为后续更新版本。
 
 ## 1. 商店信息（照填）
 
 | 字段 | 填法 |
 | --- | --- |
-| 名称 | 本地翻译 · Chrome 内置模型 |
-| 简短描述（132 字符内） | 用 Chrome 内置本地模型离线翻译：划词即译、整页翻译、输入框转写、术语表与语气控制。无需 API Key，文本不出本机。 |
-| 详细描述 | 见下方「详细描述」 |
+| 名称（英文/默认） | Local Translate – On-Device AI |
+| 名称（简体中文） | 本地翻译 · 设备端离线翻译 |
+| 简短描述（英文，132 字符内） | Private offline translation with Chrome's on-device AI. Translate selections, pages, and input text. No API key; data stays local. |
+| 简短描述（中文，132 字符内） | 使用 Chrome 内置设备端本地模型离线翻译：划词即译、整页翻译、输入框转写、术语表与语气控制。无需 API Key，文本不出本机。 |
+| 详细描述 | 见下方「详细描述」（建议在商店后台配置英文与中文本地化 Listing） |
 | 分类 | Productivity / 效率 |
-| 语言 | 简体中文（主）、English（可加） |
+| 语言 | English（主）+ 简体中文（本地化）等（按目标市场添加） |
 | 图标 | `icons/icon-128.png`（128×128 PNG） |
 | 推广图片（可选，强烈建议） | 440×280 / 920×680 / 1400×560（至少 1 张） |
-| 截图（必填，至少 1 张） | 1280×800 或 640×400，建议 3-4 张：侧边栏文本翻译 / 整页翻译进度条 / 划词气泡 / 输入框转写 |
+| 截图（必填，至少 1 张） | 1280×800 或 640×400，建议 3-4 张并突出**网页内翻译**：划词气泡、整页双语对照、输入框转写、侧边栏协同（已生成美化版见 `dist-store/store-promo-1-inpage-selection.png`、`store-promo-2-inpage-dual.png`、`store-promo-3-inpage-inline.png`） |
 | 隐私权政策网址（必填） | 必须托管公开 URL —— 把 `privacy.html` 放到 GitHub Pages 或任意公开域名后填入。 |
 
 ### 详细描述（可直接粘贴）
@@ -57,11 +59,11 @@
 
 ## 3. 提交前 checklist
 
-- [x] `manifest.json` MV3，版本 1.5.6，`npm run validate` 通过
+- [x] `manifest.json` MV3，版本 1.5.7，`npm run validate` 通过；已加入 `default_locale` 与 `_locales/en`、`_locales/zh_CN`（名称/描述/命令本地化）
 - [x] ZIP 内只有生产文件（无 node_modules / tests / demo / docs）
 - [x] `privacy.html` 已换真实邮箱 `mywstszx@gmail.com`
 - [ ] `privacy.html` 已托管到公开 URL，并把该 URL 填入商店表单
-- [ ] 截 3-4 张截图（建议用 `demo/ui-preview.html` 在真实 Chrome 里截图）
+- [x] 已生成 3 张 1280×800 美化宣传截图（含网页内翻译功能）：`dist-store/store-promo-1-inpage-selection.png`（网页内划词气泡）、`dist-store/store-promo-2-inpage-dual.png`（整页双语对照）、`dist-store/store-promo-3-inpage-inline.png`（输入框实时转写）；源文件 `dist-store/promo-1-selection.html`、`promo-2-dual.html`、`promo-3-inline.html`（可按需微调后重新截图）
 - [ ] 做 1 张 440×280 或 1400×560 推广图（可用 `icons/icon-128.png` 拼一个）
 - [ ] 在 Chrome Web Store 开发者控制台新建商品 → 上传上面的 ZIP
 - [ ] 最后点「提交审核」；审核通常 1-3 天，期间在 `chrome://extensions` 里保持开发者模式自测一遍

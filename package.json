@@ -1,9 +1,9 @@
 {
   "name": "chrome-local-translate",
-  "version": "1.5.6",
+  "version": "1.5.7",
   "private": true,
   "type": "module",
-  "description": "Chrome 扩展：用内置本地模型（Chromium 翻译模型 / Gemini Nano）离线翻译",
+  "description": "Private on-device translation for Chrome using built-in local models (Translator API / Gemini Nano)",
   "scripts": {
     "validate": "node tools/validate-manifest.mjs",
     "test": "node tools/validate-manifest.mjs && node tests/run-tests.mjs && node tests/test-background.mjs",

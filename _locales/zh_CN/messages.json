@@ -1,0 +1,34 @@
+{
+  "extName": {
+    "message": "本地翻译 · 设备端离线翻译",
+    "description": "扩展名称"
+  },
+  "extDescription": {
+    "message": "使用 Chrome 内置设备端本地模型进行离线翻译：划词即译、整页翻译、输入框转写，支持术语表与语气控制。无需 API Key，文本不出本机。",
+    "description": "扩展描述"
+  },
+  "actionTitle": {
+    "message": "本地翻译（设备端）",
+    "description": "浏览器按钮标题"
+  },
+  "cmdTranslatePage": {
+    "message": "翻译整个页面",
+    "description": "命令描述"
+  },
+  "cmdTranslateSelection": {
+    "message": "翻译选中内容",
+    "description": "命令描述"
+  },
+  "cmdRestorePage": {
+    "message": "还原页面原文",
+    "description": "命令描述"
+  },
+  "cmdOpenPanel": {
+    "message": "打开侧边栏",
+    "description": "命令描述"
+  },
+  "cmdRewriteInput": {
+    "message": "转写当前输入框里的内容（默认不占快捷键，页内按 Alt+Shift+Enter 即可）",
+    "description": "命令描述"
+  }
+}
