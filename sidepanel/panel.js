@@ -3,7 +3,7 @@
  * 所有模型推理都通过消息交给 background（lib/engine.js）完成。
  */
 import { LANGUAGES, langLabel, normalizeCode, isRtl } from '../lib/languages.js';
-import { SPONSOR_URL } from '../lib/links.js';
+import { SPONSOR_LINKS } from '../lib/links.js';
 import {
   TONES,
   ENGINES,
@@ -1333,12 +1333,17 @@ function bindEvents() {
     showError($('text-error'), '无法读取设置，请重新加载扩展');
   }
   syncForm();
-  if (SPONSOR_URL) {
-    const a = $('footer-sponsor');
-    if (a) {
-      a.href = SPONSOR_URL;
-      a.textContent = chrome.i18n.getMessage('sponsorLabel') || 'Support this project';
-      a.hidden = false;
+  const sponsorBox = $('footer-sponsors');
+  if (sponsorBox && Array.isArray(SPONSOR_LINKS)) {
+    for (const item of SPONSOR_LINKS) {
+      if (!item || !item.url) continue;
+      const a = document.createElement('a');
+      a.className = 'footer-link';
+      a.href = item.url;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      a.textContent = item.label || (chrome.i18n.getMessage('sponsorLabel') || 'Support');
+      sponsorBox.appendChild(a);
     }
   }
   // 从「扩展详情 → 选项」进来时（panel.html#settings）直接落到设置页

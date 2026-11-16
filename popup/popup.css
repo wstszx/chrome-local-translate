@@ -27,6 +27,10 @@ body.popup .bar {
 
 .popup-links {
   margin-top: -2px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 12px;
 }
 
 .popup-link {
@@ -39,8 +43,4 @@ body.popup .bar {
 .popup-link:hover {
   text-decoration: underline;
   opacity: 1;
-}
-
-.popup-link[hidden] {
-  display: none !important;
 }

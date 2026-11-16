@@ -511,6 +511,13 @@ button.mini {
 }
 .footer-links {
   display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+#footer-sponsors {
+  display: inline-flex;
+  flex-wrap: wrap;
   gap: 10px;
 }
 .footer-link {
@@ -520,7 +527,4 @@ button.mini {
 }
 .footer-link:hover {
   text-decoration: underline;
-}
-.footer-link[hidden] {
-  display: none !important;
 }

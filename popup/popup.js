@@ -3,7 +3,7 @@
  */
 import { LANGUAGES, langLabel, normalizeCode } from '../lib/languages.js';
 import { TONES } from '../lib/engine.js';
-import { SPONSOR_URL } from '../lib/links.js';
+import { SPONSOR_LINKS } from '../lib/links.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -152,12 +152,17 @@ async function explain() {
   }
   refreshPill();
 
-  if (SPONSOR_URL) {
-    const sponsor = $('popup-sponsor');
-    if (sponsor) {
-      sponsor.href = SPONSOR_URL;
-      sponsor.textContent = chrome.i18n.getMessage('sponsorLabel') || 'Support this project';
-      sponsor.hidden = false;
+  const sponsorBox = $('popup-sponsors');
+  if (sponsorBox && Array.isArray(SPONSOR_LINKS)) {
+    for (const item of SPONSOR_LINKS) {
+      if (!item || !item.url) continue;
+      const a = document.createElement('a');
+      a.className = 'popup-link';
+      a.href = item.url;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      a.textContent = item.label || (chrome.i18n.getMessage('sponsorLabel') || 'Support');
+      sponsorBox.appendChild(a);
     }
   }
 
