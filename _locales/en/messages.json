@@ -4,7 +4,7 @@
     "description": "Extension name"
   },
   "extDescription": {
-    "message": "Private, offline translation with Chrome's built-in on-device models. Translate selections, full pages, and input text with glossary and tone controls. No API key; text stays on your device.",
+    "message": "Private offline translation with Chrome's on-device AI. Translate selections, pages, and input text. No API key; data stays local.",
     "description": "Extension description"
   },
   "actionTitle": {
