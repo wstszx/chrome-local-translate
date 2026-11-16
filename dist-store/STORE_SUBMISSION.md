@@ -5,19 +5,30 @@
 > 商品：`本地翻译 · Chrome 内置模型` / Listing 默认显示名 `Local Translate – On-Device AI`（ID `ncenacdchlmblbdlljdkjjhhnjimmeje`，发布者 `mywstszx`）
 > 控制台：https://chrome.google.com/webstore/devconsole/6482309c-c541-4e2e-9f85-ba5b5fb25664/ncenacdchlmblbdlljdkjjhhnjimmeje/edit
 
-## 当前控制台状态（2026-11-16 更新）
+## 当前控制台状态（2026-11-16 更新，已修正截图/语言后重新提交）
 - **Status**：`Pending review`（Draft: “This draft is pending review.”；Published 仍为 1.5.5，公开）。
-- **Package**：已上传 Draft **1.5.7**（Languages: English, Chinese (China)）。首次上传因 `en` 的 manifest 描述超 132 字符被拒，已修复 `_locales/en/messages.json` 的 `extDescription` 后重新打包上传。
-- **Store listing（English – en, default）**：已更新并保存草稿。
-  - Title（from package）：`Local Translate – On-Device AI`
-  - Summary（from package）：`Private offline translation with Chrome's on-device AI. Translate selections, pages, and input text. No API key; data stays local.`
-  - Description：已替换为英文（见下方“英文详细描述（实际已填）”），覆盖站点偏好/记忆、翻译历史、本地状态与引导、39 种语言对齐等新功能。
-  - Screenshots：已移除旧图并为 **Localized screenshots** 与 **Global screenshots** 各上传 3 张：
-    1. `dist-store/store-promo-1-inpage-selection.png`（网页内划词气泡）
-    2. `dist-store/store-promo-2-inpage-dual.png`（整页双语对照）
-    3. `dist-store/store-promo-3-inpage-inline.png`（输入框实时转写）
-- **提交**：已点击 “Submit for review”（勾选通过审核后自动发布），提交成功。
-- **备注**：`<all_urls>` 为核心功能所需，控制台可能继续提示 Broad Host Permissions / 审核时间较长；zh_CN 可在后台单独补充本地化 Listing 文案（包内已含 `_locales/zh_CN`）。
+- **Package**：Draft **1.5.7** 已上传（Languages: English, Chinese (China)）。上传过程中曾因 `en` manifest 描述超 132 字符被拒，已修复 `_locales/en/messages.json` 的 `extDescription` 后重新打包上传。
+- **Store listing**：
+  - **English – en（default）**
+    - Title（from package）：`Local Translate – On-Device AI`
+    - Summary（from package）：`Private offline translation with Chrome's on-device AI. Translate selections, pages, and input text. No API key; data stays local.`
+    - Description：英文（见下方“英文详细描述（实际已填）”），包含站点偏好/记忆、翻译历史、本地状态与引导、39 种语言对齐等新功能。
+    - **Localized screenshots（4 张，英文 UI）**：
+      1. `dist-store/store-promo-en-1-selection.png`（网页内划词气泡，英文界面）
+      2. `dist-store/store-promo-en-2-dual.png`（整页双语对照，英文界面）
+      3. `dist-store/store-promo-en-3-inline.png`（输入框实时转写，英文界面）
+      4. `dist-store/store-promo-en-4-popup.png`（扩展弹窗/快捷操作，英文界面）
+  - **Chinese (China) – zh-CN**
+    - Title（from package）：`本地翻译 · 设备端离线翻译`
+    - Summary（from package）：`使用 Chrome 内置设备端本地模型进行离线翻译：划词即译、整页翻译、输入框转写，支持术语表与语气控制。无需 API Key，文本不出本机。`
+    - Description：已更新为中文新版（补充站点偏好/记忆、翻译历史、本地状态与引导、39 种语言对齐等）。
+    - **Localized screenshots（3 张，中文 UI）**：
+      1. `dist-store/store-promo-1-inpage-selection.png`（网页内划词气泡）
+      2. `dist-store/store-promo-2-inpage-dual.png`（整页双语对照）
+      3. `dist-store/store-promo-3-inpage-inline.png`（输入框实时转写）
+  - **Global screenshots（4 张）**：与英文截图一致（`store-promo-en-1~4`），作为其他语言回退素材。
+- **提交记录**：首次提交后发现截图语言与 Listing 不匹配且缺少扩展弹窗截图，已在控制台 **Cancel review** 撤回草稿，替换/补充语言对应截图与 zh-CN 文案后 **重新 Save draft 并 Submit for review**（勾选通过审核后自动发布）。
+- **备注**：`<all_urls>` 为核心功能所需，可能继续提示 Broad Host Permissions / 审核时间较长。zh-CN 本地化截图当前未单独包含弹窗图，可后续补充。
 
 ## 1. 商店信息（照填）
 
@@ -32,7 +43,7 @@
 | 语言 | English（主）+ 简体中文（本地化）等（按目标市场添加） |
 | 图标 | `icons/icon-128.png`（128×128 PNG） |
 | 推广图片（可选，强烈建议） | 440×280 / 920×680 / 1400×560（至少 1 张） |
-| 截图（必填，至少 1 张） | 1280×800 或 640×400，建议 3-4 张并突出**网页内翻译**：划词气泡、整页双语对照、输入框转写、侧边栏协同（已生成美化版见 `dist-store/store-promo-1-inpage-selection.png`、`store-promo-2-inpage-dual.png`、`store-promo-3-inpage-inline.png`） |
+| 截图（必填，至少 1 张） | 1280×800 或 640×400；**按 Listing 语言对应**。英文：`dist-store/store-promo-en-1-selection.png`、`store-promo-en-2-dual.png`、`store-promo-en-3-inline.png`、`store-promo-en-4-popup.png`（含扩展弹窗）；中文（zh-CN）：`dist-store/store-promo-1-inpage-selection.png`、`store-promo-2-inpage-dual.png`、`store-promo-3-inpage-inline.png`（源：`dist-store/promo-en-*.html`、`dist-store/promo-*-*.html`） |
 | 隐私权政策网址（必填） | `https://chrome-local-translate-privacy.wstszx.workers.dev/privacy.html`（Cloudflare，项目 `chrome-local-translate-privacy`） |
 
 ### 详细描述（可直接粘贴）
@@ -96,11 +107,13 @@
 - [x] ZIP 内只有生产文件（无 node_modules / tests / demo / docs）
 - [x] `privacy.html` 已换真实邮箱 `mywstszx@gmail.com`
 - [x] `privacy.html` 已托管到公开 URL，并填入商店表单：`https://chrome-local-translate-privacy.wstszx.workers.dev/privacy.html`
-- [x] 3 张 1280×800 美化宣传截图（含网页内翻译功能）已生成并上传至 Listing（Localized + Global）：`dist-store/store-promo-1-inpage-selection.png`、`dist-store/store-promo-2-inpage-dual.png`、`dist-store/store-promo-3-inpage-inline.png`（源：`dist-store/promo-1-selection.html`、`promo-2-dual.html`、`promo-3-inline.html`）
+- [x] 英文截图（4 张，含扩展弹窗）已生成并上传至 en Localized + Global：`dist-store/store-promo-en-1-selection.png`、`store-promo-en-2-dual.png`、`store-promo-en-3-inline.png`、`store-promo-en-4-popup.png`（源：`dist-store/promo-en-*.html`）
+- [x] 中文截图（3 张，网页内功能）已上传至 zh-CN Localized：`dist-store/store-promo-1-inpage-selection.png`、`store-promo-2-inpage-dual.png`、`store-promo-3-inpage-inline.png`（源：`dist-store/promo-1-selection.html`、`promo-2-dual.html`、`promo-3-inline.html`）
 - [ ] （可选）制作 440×280 或 1400×560 推广图
+- [ ] （可选）为 zh-CN 补充扩展弹窗/侧边栏截图
 - [x] 开发者控制台上传 1.5.7 Draft 包（`dist-store/chrome-local-translate-1.5.7.zip`）
-- [x] 更新 Listing 文案（英文默认）并保存 Draft
-- [x] 已提交审核（2026-11-16，Status: Pending review，选择通过审核后自动发布）
+- [x] 更新 Listing 文案（en/zh-CN）并按语言匹配截图后保存 Draft
+- [x] 已撤回首次审核并按建议修正后重新提交（2026-11-16，Status: Pending review，选择通过审核后自动发布）
 
 ## 4. 本地仓库记录
 - 分支/提交：`main` @ `34c685c`（已推送 `origin/main`）

@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=1280,height=800"><title>Promo EN 2</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1280px;height:800px;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+.canvas{width:1280px;height:800px;position:relative;background:radial-gradient(900px 500px at 0% 0%,#ede9fe 0%,transparent 55%),radial-gradient(900px 500px at 100% 100%,#dbeafe 0%,transparent 55%),#f5f7fb}
+.header{position:absolute;left:56px;top:36px;right:56px;display:flex;align-items:flex-end;justify-content:space-between}
+h1{font-size:48px;line-height:1.1;color:#0f172a;letter-spacing:-.02em}
+h1 span{background:linear-gradient(135deg,#4f46e5,#7c3aed);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{margin-top:8px;font-size:20px;color:#475569}
+.status{padding:10px 16px;border-radius:999px;background:rgba(24,24,27,.88);color:#e5e7eb;font-size:14px;box-shadow:0 10px 30px rgba(15,23,42,.25);border:1px solid rgba(255,255,255,.12)}
+.status b{color:#c7d2fe}
+.window{position:absolute;left:56px;right:56px;top:150px;bottom:44px;border-radius:22px;background:#fff;border:1px solid rgba(148,163,184,.35);box-shadow:0 30px 80px rgba(15,23,42,.16);overflow:hidden}
+.topbar{height:52px;background:#f8fafc;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;padding:0 18px;gap:12px}
+.dots{display:flex;gap:8px}.dots i{width:11px;height:11px;border-radius:50%}
+.dots i:nth-child(1){background:#fb7185}.dots i:nth-child(2){background:#fbbf24}.dots i:nth-child(3){background:#34d399}
+.url{flex:1;height:32px;border-radius:9px;background:#fff;border:1px solid #e2e8f0;display:flex;align-items:center;padding:0 12px;color:#64748b;font-size:13px}
+.content{display:grid;grid-template-columns:1fr 320px;gap:30px;padding:28px 36px 36px;height:calc(100% - 52px)}
+.article h2{font-size:30px;color:#0f172a;margin:4px 0 18px}
+.block{margin-bottom:18px}
+.src{font-size:17px;line-height:1.8;color:#334155}
+.tgt{margin-top:8px;padding:10px 12px 10px 14px;border-left:4px solid #6366f1;border-radius:0 10px 10px 0;background:linear-gradient(90deg,rgba(99,102,241,.10),rgba(139,92,246,.06));color:#1e293b;font-size:17px;line-height:1.8}
+.side{background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;padding:16px;height:fit-content}
+.side h3{font-size:15px;color:#334155;margin-bottom:12px}
+.item{padding:10px 12px;border-radius:12px;background:#fff;border:1px solid #e2e8f0;margin-bottom:10px;font-size:13px;color:#475569}
+.item strong{display:block;color:#1e293b;margin-bottom:4px}
+.legend{margin-top:14px;display:flex;gap:10px;flex-wrap:wrap}
+.legend span{font-size:12px;color:#475569;padding:6px 10px;border-radius:999px;background:#eef2ff;border:1px solid #c7d2fe}
+</style>
+</head>
+<body>
+<div class="canvas">
+  <div class="header">
+    <div>
+      <h1><span>Bilingual full-page</span> translation</h1>
+      <div class="sub">Keep original text and insert translations inline · Viewport-first · Dynamic updates · One-click restore</div>
+    </div>
+    <div class="status"><b>12 paragraphs translated</b> · English → Spanish · Offline</div>
+  </div>
+  <div class="window">
+    <div class="topbar"><div class="dots"><i></i><i></i><i></i></div><div class="url">https://web.dev/articles/building/local-ai</div></div>
+    <div class="content">
+      <div class="article">
+        <h2>Build private experiences with on-device AI</h2>
+        <div class="block">
+          <div class="src">Modern browsers can now run AI tasks locally, enabling features like translation and summarization without sending user data to a server.</div>
+          <div class="tgt">Los navegadores modernos ahora pueden ejecutar tareas de IA localmente, lo que permite funciones como traducción y resumen sin enviar datos del usuario a un servidor.</div>
+        </div>
+        <div class="block">
+          <div class="src">Bilingual page translation keeps the original structure intact while placing translated text directly below each paragraph for easy comparison.</div>
+          <div class="tgt">La traducción bilingüe de páginas mantiene intacta la estructura original y coloca el texto traducido debajo de cada párrafo para facilitar la comparación.</div>
+        </div>
+        <div class="block">
+          <div class="src">Because inference happens on the device, users benefit from lower latency, offline availability, and stronger privacy guarantees.</div>
+          <div class="tgt">Como la inferencia ocurre en el dispositivo, los usuarios obtienen menor latencia, disponibilidad sin conexión y mayores garantías de privacidad.</div>
+        </div>
+      </div>
+      <div class="side">
+        <h3>Page translation modes</h3>
+        <div class="item"><strong>Replace text</strong>Show translation in place and restore anytime</div>
+        <div class="item"><strong>Bilingual view</strong>Keep original and show translation below</div>
+        <div class="item"><strong>Hover compare</strong>Reveal translation on hover</div>
+        <div class="legend"><span>Preserves layout</span><span>On-device</span><span>39 languages</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

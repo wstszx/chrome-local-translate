@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=1280,height=800"><title>Promo EN 4</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1280px;height:800px;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+.canvas{width:1280px;height:800px;position:relative;background:radial-gradient(1100px 520px at 0% 0%,#dbeafe 0%,transparent 55%),radial-gradient(900px 500px at 100% 100%,#ede9fe 0%,transparent 55%),#f5f7fb}
+.hero{position:absolute;left:70px;top:54px;max-width:620px}
+.badge{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;background:rgba(99,102,241,.12);color:#4338ca;font-weight:600;font-size:14px;border:1px solid rgba(99,102,241,.18)}
+h1{margin-top:18px;font-size:50px;line-height:1.12;letter-spacing:-.02em;color:#0f172a}
+h1 span{background:linear-gradient(135deg,#4f46e5,#7c3aed,#a855f7);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{margin-top:14px;font-size:22px;color:#475569;line-height:1.5}
+.features{margin-top:26px;display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:560px}
+.feat{padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.75);border:1px solid rgba(148,163,184,.35);backdrop-filter:blur(8px);box-shadow:0 8px 20px rgba(15,23,42,.06)}
+.feat b{display:block;color:#1e293b;font-size:15px;margin-bottom:4px}
+.feat span{color:#475569;font-size:13px;line-height:1.45}
+.browser{position:absolute;right:70px;top:54px;width:520px;height:690px;border-radius:22px;background:#fff;border:1px solid rgba(148,163,184,.35);box-shadow:0 30px 80px rgba(15,23,42,.18);overflow:hidden}
+.bar{height:46px;background:#f8fafc;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;padding:0 14px;gap:10px}
+.dots{display:flex;gap:7px}.dots i{width:10px;height:10px;border-radius:50%}
+.dots i:nth-child(1){background:#fb7185}.dots i:nth-child(2){background:#fbbf24}.dots i:nth-child(3){background:#34d399}
+.url{flex:1;height:28px;border-radius:8px;background:#fff;border:1px solid #e2e8f0;display:flex;align-items:center;padding:0 10px;color:#64748b;font-size:12px}
+.toolbar{position:absolute;right:18px;top:8px;display:flex;gap:8px;align-items:center}
+.iconbtn{width:28px;height:28px;border-radius:8px;background:#eef2ff;border:1px solid #c7d2fe;display:flex;align-items:center;justify-content:center;color:#4f46e5;font-size:14px}
+.pagebg{position:absolute;left:0;right:0;top:46px;bottom:0;background:linear-gradient(180deg,#ffffff,#f8fafc);padding:22px}
+.dummy h3{font-size:20px;color:#0f172a;margin-bottom:10px}.dummy p{color:#64748b;font-size:13px;line-height:1.7;margin-bottom:8px}
+.popup{position:absolute;right:18px;top:54px;width:360px;border-radius:18px;background:rgba(255,255,255,.98);border:1px solid rgba(148,163,184,.35);box-shadow:0 24px 60px rgba(15,23,42,.28);overflow:hidden}
+.p-head{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid #e2e8f0;background:linear-gradient(180deg,#fff,#f8fafc)}
+.brand{display:flex;align-items:center;gap:8px;font-weight:700;color:#0f172a;font-size:14px}
+.brand .logo{width:22px;height:22px;border-radius:7px;background:linear-gradient(135deg,#6366f1,#a855f7);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px}
+.pill{font-size:11px;color:#4338ca;background:#eef2ff;border:1px solid #c7d2fe;padding:4px 8px;border-radius:999px;font-weight:600}
+.p-body{padding:12px 14px}
+.row{display:flex;gap:8px;align-items:center;margin-bottom:10px}
+.sel{flex:1;height:34px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 10px;font-size:13px;color:#334155}
+.swap{width:34px;height:34px;border-radius:10px;border:1px solid #e2e8f0;display:flex;align-items:center;justify-content:center;color:#64748b;background:#f8fafc}
+.ta{height:76px;border:1px solid #e2e8f0;border-radius:12px;padding:10px;font-size:13px;color:#334155;background:#fff;margin-bottom:10px;line-height:1.5}
+.actions{display:flex;gap:8px;margin-bottom:10px}
+.btn{height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;border:1px solid #e2e8f0;background:#fff;color:#334155;padding:0 12px}
+.btn.primary{flex:1;background:linear-gradient(135deg,#6366f1,#7c3aed);color:#fff;border:none}
+.out{border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;padding:10px;margin-bottom:10px}
+.out .meta{font-size:11px;color:#64748b;margin-bottom:6px;display:flex;justify-content:space-between}
+.out .txt{font-size:14px;line-height:1.55;color:#0f172a}
+.quick{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px}
+.q{height:32px;border-radius:10px;border:1px solid #e2e8f0;background:#fff;font-size:12px;display:flex;align-items:center;justify-content:center;color:#334155;font-weight:500}
+.hint{font-size:11px;color:#64748b;text-align:center;margin-top:2px}
+.note2{position:absolute;left:70px;bottom:54px;display:flex;gap:10px}
+.chip{padding:10px 14px;border-radius:14px;background:rgba(255,255,255,.8);border:1px solid rgba(148,163,184,.35);color:#334155;font-size:14px;font-weight:600;box-shadow:0 8px 20px rgba(15,23,42,.08)}
+.chip strong{color:#4f46e5}
+</style>
+</head>
+<body>
+<div class="canvas">
+  <div class="hero">
+    <div class="badge">Extension popup · Quick translate anywhere</div>
+    <h1><span>Popup & side panel</span> for fast local translation</h1>
+    <div class="sub">Translate text instantly, open the side panel, or translate the current page — with on-device models, site preferences, and translation history.</div>
+    <div class="features">
+      <div class="feat"><b>Quick text translation</b><span>Paste or type and translate in one click</span></div>
+      <div class="feat"><b>Page actions</b><span>Translate page or open bilingual view</span></div>
+      <div class="feat"><b>Site preferences</b><span>Remember language and mode per site</span></div>
+      <div class="feat"><b>Private by design</b><span>No API key, no cloud inference</span></div>
+    </div>
+  </div>
+  <div class="note2">
+    <div class="chip"><strong>Translation history</strong> stored locally</div>
+    <div class="chip"><strong>39 languages</strong> aligned with Translator API</div>
+  </div>
+  <div class="browser">
+    <div class="bar"><div class="dots"><i></i><i></i><i></i></div><div class="url">https://news.example.com/article</div>
+      <div class="toolbar"><div class="iconbtn">🌐</div></div>
+    </div>
+    <div class="pagebg">
+      <div class="dummy">
+        <h3>Local AI features in modern browsers</h3>
+        <p>Browsers can now run translation and language tasks directly on-device for faster, more private experiences.</p>
+        <p>Extensions can combine selection translation, full-page translation, and input rewrite into one workflow.</p>
+        <p>Users keep control of their data while getting high-quality results without external APIs.</p>
+      </div>
+      <div class="popup">
+        <div class="p-head"><div class="brand"><div class="logo">A</div>Local Translate</div><div class="pill">On-device · Ready</div></div>
+        <div class="p-body">
+          <div class="row"><div class="sel"><span>English</span><span>▾</span></div><div class="swap">⇄</div><div class="sel"><span>Japanese</span><span>▾</span></div></div>
+          <div class="ta">Translate privately on your device with Chrome’s built-in AI.</div>
+          <div class="actions"><div class="btn primary">Translate</div><div class="btn">Explain</div><div class="btn">Clear</div></div>
+          <div class="out"><div class="meta"><span>Translation</span><span>Copy · Speak</span></div><div class="txt">Chrome の内蔵 AI を使って、デバイス上でプライベートに翻訳します。</div></div>
+          <div class="quick"><div class="q">Open side panel</div><div class="q">Translate page</div><div class="q">Bilingual view</div></div>
+          <div class="hint">Offline inference · No API key · Text never leaves your device</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

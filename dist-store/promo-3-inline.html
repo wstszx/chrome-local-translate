@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=1280,height=800"><title>Promo 3</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1280px;height:800px;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+.canvas{width:1280px;height:800px;position:relative;background:radial-gradient(1000px 520px at 100% 0%,#dbeafe 0%,transparent 55%),radial-gradient(900px 500px at 0% 100%,#ede9fe 0%,transparent 55%),#f6f8fc}
+h1{position:absolute;left:60px;top:42px;font-size:48px;color:#0f172a;letter-spacing:-.02em}
+h1 span{background:linear-gradient(135deg,#4f46e5,#7c3aed);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{position:absolute;left:60px;top:108px;font-size:21px;color:#475569}
+.browser{position:absolute;left:60px;right:60px;top:170px;bottom:50px;background:#fff;border-radius:22px;border:1px solid rgba(148,163,184,.35);box-shadow:0 30px 80px rgba(15,23,42,.16);overflow:hidden}
+.bar{height:52px;background:#f8fafc;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;padding:0 18px;gap:12px}
+.dots{display:flex;gap:8px}.dots i{width:11px;height:11px;border-radius:50%}
+.dots i:nth-child(1){background:#fb7185}.dots i:nth-child(2){background:#fbbf24}.dots i:nth-child(3){background:#34d399}
+.url{flex:1;height:32px;border-radius:9px;background:#fff;border:1px solid #e2e8f0;display:flex;align-items:center;padding:0 12px;color:#64748b;font-size:13px}
+.page{padding:34px 44px;background:linear-gradient(180deg,#fff,#fbfdff);height:calc(100% - 52px)}
+.page h2{font-size:30px;color:#0f172a;margin-bottom:8px}
+.page p{font-size:16px;color:#64748b;margin-bottom:22px}
+.thread{max-width:820px}
+.msg{display:flex;gap:14px;margin-bottom:18px}
+.avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#a855f7);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700}
+.card{flex:1;background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:14px 16px}
+.name{font-size:13px;color:#64748b;margin-bottom:6px}.text{font-size:16px;line-height:1.7;color:#334155}
+.composer{margin-top:18px;max-width:820px;position:relative}
+.box{background:#fff;border:1.5px solid #c7d2fe;border-radius:16px;padding:14px 16px 56px;box-shadow:0 0 0 4px rgba(99,102,241,.08)}
+.label{font-size:13px;color:#6366f1;font-weight:600;margin-bottom:8px}
+.input{font-size:17px;line-height:1.7;color:#1e293b}
+.input .typed{background:rgba(99,102,241,.08);border-radius:4px;padding:0 2px}
+.trigger{position:absolute;right:16px;bottom:12px;padding:8px 12px;border-radius:999px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;font-size:13px;font-weight:600;box-shadow:0 8px 20px rgba(99,102,241,.35)}
+.panel{position:absolute;right:20px;top:-18px;width:430px;background:rgba(24,24,27,.94);color:#fff;border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:14px 16px;backdrop-filter:blur(18px);box-shadow:0 24px 60px rgba(2,6,23,.45)}
+.panel .hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:13px;color:rgba(255,255,255,.7)}
+.panel .hd b{color:#c7d2fe}
+.out{font-size:18px;line-height:1.6;margin-bottom:12px}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+.btns span{padding:7px 12px;border-radius:10px;font-size:13px;font-weight:600}
+.btns .p{background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff}
+.btns .s{background:rgba(255,255,255,.1);color:#e5e7eb}
+.meta{margin-top:10px;font-size:12px;color:rgba(255,255,255,.5)}
+.badges{position:absolute;right:60px;top:56px;display:flex;gap:10px}
+.badges span{padding:10px 14px;border-radius:14px;background:rgba(255,255,255,.75);border:1px solid rgba(148,163,184,.35);color:#334155;font-size:14px;font-weight:600;box-shadow:0 8px 20px rgba(15,23,42,.08)}
+.badges b{color:#4f46e5}
+</style>
+</head>
+<body>
+<div class="canvas">
+  <h1><span>输入框实时转写</span>翻译</h1>
+  <div class="sub">在网页输入框内边打边译，可替换/追加/还原，兼容普通输入框与富文本编辑区</div>
+  <div class="badges"><span><b>网页内原地操作</b></span><span><b>Alt+Shift+Enter</b> 快捷转写</span></div>
+  <div class="browser">
+    <div class="bar"><div class="dots"><i></i><i></i><i></i></div><div class="url">https://mail.example.com/compose</div></div>
+    <div class="page">
+      <h2>回复客户邮件</h2>
+      <p>无需切换页面或复制粘贴，直接在输入框中完成多语言转写。</p>
+      <div class="thread">
+        <div class="msg"><div class="avatar">A</div><div class="card"><div class="name">Alex · Customer</div><div class="text">Could you share the updated delivery schedule and confirm the invoice details?</div></div></div>
+        <div class="composer">
+          <div class="panel">
+            <div class="hd"><span><b>中文 → 英语</b> · 输入框转写</span><span>流式生成中…</span></div>
+            <div class="out">Thanks for reaching out. I’ll send the updated delivery schedule today and confirm the invoice details shortly.</div>
+            <div class="btns"><span class="p">替换</span><span class="s">追加</span><span class="s">复制译文</span><span class="s">还原原文</span></div>
+            <div class="meta">网页内浮动面板 · 译文可直接编辑 · 本地离线推理</div>
+          </div>
+          <div class="box">
+            <div class="label">回复内容</div>
+            <div class="input">谢谢你的来信。我今天会把更新后的交付排期发给你，并尽快确认发票明细。<span class="typed">▍</span></div>
+          </div>
+          <div class="trigger">🌐 转写</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
