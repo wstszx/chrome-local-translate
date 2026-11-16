@@ -30,5 +30,9 @@
   "cmdRewriteInput": {
     "message": "转写当前输入框里的内容（默认不占快捷键，页内按 Alt+Shift+Enter 即可）",
     "description": "命令描述"
+  },
+  "sponsorLabel": {
+    "message": "赞助作者",
+    "description": "页脚可选支持链接文案（自愿）"
   }
 }

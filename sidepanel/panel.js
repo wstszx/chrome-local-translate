@@ -3,6 +3,7 @@
  * 所有模型推理都通过消息交给 background（lib/engine.js）完成。
  */
 import { LANGUAGES, langLabel, normalizeCode, isRtl } from '../lib/languages.js';
+import { SPONSOR_URL } from '../lib/links.js';
 import {
   TONES,
   ENGINES,
@@ -15,14 +16,6 @@ import {
 } from '../lib/engine.js';
 
 const $ = (id) => document.getElementById(id);
-
-/**
- * 赞助/捐赠入口（可选）：只放一条普通链接，页内不加载任何第三方脚本、
- * 不发任何网络请求，点了才会在新标签页里打开。
- * 把你的收款页地址（爱发电 / GitHub Sponsors / 自己的赞赏页）填进来即可；
- * 留空则页脚只显示项目主页，不会出现死链。
- */
-const SPONSOR_URL = 'https://ifdian.net/a/fbread';
 
 /* ------------------------------ 通用 ------------------------------ */
 
@@ -1342,8 +1335,11 @@ function bindEvents() {
   syncForm();
   if (SPONSOR_URL) {
     const a = $('footer-sponsor');
-    a.href = SPONSOR_URL;
-    a.hidden = false;
+    if (a) {
+      a.href = SPONSOR_URL;
+      a.textContent = chrome.i18n.getMessage('sponsorLabel') || 'Support this project';
+      a.hidden = false;
+    }
   }
   // 从「扩展详情 → 选项」进来时（panel.html#settings）直接落到设置页
   const wanted = (location.hash || '').replace('#', '');

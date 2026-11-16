@@ -3,6 +3,7 @@
  */
 import { LANGUAGES, langLabel, normalizeCode } from '../lib/languages.js';
 import { TONES } from '../lib/engine.js';
+import { SPONSOR_URL } from '../lib/links.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -150,6 +151,15 @@ async function explain() {
     document.documentElement.dataset.theme = settings.theme || 'auto';
   }
   refreshPill();
+
+  if (SPONSOR_URL) {
+    const sponsor = $('popup-sponsor');
+    if (sponsor) {
+      sponsor.href = SPONSOR_URL;
+      sponsor.textContent = chrome.i18n.getMessage('sponsorLabel') || 'Support this project';
+      sponsor.hidden = false;
+    }
+  }
 
   $('do-translate').addEventListener('click', translate);
   $('do-explain').addEventListener('click', explain);

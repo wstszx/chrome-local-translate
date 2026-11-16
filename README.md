@@ -435,7 +435,14 @@ jsdom 可能因小文件 I/O 抖动而加载卡住 —— 把仓库（或 node_m
 顺带一提：`test:dom` 里有两类用例抓到过真实 bug —— 「拖动后立刻点 ⌖」这个竞态 —— 位置是异步从 storage 读回来的，
 如果用户在读取返回前就拖动或取消固定，迟到的读取会把位置改回去；现在用 `posTouched` 标记丢弃过期结果。
 
-## 11. 想继续改？几个自然的扩展点
+## 11. 支持这个项目（可选）
+
+如果这个扩展对你有帮助，欢迎自愿支持后续开发与维护（**完全自愿，不影响任何功能**）：
+
+- 爱发电：<https://ifdian.net/a/fbread>
+- 也可以在 GitHub 提 Issue / Star 支持项目：<https://github.com/wstszx/chrome-local-translate>
+
+## 12. 想继续改？几个自然的扩展点
 
 - `lib/engine.js` 的 `buildSystemPrompt()`：换一版自己的翻译提示词（比如「保留 Markdown 结构」「输出 JSON」）。
 - 想让 Nano 也更省电：`nanoChunkChars()` 调大分块、`concurrency` 调到 1。

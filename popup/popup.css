@@ -24,3 +24,23 @@ body.popup .bar {
 .popup .tab-btn {
   display: none;
 }
+
+.popup-links {
+  margin-top: -2px;
+}
+
+.popup-link {
+  color: var(--accent, #6d28d9);
+  text-decoration: none;
+  font-size: 11.5px;
+  opacity: 0.75;
+}
+
+.popup-link:hover {
+  text-decoration: underline;
+  opacity: 1;
+}
+
+.popup-link[hidden] {
+  display: none !important;
+}
