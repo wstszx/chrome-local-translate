@@ -499,7 +499,7 @@ async function samplePageText() {
   async function startPageTranslation({ mode = '' } = {}) {
     if (!state.settings) await whenSettingsReady();
     const base = state.settings;
-    if (!base) return { ok: false, error: '尚未加载设置' };
+    if (!base) return { ok: false, error: msg('csSettingsNotLoaded','尚未加载设置') };
     if (isStale()) {
       markDead();
       return { ok: false, error: U.staleText(), code: 'context-invalidated' };
@@ -970,7 +970,7 @@ async function samplePageText() {
         const text = (msg.payload && msg.payload.text) || selectedText();
         if (!text) {
           if (!IS_TOP) return false; // 交给有选区的 frame
-          sendResponse({ ok: false, error: '没有选中文本' });
+          sendResponse({ ok: false, error: msg('csNoSelectedText','没有选中文本') });
           return false;
         }
         let rect = null;
@@ -987,7 +987,7 @@ async function samplePageText() {
         const text = (msg.payload && msg.payload.text) || selectedText();
         if (!text) {
           if (!IS_TOP) return false; // 交给有选区的 frame
-          sendResponse({ ok: false, error: '没有选中文本' });
+          sendResponse({ ok: false, error: msg('csNoSelectedText','没有选中文本') });
           return false;
         }
         explainText(text, null).then(() => sendResponse({ ok: true }), (e) => sendResponse({ ok: false, error: String(e) }));
