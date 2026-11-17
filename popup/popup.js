@@ -15,6 +15,8 @@ function applyI18n(root = document) {
   root.querySelectorAll('[data-i18n]').forEach((el) => { const t = msg(el.getAttribute('data-i18n')); if (t) el.textContent = t; });
   root.querySelectorAll('[data-i18n-title]').forEach((el) => { const t = msg(el.getAttribute('data-i18n-title')); if (t) el.title = t; });
   root.querySelectorAll('[data-i18n-placeholder]').forEach((el) => { const t = msg(el.getAttribute('data-i18n-placeholder')); if (t) el.placeholder = t; });
+  const titleEl = root.querySelector('title[data-i18n]');
+  if (titleEl) document.title = titleEl.textContent || document.title;
 }
 
 function send(message) {
@@ -22,7 +24,7 @@ function send(message) {
     chrome.runtime.sendMessage(message, (res) => {
       const err = chrome.runtime.lastError;
       if (err) reject(new Error(friendlyError(err.message)));
-      else if (res && res.ok === false) reject(new Error(friendlyError(res.error || '操作失败')));
+      else if (res && res.ok === false) reject(new Error(friendlyError(res.error || msg('operationFailed','操作失败'))));
       else resolve(res);
     });
   });

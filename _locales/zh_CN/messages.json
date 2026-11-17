@@ -1161,5 +1161,11 @@
   },
   "appTitle": {
     "message": "本地翻译"
+  },
+  "operationFailed": {
+    "message": "操作失败"
+  },
+  "popupInputPlaceholder": {
+    "message": "输入或粘贴文本，Ctrl / Cmd + Enter 翻译"
   }
 }

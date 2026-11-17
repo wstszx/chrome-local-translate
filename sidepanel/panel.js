@@ -57,7 +57,7 @@ function send(message) {
     chrome.runtime.sendMessage(message, (res) => {
       const err = chrome.runtime.lastError;
       if (err) reject(new Error(friendlyError(err.message)));
-      else if (res && res.ok === false) reject(new Error(friendlyError(res.error || '操作失败')));
+      else if (res && res.ok === false) reject(new Error(friendlyError(res.error || msg('operationFailed','操作失败'))));
       else resolve(res);
     });
   });

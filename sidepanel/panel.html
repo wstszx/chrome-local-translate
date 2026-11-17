@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title data-i18n="appTitle">本地翻译</title>
+    <title data-i18n="appTitle"></title>
     <link rel="stylesheet" href="panel.css" />
   </head>
   <body>
@@ -15,53 +15,51 @@
             d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm6.9 6h-2.2a13 13 0 0 0-1.2-3.1A8 8 0 0 1 18.9 8ZM12 4c.7.9 1.3 2.2 1.7 4h-3.4C10.7 6.2 11.3 4.9 12 4ZM4.3 14a8 8 0 0 1 0-4h2.5a19 19 0 0 0 0 4H4.3Zm.9 2h2.1c.3 1.1.7 2.2 1.2 3.1A8 8 0 0 1 5.2 16Zm2.1-8H5.2a8 8 0 0 1 3.3-3.1C8 5.8 7.6 6.9 7.3 8ZM12 20c-.7-.9-1.3-2.2-1.7-4h3.4c-.4 1.8-1 3.1-1.7 4Zm2-6H10a17 17 0 0 1 0-4h4a17 17 0 0 1 0 4Zm.7 5.1c.5-.9.9-2 1.2-3.1h2.1a8 8 0 0 1-3.3 3.1Zm1.5-5.1a19 19 0 0 0 0-4h2.5a8 8 0 0 1 0 4h-2.5Z"
           />
         </svg>
-        <span data-i18n="appTitle">本地翻译</span>
+        <span data-i18n="appTitle"></span>
       </div>
-      <span class="pill" id="engine-pill" data-i18n="statusDetecting">检测中…</span>
+      <span class="pill" id="engine-pill" data-i18n="statusDetecting"></span>
     </header>
 
     <nav class="tabs">
-      <button type="button" class="tab-btn active" data-tab="text" data-i18n="tabText">文本</button>
-      <button type="button" class="tab-btn" data-tab="page" data-i18n="tabPage">页面</button>
-      <button type="button" class="tab-btn" data-tab="history" data-i18n="tabHistory">历史</button>
-      <button type="button" class="tab-btn" data-tab="settings" data-i18n="tabSettings">设置</button>
+      <button type="button" class="tab-btn active" data-tab="text" data-i18n="tabText"></button>
+      <button type="button" class="tab-btn" data-tab="page" data-i18n="tabPage"></button>
+      <button type="button" class="tab-btn" data-tab="history" data-i18n="tabHistory"></button>
+      <button type="button" class="tab-btn" data-tab="settings" data-i18n="tabSettings"></button>
     </nav>
 
     <main>
       <!-- ============================ 文本 ============================ -->
       <section class="tab-panel active" id="tab-text">
         <div class="row">
-          <select id="src-lang" class="grow" data-i18n-title="sourceLangTitle" title="源语言"></select>
-          <button type="button" class="icon" id="swap" data-i18n-title="swapLangs" title="交换语言">⇄</button>
-          <select id="tgt-lang" class="grow" data-i18n-title="targetLangTitle" title="目标语言"></select>
+          <select id="src-lang" class="grow" data-i18n-title="sourceLangTitle" title=""></select>
+          <button type="button" class="icon" id="swap" data-i18n-title="swapLangs" title="">⇄</button>
+          <select id="tgt-lang" class="grow" data-i18n-title="targetLangTitle" title=""></select>
         </div>
 
-        <textarea id="input" rows="5" data-i18n-placeholder="inputPlaceholder" placeholder="粘贴或输入文本…&#10;Ctrl / Cmd + Enter 立即翻译（全程离线推理）"></textarea>
+        <textarea id="input" rows="5" data-i18n-placeholder="inputPlaceholder" placeholder=""></textarea>
         <div class="row between">
-          <label class="chk"><input type="checkbox" id="auto-input" /> <span data-i18n="inputAutoTranslate">输入即译</span></label>
-          <span class="muted small" id="count">0 字</span>
+          <label class="chk"><input type="checkbox" id="auto-input" /> <span data-i18n="inputAutoTranslate"></span></label>
+          <span class="muted small" id="count">0</span>
         </div>
         <div class="row">
-          <button type="button" class="primary grow" id="do-translate" data-i18n="translate">翻译</button>
-          <button type="button" id="do-explain" data-i18n="explain">解释</button>
-          <button type="button" class="icon" id="do-paste" data-i18n-title="paste" title="粘贴并翻译">粘贴</button>
-          <button type="button" class="icon" id="do-clear" data-i18n-title="clear" title="清空">清空</button>
+          <button type="button" class="primary grow" id="do-translate" data-i18n="translate"></button>
+          <button type="button" id="do-explain" data-i18n="explain"></button>
+          <button type="button" class="icon" id="do-paste" data-i18n="paste" data-i18n-title="paste" title=""></button>
+          <button type="button" class="icon" id="do-clear" data-i18n="clear" data-i18n-title="clear" title=""></button>
         </div>
 
         <div class="out-wrap">
           <div class="out-head">
-            <span class="muted small" id="out-meta" data-i18n="translationOutput">译文</span>
+            <span class="muted small" id="out-meta" data-i18n="translationOutput"></span>
             <span class="grow"></span>
-            <button type="button" class="mini" id="out-copy" data-i18n="copy">复制</button>
-            <button type="button" class="mini" id="out-speak" data-i18n="speak">朗读</button>
-            <button type="button" class="mini" id="out-back" data-i18n="backTranslate" data-i18n-title="backTranslate" title="把译文当作原文再译一次（回译校验）">回译</button>
+            <button type="button" class="mini" id="out-copy" data-i18n="copy"></button>
+            <button type="button" class="mini" id="out-speak" data-i18n="speak"></button>
+            <button type="button" class="mini" id="out-back" data-i18n="backTranslate" data-i18n-title="backTranslate" title=""></button>
           </div>
-          <div id="output" class="output" dir="auto"><span class="placeholder" data-i18n="outputPlaceholder">译文会显示在这里</span></div>
+          <div id="output" class="output" dir="auto"><span class="placeholder" data-i18n="outputPlaceholder"></span></div>
         </div>
         <div id="text-error" class="error" hidden></div>
-        <p class="hint" data-i18n="textPrivacyHint">
-          推理在本机完成：Chrome 的内置翻译模型或 Gemini Nano（Prompt API）。文本不会离开这台电脑。
-        </p>
+        <p class="hint" data-i18n="textPrivacyHint"></p>
       </section>
 
       <!-- ============================ 页面 ============================ -->
@@ -70,70 +68,70 @@
           <div class="page-title" id="page-title">—</div>
           <div class="muted small ellipsis" id="page-url"></div>
           <div class="row">
-            <button type="button" class="primary grow" id="page-translate" data-i18n="pageTranslate">翻译整页</button>
-            <button type="button" id="page-dual" data-i18n="pageDual">双语对照</button>
-            <button type="button" id="page-hover" data-i18n="pageHover">悬停对照</button>
+            <button type="button" class="primary grow" id="page-translate" data-i18n="pageTranslate"></button>
+            <button type="button" id="page-dual" data-i18n="pageDual"></button>
+            <button type="button" id="page-hover" data-i18n="pageHover"></button>
           </div>
           <div class="row">
-            <button type="button" class="grow" id="page-restore" data-i18n="pageRestore">还原原文</button>
-            <button type="button" id="page-refresh" data-i18n="pageRefresh">刷新状态</button>
+            <button type="button" class="grow" id="page-restore" data-i18n="pageRestore"></button>
+            <button type="button" id="page-refresh" data-i18n="pageRefresh"></button>
           </div>
           <div class="progress"><i id="page-bar"></i></div>
-          <div class="muted small" id="page-status" data-i18n="pageStatusIdle">未翻译</div>
+          <div class="muted small" id="page-status" data-i18n="pageStatusIdle"></div>
           <div class="muted small" id="page-guide" hidden></div>
         </div>
 
         <div class="card">
-          <div class="label"><span data-i18n="sitePrefsTitle">此站点偏好</span> <span class="muted small" id="site-host">—</span></div>
-          <div class="muted small" id="site-pref-summary" data-i18n="sitePrefsNone">尚未为此站点保存偏好。</div>
+          <div class="label"><span data-i18n="sitePrefsTitle"></span> <span class="muted small" id="site-host">—</span></div>
+          <div class="muted small" id="site-pref-summary" data-i18n="sitePrefsNone"></div>
           <div class="muted small" id="site-global-hint"></div>
           <div class="row">
-            <button type="button" class="grow" id="site-save-pref" data-i18n="siteSavePref">记住当前语言/模式</button>
-            <button type="button" id="site-clear-pref" data-i18n="siteClearPref">清除此站点偏好</button>
+            <button type="button" class="grow" id="site-save-pref" data-i18n="siteSavePref"></button>
+            <button type="button" id="site-clear-pref" data-i18n="siteClearPref"></button>
           </div>
           <div class="row">
-            <button type="button" class="grow" id="site-toggle-auto" data-i18n="siteAutoOff">此站点自动翻译：关</button>
-            <button type="button" id="site-toggle-never" data-i18n="siteNeverAdd">加入永不翻译</button>
+            <button type="button" class="grow" id="site-toggle-auto" data-i18n="siteAutoOff"></button>
+            <button type="button" id="site-toggle-never" data-i18n="siteNeverAdd"></button>
           </div>
-          <p class="hint compact" data-i18n="sitePrefsHint">站点偏好仅保存在本机，并优先于“设置”中的全局站点规则。</p>
+          <p class="hint compact" data-i18n="sitePrefsHint"></p>
         </div>
 
         <div class="card">
-          <div class="label" data-i18n="selectionTitle">选中文本</div>
+          <div class="label" data-i18n="selectionTitle"></div>
           <div class="row">
-            <button type="button" class="grow" id="sel-translate" data-i18n="selTranslate">翻译选中内容</button>
-            <button type="button" id="sel-explain" data-i18n="selExplain" data-i18n-title="pageSelectionHint" title="用 Gemini Nano 讲清楚">解释</button>
+            <button type="button" class="grow" id="sel-translate" data-i18n="selTranslate"></button>
+            <button type="button" id="sel-explain" data-i18n="selExplain" data-i18n-title="pageSelectionHint" title=""></button>
           </div>
           <div id="sel-result" class="output small" hidden></div>
         </div>
 
         <div class="card">
-          <div class="label" data-i18n="modelsTitle">本地模型与状态</div>
+          <div class="label" data-i18n="modelsTitle"></div>
           <div id="model-list" class="model-list"></div>
           <div class="row">
-            <button type="button" class="grow" id="download-models" data-i18n="downloadPair">下载当前语言对的语言包</button>
+            <button type="button" class="grow" id="download-models" data-i18n="downloadPair"></button>
           </div>
           <div class="progress"><i id="dl-bar"></i></div>
-          <div class="muted small" id="dl-status" data-i18n="dlStatusDefault">语言包按需下载，下载后可离线使用。</div>
+          <div class="muted small" id="dl-status" data-i18n="dlStatusDefault"></div>
           <div id="hw-check" class="muted small" hidden></div>
           <div id="dl-hint" class="hint-box" hidden>
             <div class="small" id="dl-hint-text"></div>
             <div class="row">
-              <button type="button" class="grow" id="use-nano" data-i18n="useNanoEngine">改用 Gemini Nano 引擎</button>
+              <button type="button" class="grow" id="use-nano" data-i18n="useNanoEngine"></button>
             </div>
           </div>
           <details class="disclosure">
-            <summary data-i18n="advancedTroubleshoot">高级与故障排除</summary>
+            <summary data-i18n="advancedTroubleshoot"></summary>
             <div class="disclosure-body">
               <div class="row">
-                <button type="button" class="grow" id="nano-download" data-i18n="downloadNano">下载/启用 Gemini Nano</button>
-                <button type="button" id="selftest" data-i18n="selftest">分环境自检</button>
+                <button type="button" class="grow" id="nano-download" data-i18n="downloadNano"></button>
+                <button type="button" id="selftest" data-i18n="selftest"></button>
               </div>
               <div class="row">
-                <button type="button" class="grow" id="open-components" data-i18n="openComponents">打开 chrome://components</button>
-                <button type="button" class="grow" id="open-on-device" data-i18n="openOnDevice">打开 on-device-internals</button>
+                <button type="button" class="grow" id="open-components" data-i18n="openComponents"></button>
+                <button type="button" class="grow" id="open-on-device" data-i18n="openOnDevice"></button>
               </div>
-              <p class="hint compact" data-i18n="modelsTroubleshootHint">若语言包或 Nano 不可用，可在此检查组件状态、查看诊断页或对比运行环境结果。</p>
+              <p class="hint compact" data-i18n="modelsTroubleshootHint"></p>
             </div>
           </details>
         </div>
@@ -142,207 +140,204 @@
       <!-- ============================ 历史 ============================ -->
       <section class="tab-panel" id="tab-history">
         <div class="card">
-          <div class="label"><span data-i18n="historyTitle">翻译历史</span> <span class="muted small" data-i18n="historyLocalOnly">（仅保存在本机）</span></div>
-          <label class="chk"><input type="checkbox" id="history-enabled" /> <span data-i18n="historyEnabled">保存翻译与解释记录</span></label>
+          <div class="label"><span data-i18n="historyTitle"></span> <span class="muted small" data-i18n="historyLocalOnly"></span></div>
+          <label class="chk"><input type="checkbox" id="history-enabled" /> <span data-i18n="historyEnabled"></span></label>
           <div class="row">
-            <button type="button" class="grow" id="history-refresh" data-i18n="historyRefresh">刷新</button>
-            <button type="button" id="history-clear" data-i18n="historyClear">清空历史</button>
+            <button type="button" class="grow" id="history-refresh" data-i18n="historyRefresh"></button>
+            <button type="button" id="history-clear" data-i18n="historyClear"></button>
           </div>
-          <p class="hint" data-i18n="historyHint">最近记录会显示在下方，点击“载入”可放回文本页继续编辑或回译。</p>
+          <p class="hint" data-i18n="historyHint"></p>
         </div>
         <div id="history-list" class="history-list"></div>
       </section>
 
       <!-- ============================ 设置 ============================ -->
       <section class="tab-panel" id="tab-settings">
-        <div class="muted small" id="save-status" data-i18n="settingsAutoSave">设置会自动保存</div>
+        <div class="muted small" id="save-status" data-i18n="settingsAutoSave"></div>
         <div class="card">
-          <div class="label" data-i18n="engineLabel">翻译引擎</div>
-          <select id="engine" data-i18n-title="engineSelectTitle" title="选择翻译使用的本地引擎">
-            <option value="auto" data-i18n="engineAuto">自动（推荐：优先内置翻译，不支持时用 Gemini Nano）</option>
-            <option value="translator" data-i18n="engineTranslator">内置翻译模型（速度快、适合常规翻译）</option>
-            <option value="nano" data-i18n="engineNano">Gemini Nano（支持语气、术语表、解释等高级能力）</option>
+          <div class="label" data-i18n="engineLabel"></div>
+          <select id="engine" data-i18n-title="engineSelectTitle" title="">
+            <option value="auto" data-i18n="engineAuto"></option>
+            <option value="translator" data-i18n="engineTranslator"></option>
+            <option value="nano" data-i18n="engineNano"></option>
           </select>
-          <div class="label"><span data-i18n="toneLabel">语气 / 风格</span> <span class="muted small" data-i18n="toneNanoHint">（Gemini Nano 生效）</span></div>
+          <div class="label"><span data-i18n="toneLabel"></span> <span class="muted small" data-i18n="toneNanoHint"></span></div>
           <select id="tone"></select>
           <details class="disclosure">
-            <summary data-i18n="advancedNanoSummary">高级（Gemini Nano）：术语表与翻译背景</summary>
+            <summary data-i18n="advancedNanoSummary"></summary>
             <div class="disclosure-body">
-              <div class="label"><span data-i18n="glossaryLabel">术语表</span> <span class="muted small" data-i18n="glossaryHint">（每行：原文=译文）</span></div>
-              <textarea id="glossary" rows="3" data-i18n-placeholder="glossaryPlaceholder" placeholder="Gemini Nano=双子星纳米&#10;prompt=提示词"></textarea>
-              <div class="label"><span data-i18n="contextLabel">翻译背景</span> <span class="muted small" data-i18n="contextHint">（帮助理解语境，不会被翻译）</span></div>
-              <textarea id="context" rows="2" data-i18n-placeholder="contextPlaceholder" placeholder="例如：这是一段 React 官方文档的更新日志"></textarea>
+              <div class="label"><span data-i18n="glossaryLabel"></span> <span class="muted small" data-i18n="glossaryHint"></span></div>
+              <textarea id="glossary" rows="3" data-i18n-placeholder="glossaryPlaceholder" placeholder=""></textarea>
+              <div class="label"><span data-i18n="contextLabel"></span> <span class="muted small" data-i18n="contextHint"></span></div>
+              <textarea id="context" rows="2" data-i18n-placeholder="contextPlaceholder" placeholder=""></textarea>
             </div>
           </details>
         </div>
 
         <div class="card">
-          <div class="label" data-i18n="selectionTranslationLabel">划词翻译</div>
-          <label class="chk"><input type="checkbox" id="show-bubble" /> <span data-i18n="showBubble">选中文本后显示译文气泡</span></label>
-          <label class="chk"><input type="checkbox" id="dblclick" /> <span data-i18n="dblclickTranslate">双击单词时翻译</span></label>
+          <div class="label" data-i18n="selectionTranslationLabel"></div>
+          <label class="chk"><input type="checkbox" id="show-bubble" /> <span data-i18n="showBubble"></span></label>
+          <label class="chk"><input type="checkbox" id="dblclick" /> <span data-i18n="dblclickTranslate"></span></label>
         </div>
 
         <div class="card">
-          <div class="label" data-i18n="inlineRewriteTitle">输入框转写</div>
-          <p class="hint compact" data-i18n="inlineRewriteHint">在网页输入框中将内容转写为目标语言（本地处理，不上传）。</p>
-          <label class="chk"><input type="checkbox" id="inline-enabled" /> <span data-i18n="inlineEnabled">启用输入框转写</span></label>
+          <div class="label" data-i18n="inlineRewriteTitle"></div>
+          <p class="hint compact" data-i18n="inlineRewriteHint"></p>
+          <label class="chk"><input type="checkbox" id="inline-enabled" /> <span data-i18n="inlineEnabled"></span></label>
           <select id="inline-mode">
-            <option value="button" data-i18n="inlineModeButton">显示浮标，点击或按 Alt+Shift+Enter 转写</option>
-            <option value="auto" data-i18n="inlineModeAuto">自动展开并随输入更新</option>
-            <option value="off" data-i18n="inlineModeOff">关闭</option>
+            <option value="button" data-i18n="inlineModeButton"></option>
+            <option value="auto" data-i18n="inlineModeAuto"></option>
+            <option value="off" data-i18n="inlineModeOff"></option>
           </select>
-          <label class="grow small"><span data-i18n="inlineTargetLanguage">转写目标语言</span>
+          <label class="grow small"><span data-i18n="inlineTargetLanguage"></span>
             <select id="inline-target"></select>
           </label>
           <details class="disclosure">
-            <summary><span data-i18n="inlineAdvanced">高级与排错</span> <span class="muted small" id="inline-rules-count"></span></summary>
+            <summary><span data-i18n="inlineAdvanced"></span> <span class="muted small" id="inline-rules-count"></span></summary>
             <div class="disclosure-body">
               <select id="inline-insert">
-                <option value="replace" data-i18n="inlineInsertReplace">快捷键动作：替换输入框内容</option>
-                <option value="append" data-i18n="inlineInsertAppend">快捷键动作：追加译文到末尾</option>
-                <option value="copy" data-i18n="inlineInsertCopy">快捷键动作：仅复制译文</option>
+                <option value="replace" data-i18n="inlineInsertReplace"></option>
+                <option value="append" data-i18n="inlineInsertAppend"></option>
+                <option value="copy" data-i18n="inlineInsertCopy"></option>
               </select>
-              <label class="chk"><input type="checkbox" id="inline-live" /> <span data-i18n="inlineLive">面板打开时随输入自动更新译文</span></label>
-              <label class="grow small"><span data-i18n="inlineMinChars">最少字数</span> <input type="number" id="inline-min" min="1" step="1" /></label>
+              <label class="chk"><input type="checkbox" id="inline-live" /> <span data-i18n="inlineLive"></span></label>
+              <label class="grow small"><span data-i18n="inlineMinChars"></span> <input type="number" id="inline-min" min="1" step="1" /></label>
               <div class="row between">
-                <div class="label"><span data-i18n="inlineNeverSitesLabel">不自动弹出的网站</span> <span class="muted small" data-i18n="inlineNeverSitesHint">（每行一个域名，失焦自动整理；可在“整页翻译 &gt; 全局站点规则与高级”统一管理）</span></div>
-                <button type="button" class="mini" id="inline-never-clear" data-i18n="clear">清空</button>
+                <div class="label"><span data-i18n="inlineNeverSitesLabel"></span> <span class="muted small" data-i18n="inlineNeverSitesHint"></span></div>
+                <button type="button" class="mini" id="inline-never-clear" data-i18n="clear"></button>
               </div>
               <textarea id="inline-never" rows="2" data-i18n-placeholder="inlineNeverPlaceholder" placeholder="mail.google.com"></textarea>
-              <p class="hint compact" data-i18n="inlineShortcutHint">页内快捷键：<b>Alt+Shift+Enter</b>。如需修改默认键位，可在 <code>chrome://extensions/shortcuts</code> 中设置。</p>
+              <p class="hint compact" data-i18n="inlineShortcutHint"></p>
               <div class="row">
-                <button type="button" class="grow" id="inline-probe" data-i18n="inlineProbeBtn">自检当前输入框</button>
+                <button type="button" class="grow" id="inline-probe" data-i18n="inlineProbeBtn"></button>
               </div>
               <div id="inline-hint" class="hint" hidden></div>
               <div id="inline-probe-out" class="diag" hidden></div>
-              <p class="hint compact" data-i18n="inlineProbeDesc">自检会检查当前标签页各框架（含 iframe）是否能识别输入目标与文本，便于排查“无反应”问题。</p>
+              <p class="hint compact" data-i18n="inlineProbeDesc"></p>
             </div>
           </details>
         </div>
 
         <div class="card">
-          <div class="label" data-i18n="pageTranslationTitle">整页翻译</div>
+          <div class="label" data-i18n="pageTranslationTitle"></div>
           <select id="display-mode">
-            <option value="replace" data-i18n="displayReplace">替换原文（可还原）</option>
-            <option value="dual" data-i18n="displayDual">双语对照（保留原文）</option>
-            <option value="hover" data-i18n="displayHover">悬停对照</option>
+            <option value="replace" data-i18n="displayReplace"></option>
+            <option value="dual" data-i18n="displayDual"></option>
+            <option value="hover" data-i18n="displayHover"></option>
           </select>
-          <label class="chk"><input type="checkbox" id="auto-translate" /> <span data-i18n="pageAutoTranslate">打开网页时自动翻译</span></label>
-          <p class="hint compact" data-i18n="siteRulesPriorityHint">优先级：页面标签中的“此站点偏好” &gt; 此处全局站点规则 &gt; 默认设置。</p>
+          <label class="chk"><input type="checkbox" id="auto-translate" /> <span data-i18n="pageAutoTranslate"></span></label>
+          <p class="hint compact" data-i18n="siteRulesPriorityHint"></p>
           <details class="disclosure" id="site-rules-disclosure">
-            <summary><span data-i18n="globalSiteRulesAdvanced">全局站点规则与高级</span> <span class="muted small" id="page-rules-count"></span></summary>
+            <summary><span data-i18n="globalSiteRulesAdvanced"></span> <span class="muted small" id="page-rules-count"></span></summary>
             <div class="disclosure-body">
               <div class="site-rules-manager" id="site-rules-manager">
                 <div class="row">
-                  <input id="site-rule-input" class="grow" type="text" data-i18n-placeholder="addHostPlaceholder" placeholder="输入域名（如 example.com），回车添加" />
-                  <button type="button" id="site-rule-add" class="primary" data-i18n="add">添加</button>
+                  <input id="site-rule-input" class="grow" type="text" data-i18n-placeholder="addHostPlaceholder" placeholder="" />
+                  <button type="button" id="site-rule-add" class="primary" data-i18n="add"></button>
                 </div>
                 <div class="row site-rule-flags">
-                  <label class="chk small"><input type="checkbox" id="site-rule-flag-auto" /> <span data-i18n="siteRuleFlagAuto">自动翻译</span></label>
-                  <label class="chk small"><input type="checkbox" id="site-rule-flag-never" /> <span data-i18n="siteRuleFlagNever">永不翻译</span></label>
-                  <label class="chk small"><input type="checkbox" id="site-rule-flag-inline" /> <span data-i18n="siteRuleFlagInline">输入框不自动弹出</span></label>
+                  <label class="chk small"><input type="checkbox" id="site-rule-flag-auto" /> <span data-i18n="siteRuleFlagAuto"></span></label>
+                  <label class="chk small"><input type="checkbox" id="site-rule-flag-never" /> <span data-i18n="siteRuleFlagNever"></span></label>
+                  <label class="chk small"><input type="checkbox" id="site-rule-flag-inline" /> <span data-i18n="siteRuleFlagInline"></span></label>
                 </div>
                 <div class="row">
-                  <input id="site-rule-search" class="grow" type="text" data-i18n-placeholder="searchHostPlaceholder" placeholder="搜索域名…" />
+                  <input id="site-rule-search" class="grow" type="text" data-i18n-placeholder="searchHostPlaceholder" placeholder="" />
                 </div>
                 <div id="site-rule-list" class="site-rule-list"></div>
                 <div class="row">
-                  <button type="button" class="mini" id="site-rules-export" data-i18n="exportJson">导出 JSON</button>
-                  <button type="button" class="mini" id="site-rules-import" data-i18n="importJson">导入 JSON</button>
-                  <button type="button" class="mini" id="site-rules-clear-all" data-i18n="clearAllRules">清空全部规则</button>
+                  <button type="button" class="mini" id="site-rules-export" data-i18n="exportJson"></button>
+                  <button type="button" class="mini" id="site-rules-import" data-i18n="importJson"></button>
+                  <button type="button" class="mini" id="site-rules-clear-all" data-i18n="clearAllRules"></button>
                 </div>
                 <input id="site-rules-import-file" type="file" accept="application/json,.json" hidden />
               </div>
               <details class="disclosure inner">
-                <summary data-i18n="bulkTextEdit">批量文本编辑（高级）</summary>
+                <summary data-i18n="bulkTextEdit"></summary>
                 <div class="disclosure-body">
                   <div class="row between">
-                    <div class="label"><span data-i18n="autoSitesLabel">自动翻译的网站</span> <span class="muted small" data-i18n="autoSitesHint">（每行一个域名；留空=所有网站）</span></div>
-                    <button type="button" class="mini" id="auto-sites-clear" data-i18n="clear">清空</button>
+                    <div class="label"><span data-i18n="autoSitesLabel"></span> <span class="muted small" data-i18n="autoSitesHint"></span></div>
+                    <button type="button" class="mini" id="auto-sites-clear" data-i18n="clear"></button>
                   </div>
                   <textarea id="auto-sites" rows="2" data-i18n-placeholder="autoSitesPlaceholder" placeholder="news.ycombinator.com"></textarea>
                   <div class="row between">
-                    <div class="label"><span data-i18n="neverSitesLabel">永不翻译的网站</span> <span class="muted small" data-i18n="neverSitesHint">（每行一个域名）</span></div>
-                    <button type="button" class="mini" id="never-sites-clear" data-i18n="clear">清空</button>
+                    <div class="label"><span data-i18n="neverSitesLabel"></span> <span class="muted small" data-i18n="neverSitesHint"></span></div>
+                    <button type="button" class="mini" id="never-sites-clear" data-i18n="clear"></button>
                   </div>
                   <textarea id="never-sites" rows="2" data-i18n-placeholder="neverSitesPlaceholder" placeholder="mail.google.com"></textarea>
                   <div class="row between">
-                    <div class="label"><span data-i18n="inlineNeverMirrorLabel">输入框不自动弹出的网站</span> <span class="muted small" data-i18n="inlineNeverMirrorHint">（与“输入框转写”共享）</span></div>
-                    <button type="button" class="mini" id="inline-never-clear-inline" data-i18n="clear">清空</button>
+                    <div class="label"><span data-i18n="inlineNeverMirrorLabel"></span> <span class="muted small" data-i18n="inlineNeverMirrorHint"></span></div>
+                    <button type="button" class="mini" id="inline-never-clear-inline" data-i18n="clear"></button>
                   </div>
                   <textarea id="inline-never-mirror" rows="2" data-i18n-placeholder="inlineNeverMirrorPlaceholder" placeholder="mail.google.com"></textarea>
                 </div>
               </details>
-              <label class="grow small"><span data-i18n="minAutoCharsLabel">自动翻译的最少正文字数</span> <input type="number" id="min-chars" min="0" step="50" /></label>
-              <label class="grow small"><span data-i18n="maxNodesLabel">单页最多翻译段落数</span> <input type="number" id="max-nodes" min="50" step="100" /></label>
-              <label class="chk"><input type="checkbox" id="skip-same-lang" /> <span data-i18n="skipSameLang">跳过已是目标语言的段落</span></label>
+              <label class="grow small"><span data-i18n="minAutoCharsLabel"></span> <input type="number" id="min-chars" min="0" step="50" /></label>
+              <label class="grow small"><span data-i18n="maxNodesLabel"></span> <input type="number" id="max-nodes" min="50" step="100" /></label>
+              <label class="chk"><input type="checkbox" id="skip-same-lang" /> <span data-i18n="skipSameLang"></span></label>
             </div>
           </details>
         </div>
 
         <div class="card">
-          <div class="label" data-i18n="performanceDisplayLabel">性能与显示</div>
-          <label class="chk"><input type="checkbox" id="cache-enabled" /> <span data-i18n="cacheLabel">启用译文缓存（同一句只翻一次）</span></label>
+          <div class="label" data-i18n="performanceDisplayLabel"></div>
+          <label class="chk"><input type="checkbox" id="cache-enabled" /> <span data-i18n="cacheLabel"></span></label>
           <div class="row">
-            <button type="button" id="cache-clear" data-i18n="cacheClearBtn">清理缓存</button>
+            <button type="button" id="cache-clear" data-i18n="cacheClearBtn"></button>
             <span class="muted small" id="cache-size">—</span>
           </div>
-          <label class="grow small"><span data-i18n="theme">主题</span>
+          <label class="grow small"><span data-i18n="theme"></span>
             <select id="theme">
-              <option value="auto" data-i18n="themeAuto">跟随系统</option>
-              <option value="light" data-i18n="themeLight">浅色</option>
-              <option value="dark" data-i18n="themeDark">深色</option>
+              <option value="auto" data-i18n="themeAuto"></option>
+              <option value="light" data-i18n="themeLight"></option>
+              <option value="dark" data-i18n="themeDark"></option>
             </select>
           </label>
           <details class="disclosure">
-            <summary data-i18n="advancedLabel">高级</summary>
+            <summary data-i18n="advancedLabel"></summary>
             <div class="disclosure-body">
-              <label class="grow small"><span data-i18n="concurrency">并发请求</span>
+              <label class="grow small"><span data-i18n="concurrency"></span>
                 <select id="concurrency">
-                  <option value="1" data-i18n="concurrency1">1（最省电）</option>
-                  <option value="2" data-i18n="concurrency2">2（推荐）</option>
+                  <option value="1" data-i18n="concurrency1"></option>
+                  <option value="2" data-i18n="concurrency2"></option>
                   <option value="3" data-i18n="concurrency3">3</option>
-                  <option value="4" data-i18n="concurrency4">4（最快）</option>
+                  <option value="4" data-i18n="concurrency4"></option>
                 </select>
               </label>
               <div class="row">
-                <button type="button" class="grow" id="engine-reset" data-label="重置本地会话" data-i18n="resetLocalSession">重置本地会话（翻译异常时使用）</button>
+                <button type="button" class="grow" id="engine-reset" data-label="" data-i18n="resetLocalSession"></button>
               </div>
             </div>
           </details>
         </div>
 
         <div class="card">
-          <div class="label" data-i18n="statusDiagnostics">状态与诊断</div>
+          <div class="label" data-i18n="statusDiagnostics"></div>
           <div id="diag" class="diag"></div>
           <div class="row">
-            <button type="button" class="grow" id="diag-refresh" data-i18n="recheckBtn">重新检测</button>
-            <button type="button" id="diag-copy" data-i18n="copyDiagBtn">复制诊断信息</button>
+            <button type="button" class="grow" id="diag-refresh" data-i18n="recheckBtn"></button>
+            <button type="button" id="diag-copy" data-i18n="copyDiagBtn"></button>
           </div>
           <details class="disclosure">
-            <summary data-i18n="troubleshootLabel">故障排除（高级）</summary>
+            <summary data-i18n="troubleshootLabel"></summary>
             <div class="disclosure-body">
-              <p class="hint compact" data-i18n="troubleshootDesc">用于定位兼容性问题；语言包/Nano 下载与 Chrome 内部诊断页入口在“页面”标签的“本地模型与状态”中。</p>
+              <p class="hint compact" data-i18n="troubleshootDesc"></p>
               <div class="row">
-                <button type="button" class="grow" id="diag-selftest" data-i18n="selftest">分环境自检</button>
+                <button type="button" class="grow" id="diag-selftest" data-i18n="selftest"></button>
               </div>
             </div>
           </details>
         </div>
 
-        <p class="hint compact" data-i18n="shortcutsLabel">
-          快捷键：Alt+Shift+T 整页翻译 · Alt+Shift+S 翻译选中内容 · Alt+Shift+Y 打开侧边栏（可在
-          <code>chrome://extensions/shortcuts</code> 修改）
-        </p>
+        <p class="hint compact" data-i18n="shortcutsLabel"></p>
       </section>
     </main>
 
     <!-- 页脚：纯静态，不加载任何第三方脚本、不发网络请求 -->
     <footer class="footer">
-      <span id="footer-tagline">免费 · 无广告 · 无追踪</span>
+      <span id="footer-tagline" data-i18n="footerTagline"></span>
       <span class="footer-links">
         <span id="footer-sponsors"></span>
-        <a id="footer-project" class="footer-link" href="https://github.com/wstszx/chrome-local-translate" target="_blank" rel="noopener noreferrer">项目主页</a>
+        <a id="footer-project" class="footer-link" href="https://github.com/wstszx/chrome-local-translate" target="_blank" rel="noopener noreferrer" data-i18n="projectHome"></a>
       </span>
     </footer>
 

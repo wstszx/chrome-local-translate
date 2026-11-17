@@ -1161,5 +1161,11 @@
   },
   "appTitle": {
     "message": "Local Translate"
+  },
+  "operationFailed": {
+    "message": "Operation failed"
+  },
+  "popupInputPlaceholder": {
+    "message": "Type or paste text, Ctrl/Cmd + Enter to translate"
   }
 }
