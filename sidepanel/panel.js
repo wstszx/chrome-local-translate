@@ -559,6 +559,7 @@ async function explainCurrent() {
   } catch (err) {
     showError($('text-error'), err.message);
     setOutput('');
+    setOutMeta(msg('explainFailed', '解释失败'));
   } finally {
     $('do-explain').disabled = false;
   }
@@ -1322,9 +1323,9 @@ function bindEvents() {
     const btn = $('engine-reset');
     // 释放并重建两个链路的原生会话（Nano 会话 + 内置翻译会话）
     await send({ type: 'lt:engine:reset' });
-    btn.textContent = '已重置 ✓';
+    btn.textContent = msg('resetDone', '已重置 ✓');
     setTimeout(() => {
-      btn.textContent = btn.dataset.label || '重置本地会话';
+      btn.textContent = msg('resetSessionLabel', btn.dataset.label || '重置本地会话');
     }, 1600);
   });
   $('theme').addEventListener('change', () => {
