@@ -1605,6 +1605,10 @@ function bindEvents() {
     showError($('text-error'), msg('errReadSettings', '无法读取设置，请重新加载扩展'));
   }
   syncForm();
+  const countEl = $('count');
+  if (countEl) countEl.textContent = `0 ${msg('charsUnit','字')}`;
+  const engineReset = $('engine-reset');
+  if (engineReset) engineReset.dataset.label = msg('resetSessionLabel','重置本地会话');
   const footerTagline = $('footer-tagline');
   if (footerTagline) footerTagline.textContent = chrome.i18n.getMessage('footerTagline') || footerTagline.textContent;
   const footerProject = $('footer-project');
@@ -1631,6 +1635,6 @@ function bindEvents() {
   await refreshEnginePill();
   await refreshActiveTab();
   const size = await send({ type: 'lt:cache:size' }).catch(() => ({ size: 0 }));
-  $('cache-size').textContent = `${size.size} 条`;
+  $('cache-size').textContent = String(size.size);
   $('input').focus();
 })();

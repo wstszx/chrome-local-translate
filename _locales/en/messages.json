@@ -1137,5 +1137,29 @@
   },
   "autoDetectOption": {
     "message": "Auto-detect"
+  },
+  "sourceLangTitle": {
+    "message": "Source language"
+  },
+  "targetLangTitle": {
+    "message": "Target language"
+  },
+  "engineSelectTitle": {
+    "message": "Choose the local engine for translation"
+  },
+  "inlineNeverPlaceholder": {
+    "message": "mail.google.com"
+  },
+  "autoSitesPlaceholder": {
+    "message": "news.ycombinator.com"
+  },
+  "neverSitesPlaceholder": {
+    "message": "mail.google.com"
+  },
+  "inlineNeverMirrorPlaceholder": {
+    "message": "mail.google.com"
+  },
+  "appTitle": {
+    "message": "Local Translate"
   }
 }

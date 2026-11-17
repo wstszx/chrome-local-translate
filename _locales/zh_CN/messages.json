@@ -1137,5 +1137,29 @@
   },
   "autoDetectOption": {
     "message": "自动检测"
+  },
+  "sourceLangTitle": {
+    "message": "源语言"
+  },
+  "targetLangTitle": {
+    "message": "目标语言"
+  },
+  "engineSelectTitle": {
+    "message": "选择翻译使用的本地引擎"
+  },
+  "inlineNeverPlaceholder": {
+    "message": "mail.google.com"
+  },
+  "autoSitesPlaceholder": {
+    "message": "news.ycombinator.com"
+  },
+  "neverSitesPlaceholder": {
+    "message": "mail.google.com"
+  },
+  "inlineNeverMirrorPlaceholder": {
+    "message": "mail.google.com"
+  },
+  "appTitle": {
+    "message": "本地翻译"
   }
 }
