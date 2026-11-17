@@ -595,7 +595,7 @@
       // 这一页的转写就永久停摆（必须刷新页面），表现就是「第一次能用、后面不能用」。
       const e = err instanceof Error ? err : new Error(String((err && err.message) || err));
       e.code = 'backend-unreachable';
-      e.message = '后台暂时没有应答（可能正在重启），请稍等一两秒再试一次。';
+      e.message = msg('csBackendUnreachable','后台暂时没有应答（可能正在重启），请稍等一两秒再试一次。');
       return e;
     }
     return err instanceof Error ? err : new Error(String((err && err.message) || err));
@@ -1324,7 +1324,7 @@
     if (!value.trim()) return;
     // 译文和原文一模一样 → 多半本来就已经是目标语言
     if (state.original && value.trim().toLowerCase() === state.original.trim().toLowerCase()) {
-      setStateLine('看起来已经是目标语言了', 'ok');
+      setStateLine(msg('inlineAlreadyTargetLang','看起来已经是目标语言了'), 'ok');
     } else if (state.loading) {
       setStateLine('');
     }
@@ -1442,29 +1442,29 @@
 
     const ok = await writeTargetText(text);
     if (!ok) {
-      setStateLine('这个输入框不支持写入（可以用「复制」再手动粘贴）', 'error');
+      setStateLine(msg('inlineWriteNotSupported','这个输入框不支持写入（可以用「复制」再手动粘贴）'), 'error');
       return;
     }
     state.lastReplace = { target, original: before };
     root.querySelector('.lt-undo').hidden = false;
-    setStateLine(mode2 === 'append' ? '已把译文追加到输入框末尾' : '已替换输入框内容（Ctrl/Cmd+Z 或「还原原文」可回退）', 'ok');
+    setStateLine(mode2 === 'append' ? msg('inlineAppended','已把译文追加到输入框末尾') : msg('inlineReplaced','已替换输入框内容（Ctrl/Cmd+Z 或「还原原文」可回退）'), 'ok');
     updatePill();
   }
 
   async function restoreOriginal() {
     const last = state.lastReplace;
     if (!last || !targetAliveFor(last.target)) {
-      setStateLine('没有可还原的内容', 'error');
+      setStateLine(msg('inlineNothingToRestore','没有可还原的内容'), 'error');
       return;
     }
     const ok = await writeTargetTextFor(last.target, last.original);
     if (!ok) {
-      setStateLine('还原失败', 'error');
+      setStateLine(msg('inlineRestoreFailed','还原失败'), 'error');
       return;
     }
     state.lastReplace = null;
     root.querySelector('.lt-undo').hidden = true;
-    setStateLine('已还原原文', 'ok');
+    setStateLine(msg('inlineRestored','已还原原文'), 'ok');
   }
 
   /** 针对指定目标（而不是当前目标）读 / 写，供「还原原文」使用 */
@@ -1851,7 +1851,7 @@
       place();
       pill.hidden = true;
     }
-    setStateLine('转写中…（完成后自动写入）', 'loading');
+    setStateLine(msg('inlineTranscribingAuto','转写中…（完成后自动写入）'), 'loading');
 
     const target = await currentTarget({ probe: true });
     if (!target) {

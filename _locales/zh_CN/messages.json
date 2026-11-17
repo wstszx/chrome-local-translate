@@ -1404,5 +1404,35 @@
   },
   "inlinePillLabelLang": {
     "message": "转写 {lang}"
+  },
+  "csSettingsNotLoaded": {
+    "message": "尚未加载设置"
+  },
+  "csNoSelectedText": {
+    "message": "没有选中文本"
+  },
+  "inlineAlreadyTargetLang": {
+    "message": "看起来已经是目标语言了"
+  },
+  "inlineWriteNotSupported": {
+    "message": "这个输入框不支持写入（可以用「复制」再手动粘贴）"
+  },
+  "inlineAppended": {
+    "message": "已把译文追加到输入框末尾"
+  },
+  "inlineReplaced": {
+    "message": "已替换输入框内容（Ctrl/Cmd+Z 或「还原原文」可回退）"
+  },
+  "inlineNothingToRestore": {
+    "message": "没有可还原的内容"
+  },
+  "inlineRestoreFailed": {
+    "message": "还原失败"
+  },
+  "inlineRestored": {
+    "message": "已还原原文"
+  },
+  "inlineTranscribingAuto": {
+    "message": "转写中…（完成后自动写入）"
   }
 }

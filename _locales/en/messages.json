@@ -1404,5 +1404,35 @@
   },
   "inlinePillLabelLang": {
     "message": "Transcribe {lang}"
+  },
+  "csSettingsNotLoaded": {
+    "message": "Settings not loaded yet"
+  },
+  "csNoSelectedText": {
+    "message": "No selected text"
+  },
+  "inlineAlreadyTargetLang": {
+    "message": "Looks like this is already in the target language"
+  },
+  "inlineWriteNotSupported": {
+    "message": "This input does not support writing (use “Copy” and paste manually)"
+  },
+  "inlineAppended": {
+    "message": "Translation appended to the end of the input"
+  },
+  "inlineReplaced": {
+    "message": "Input replaced (Ctrl/Cmd+Z or “Restore original” to undo)"
+  },
+  "inlineNothingToRestore": {
+    "message": "Nothing to restore"
+  },
+  "inlineRestoreFailed": {
+    "message": "Restore failed"
+  },
+  "inlineRestored": {
+    "message": "Original restored"
+  },
+  "inlineTranscribingAuto": {
+    "message": "Transcribing… (will insert automatically when done)"
   }
 }
