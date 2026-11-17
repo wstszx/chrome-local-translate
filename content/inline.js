@@ -25,6 +25,17 @@
   NS.inlineStarted = true;
 
   const U = NS.util;
+  const msg = (key, fallback = '', subs = null) => {
+    try {
+      let text = (chrome.i18n && chrome.i18n.getMessage(key, subs || undefined)) || fallback || '';
+      if (subs && typeof subs === 'object' && !Array.isArray(subs)) {
+        for (const [k, v] of Object.entries(subs)) text = text.replace(new RegExp(`\\{${k}\\}`, 'g'), String(v));
+      }
+      return text;
+    } catch (err) {
+      return fallback || '';
+    }
+  };
 
   const SKIP_TYPES = new Set([
     'password', 'email', 'tel', 'number', 'date', 'time', 'datetime-local', 'month', 'week',
@@ -660,15 +671,15 @@
     if (state.resumeTries >= 3) {
       // 后台一直在断：不再自动重试刷后台，把选择权交回给用户
       state.resumePending = false;
-      safeStateLine('连接已断开，请点「重新翻译」', 'error');
+      safeStateLine(msg('inlineDisconnectedRetry','连接已断开，请点「重新翻译」'), 'error');
       return;
     }
     state.resumeTries += 1;
     state.resumePending = true;
     if (document.hidden) {
-      safeStateLine('连接已断开，回到页面后自动重试', 'error');
+      safeStateLine(msg('inlineDisconnectedResume','连接已断开，回到页面后自动重试'), 'error');
     } else {
-      safeStateLine('连接已断开，正在重试…', 'error');
+      safeStateLine(msg('inlineDisconnectedRetrying','连接已断开，正在重试…'), 'error');
       setTimeout(resumeInterrupted, 300);
     }
   }
@@ -753,13 +764,13 @@
       state.loading = false;
       state.resumeTries = 0; // 这条通道刚成功跑完 → 补跑额度重新计数
       if (state.translation) applyTranslation(state.translation);
-      else if (!msg.text) setStateLine('没有拿到译文，请重试', 'error');
+      else if (!msg.text) setStateLine(msg('inlineNoTextRetry','没有拿到译文，请重试'), 'error');
     } else if (msg.type === 'download') {
-      setStateLine(`正在下载语言包 ${Math.round((msg.progress || 0) * 100)}%`, 'loading');
+      setStateLine(msg('inlineDownloadingPack','正在下载语言包 {n}%').replace('{n}', String(Math.round((msg.progress || 0) * 100))), 'loading');
     } else if (msg.type === 'error') {
       state.loading = false;
       state.resumeTries = 0;
-      setStateLine(msg.error || '转写失败', 'error');
+      setStateLine(msg.error || msg('inlineTranscribeFailed','转写失败'), 'error');
     }
   }
 
@@ -843,29 +854,29 @@
   `;
 
   const MARKUP = `
-    <button class="lt-pill" hidden type="button" title="点按打开转写面板；按住拖动可移到任意位置（Alt+Shift+Enter 直接转写）">
-      <span aria-hidden="true">🌐</span><span class="lt-pill-text">转写</span>
+    <button class="lt-pill" hidden type="button">
+      <span aria-hidden="true">🌐</span><span class="lt-pill-text"></span>
     </button>
-    <div class="lt-panel" hidden role="dialog" aria-label="输入框转写">
-      <div class="lt-head" title="按住拖动面板；双击回到输入框下方">
+    <div class="lt-panel" hidden role="dialog">
+      <div class="lt-head">
         <span class="lt-grip" aria-hidden="true">⠿</span>
-        <span class="lt-title">转写</span>
-        <select class="lt-lang" title="目标语言"></select>
+        <span class="lt-title"></span>
+        <select class="lt-lang"></select>
         <span class="lt-spacer"></span>
-        <button class="lt-mini lt-live" title="边输边译（自动跟随输入更新译文）">⟳</button>
-        <button class="lt-mini lt-reset" title="回到输入框下方">⌖</button>
-        <button class="lt-mini lt-speak" title="朗读译文">🔊</button>
-        <button class="lt-mini lt-copy" title="复制译文">⧉</button>
-        <button class="lt-mini lt-close" title="关闭（Shift+点击 = 本站不再自动弹出）">✕</button>
+        <button class="lt-mini lt-live">⟳</button>
+        <button class="lt-mini lt-reset">⌖</button>
+        <button class="lt-mini lt-speak">🔊</button>
+        <button class="lt-mini lt-copy">⧉</button>
+        <button class="lt-mini lt-close">✕</button>
       </div>
       <div class="lt-body">
-        <div class="lt-out" contenteditable="true" spellcheck="false" data-placeholder="译文会出现在这里，可以直接修改…"></div>
+        <div class="lt-out" contenteditable="true" spellcheck="false"></div>
       </div>
       <div class="lt-foot">
-        <button class="lt-btn lt-primary lt-replace">替换输入框</button>
-        <button class="lt-btn lt-append">追加</button>
-        <button class="lt-btn lt-undo" hidden>还原原文</button>
-        <button class="lt-btn lt-retry">重新翻译</button>
+        <button class="lt-btn lt-primary lt-replace"></button>
+        <button class="lt-btn lt-append"></button>
+        <button class="lt-btn lt-undo" hidden></button>
+        <button class="lt-btn lt-retry"></button>
         <div class="lt-state"></div>
       </div>
     </div>
@@ -875,6 +886,28 @@
   let host = null;
   let pill = null;
   let panel = null;
+
+  function applyInlineI18n() {
+    if (!root) return;
+    const set = (sel, prop, key, fallback) => { const el = root.querySelector(sel); if (el) el[prop] = msg(key, fallback); };
+    const setAttr = (sel, attr, key, fallback) => { const el = root.querySelector(sel); if (el) el.setAttribute(attr, msg(key, fallback)); };
+    setAttr('.lt-pill', 'title', 'inlinePillTitle', '点按打开转写面板；按住拖动可移到任意位置（Alt+Shift+Enter 直接转写）');
+    set('.lt-pill-text', 'textContent', 'inlinePillText', '转写');
+    setAttr('.lt-panel', 'aria-label', 'inlinePanelAria', '输入框转写');
+    setAttr('.lt-head', 'title', 'inlineHeadTitle', '按住拖动面板；双击回到输入框下方');
+    set('.lt-title', 'textContent', 'inlineTitle', '转写');
+    setAttr('.lt-lang', 'title', 'inlineLangTitle', '目标语言');
+    setAttr('.lt-live', 'title', 'inlineLiveTitle', '边输边译（自动跟随输入更新译文）');
+    setAttr('.lt-reset', 'title', 'inlineResetPosTitle', '回到输入框下方');
+    setAttr('.lt-speak', 'title', 'inlineSpeakTitle', '朗读译文');
+    setAttr('.lt-copy', 'title', 'inlineCopyTitle', '复制译文');
+    setAttr('.lt-close', 'title', 'inlineCloseTitle', '关闭（Shift+点击 = 本站不再自动弹出）');
+    setAttr('.lt-out', 'data-placeholder', 'inlineOutputPlaceholder', '译文会出现在这里，可以直接修改…');
+    set('.lt-replace', 'textContent', 'inlineReplaceBtn', '替换输入框');
+    set('.lt-append', 'textContent', 'inlineAppendBtn', '追加');
+    set('.lt-undo', 'textContent', 'inlineUndoBtn', '还原原文');
+    set('.lt-retry', 'textContent', 'inlineRetryBtn', '重新翻译');
+  }
 
   function ensureUI() {
     if (root) return root;
@@ -892,6 +925,7 @@
     root.innerHTML = `<style>${STYLE}</style>${MARKUP}`;
     pill = root.querySelector('.lt-pill');
     panel = root.querySelector('.lt-panel');
+    applyInlineI18n();
     (document.documentElement || document.body).appendChild(host);
     fillLanguages();
     wire();
@@ -949,7 +983,7 @@
     });
     root.querySelector('.lt-copy').addEventListener('click', async () => {
       const ok = await U.copyText(outputText());
-      setStateLine(ok ? '已复制译文' : '复制失败', ok ? 'ok' : 'error');
+      setStateLine(ok ? msg('inlineCopied','已复制译文') : msg('inlineCopyFailed','复制失败'), ok ? 'ok' : 'error');
     });
     root.querySelector('.lt-speak').addEventListener('click', () => {
       U.speak(outputText(), targetLang());
@@ -963,7 +997,7 @@
       if (!s) return;
       const next = !s.inlineLive;
       saveSettings({ inlineLive: next });
-      setStateLine(next ? '已开启边输边译' : '已关闭边输边译', 'ok');
+      setStateLine(next ? msg('inlineLiveOn','已开启边输边译') : msg('inlineLiveOff','已关闭边输边译'), 'ok');
     });
     root.querySelector('.lt-replace').addEventListener('click', () => insert('replace'));
     root.querySelector('.lt-append').addEventListener('click', () => insert('append'));
@@ -1193,7 +1227,7 @@
     } catch (err) {
       /* 忽略 */
     }
-    if (drag && drag.moved) setStateLine('面板位置已固定（⌖ 可复位）', 'ok');
+    if (drag && drag.moved) setStateLine(msg('inlinePinnedPos','面板位置已固定 · 双击可复位'), 'ok');
     drag = null;
     if (panel) panel.classList.remove('lt-dragging');
   }
@@ -1221,7 +1255,7 @@
     pill.hidden = true;
     if (translate) requestTranslation({ immediate: true });
     if (focus) outputEl().focus({ preventScroll: true });
-    setStateLine('Alt+Shift+Enter 直接替换 · Esc 关闭');
+    setStateLine(msg('inlineShortcutHint','Alt+Shift+Enter 直接替换 · Esc 关闭'));
   }
 
   function closePanel() {
@@ -1239,7 +1273,7 @@
     if (!s || U.matchSite(hostName, s.inlineNeverSites)) return;
     const list = [...(s.inlineNeverSites || []), hostName];
     saveSettings({ inlineNeverSites: list });
-    setStateLine(`已把 ${hostName} 加入「不自动弹出」`, 'ok');
+    setStateLine(msg('inlineSiteMuted','已把 {host} 加入「不自动弹出」').replace('{host}', hostName), 'ok');
   }
 
   function updatePill() {
@@ -1261,7 +1295,7 @@
     refreshTheme();
     pill.hidden = false;
     const textEl = root.querySelector('.lt-pill-text');
-    if (textEl) textEl.textContent = `转写 ${U.langLabel(resolveTargetLang())}`;
+    if (textEl) textEl.textContent = msg('inlinePillLabelLang','转写 {lang}').replace('{lang}', U.langLabel(resolveTargetLang()));
     placeElement(pill, 'pill');
   }
 
@@ -1307,17 +1341,17 @@
     }
     const target = await currentTarget({ probe: true });
     if (!target) {
-      setStateLine('输入框已经不在页面上了', 'error');
+      setStateLine(msg('inlineFieldGone','输入框已经不在页面上了'), 'error');
       return;
     }
     const text = await readTargetText();
     const min = Math.max(1, Number(s.inlineMinChars) || 2);
     if (!text.trim() || text.trim().length < min) {
-      setStateLine(`至少输入 ${min} 个字符`, '');
+      setStateLine(msg('inlineMinChars','至少输入 {n} 个字符').replace('{n}', String(min)), '');
       return;
     }
     if (text.length > 8000) {
-      setStateLine('内容太长（>8000 字），建议分成几段转写', 'error');
+      setStateLine(msg('inlineTooLong','内容太长（>8000 字），请分成几段转写'), 'error');
       return;
     }
 
@@ -1325,7 +1359,7 @@
     const token = ++state.requestId;
     state.loading = true;
     outputEl().classList.add('lt-loading');
-    setStateLine('本地模型转写中…', 'loading');
+    setStateLine(msg('inlineTranscribing','本地模型转写中…'), 'loading');
 
     const payload = {
       text,
@@ -1348,7 +1382,7 @@
         if (token !== state.requestId) return;
         state.loading = false;
         if (res && res.ok === false) {
-          setStateLine(res.error || '转写失败', 'error');
+          setStateLine(res.error || msg('inlineTranscribeFailed','转写失败'), 'error');
           return;
         }
         applyTranslation((res && res.text) || '');
@@ -1381,12 +1415,12 @@
     const s = state.settings;
     const target = await currentTarget({ probe: true });
     if (!target) {
-      setStateLine('输入框已经不在页面上了', 'error');
+      setStateLine(msg('inlineFieldGone','输入框已经不在页面上了'), 'error');
       return;
     }
     const translated = outputText();
     if (!translated) {
-      setStateLine('还没有译文', 'error');
+      setStateLine(msg('inlineNoTranslationYet','还没有译文'), 'error');
       return;
     }
 
@@ -1394,7 +1428,7 @@
     const mode2 = mode === 'append' ? 'append' : s && s.inlineInsert === 'copy' ? 'copy' : mode;
     if (mode2 === 'copy') {
       const ok = await U.copyText(translated);
-      setStateLine(ok ? '已复制译文（未改动输入框）' : '复制失败', ok ? 'ok' : 'error');
+      setStateLine(ok ? msg('inlineCopiedNoChange','已复制译文（未改动输入框）') : msg('inlineCopyFailed','复制失败'), ok ? 'ok' : 'error');
       return;
     }
 
@@ -1821,7 +1855,7 @@
 
     const target = await currentTarget({ probe: true });
     if (!target) {
-      setStateLine('输入框已经不在页面上了', 'error');
+      setStateLine(msg('inlineFieldGone','输入框已经不在页面上了'), 'error');
       return;
     }
     const text = await readTargetText();

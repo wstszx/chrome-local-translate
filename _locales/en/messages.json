@@ -269,7 +269,7 @@
     "message": "Update translation automatically while typing when panel is open"
   },
   "inlineMinChars": {
-    "message": "Minimum characters"
+    "message": "Enter at least {n} characters"
   },
   "inlineNeverTitle": {
     "message": "Sites where popup should not auto-open"
@@ -278,7 +278,7 @@
     "message": "(one domain per line, normalized on blur; also manageable in global site rules)"
   },
   "inlineShortcutHint": {
-    "message": "Page shortcut: Alt+Shift+Enter. You can change it in chrome://extensions/shortcuts."
+    "message": "Alt+Shift+Enter to replace · Esc to close"
   },
   "inlineProbe": {
     "message": "Check current input field"
@@ -1290,5 +1290,119 @@
   },
   "csPageTranslateFailed": {
     "message": "Translation failed: {err}"
+  },
+  "inlinePillTitle": {
+    "message": "Click to open transcription panel; drag to move (Alt+Shift+Enter to transcribe directly)"
+  },
+  "inlinePillText": {
+    "message": "Transcribe"
+  },
+  "inlinePanelAria": {
+    "message": "Input transcription"
+  },
+  "inlineHeadTitle": {
+    "message": "Drag panel; double-click to return below input"
+  },
+  "inlineTitle": {
+    "message": "Transcribe"
+  },
+  "inlineLangTitle": {
+    "message": "Target language"
+  },
+  "inlineLiveTitle": {
+    "message": "Live translate (auto-update as you type)"
+  },
+  "inlineResetPosTitle": {
+    "message": "Return below input"
+  },
+  "inlineSpeakTitle": {
+    "message": "Read translation aloud"
+  },
+  "inlineCopyTitle": {
+    "message": "Copy translation"
+  },
+  "inlineCloseTitle": {
+    "message": "Close (Shift+click = don’t auto-show on this site)"
+  },
+  "inlineOutputPlaceholder": {
+    "message": "Translation will appear here. You can edit it directly…"
+  },
+  "inlineReplaceBtn": {
+    "message": "Replace input"
+  },
+  "inlineAppendBtn": {
+    "message": "Append"
+  },
+  "inlineUndoBtn": {
+    "message": "Restore original"
+  },
+  "inlineRetryBtn": {
+    "message": "Translate again"
+  },
+  "inlineNoTextRetry": {
+    "message": "No translation received, please retry"
+  },
+  "inlineTranscribeFailed": {
+    "message": "Transcription failed"
+  },
+  "inlineDownloadingPack": {
+    "message": "Downloading language pack {n}%"
+  },
+  "inlineCopied": {
+    "message": "Translation copied"
+  },
+  "inlineCopyFailed": {
+    "message": "Copy failed"
+  },
+  "inlineLiveOn": {
+    "message": "Live translation enabled"
+  },
+  "inlineLiveOff": {
+    "message": "Live translation disabled"
+  },
+  "inlinePinnedPos": {
+    "message": "Panel position pinned · Double-click to reset"
+  },
+  "inlineSiteMuted": {
+    "message": "Added {host} to “don’t auto-show”"
+  },
+  "inlinePillLabel": {
+    "message": "Transcribe {lang}"
+  },
+  "inlineSameAsTarget": {
+    "message": "Text is already in the target language"
+  },
+  "inlineFieldUnavailable": {
+    "message": "This input field is no longer available on the page"
+  },
+  "inlineTooLong": {
+    "message": "Text is too long (>8000 chars). Please split it into smaller parts."
+  },
+  "inlineDisconnectedRetry": {
+    "message": "Connection lost. Click “Translate again”."
+  },
+  "inlineDisconnectedResume": {
+    "message": "Connection lost. Will retry when you return to the page."
+  },
+  "inlineDisconnectedRetrying": {
+    "message": "Connection lost. Retrying…"
+  },
+  "inlineStaleError": {
+    "message": "Extension context lost. Please refresh the page."
+  },
+  "inlineTranscribing": {
+    "message": "Transcribing locally…"
+  },
+  "inlineFieldGone": {
+    "message": "This input field is no longer on the page"
+  },
+  "inlineCopiedNoChange": {
+    "message": "Translation copied (input unchanged)"
+  },
+  "inlineNoTranslationYet": {
+    "message": "No translation yet"
+  },
+  "inlinePillLabelLang": {
+    "message": "Transcribe {lang}"
   }
 }

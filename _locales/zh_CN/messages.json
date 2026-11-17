@@ -269,7 +269,7 @@
     "message": "面板打开时随输入自动更新译文"
   },
   "inlineMinChars": {
-    "message": "最少字数"
+    "message": "至少输入 {n} 个字符"
   },
   "inlineNeverTitle": {
     "message": "不自动弹出的网站"
@@ -278,7 +278,7 @@
     "message": "（每行一个域名，失焦自动整理；可在全局站点规则统一管理）"
   },
   "inlineShortcutHint": {
-    "message": "页内快捷键：Alt+Shift+Enter。如需修改默认键位，可在 chrome://extensions/shortcuts 中设置。"
+    "message": "Alt+Shift+Enter 直接替换 · Esc 关闭"
   },
   "inlineProbe": {
     "message": "自检当前输入框"
@@ -1290,5 +1290,119 @@
   },
   "csPageTranslateFailed": {
     "message": "翻译失败：{err}"
+  },
+  "inlinePillTitle": {
+    "message": "点按打开转写面板；按住拖动可移到任意位置（Alt+Shift+Enter 直接转写）"
+  },
+  "inlinePillText": {
+    "message": "转写"
+  },
+  "inlinePanelAria": {
+    "message": "输入框转写"
+  },
+  "inlineHeadTitle": {
+    "message": "按住拖动面板；双击回到输入框下方"
+  },
+  "inlineTitle": {
+    "message": "转写"
+  },
+  "inlineLangTitle": {
+    "message": "目标语言"
+  },
+  "inlineLiveTitle": {
+    "message": "边输边译（自动跟随输入更新译文）"
+  },
+  "inlineResetPosTitle": {
+    "message": "回到输入框下方"
+  },
+  "inlineSpeakTitle": {
+    "message": "朗读译文"
+  },
+  "inlineCopyTitle": {
+    "message": "复制译文"
+  },
+  "inlineCloseTitle": {
+    "message": "关闭（Shift+点击 = 本站不再自动弹出）"
+  },
+  "inlineOutputPlaceholder": {
+    "message": "译文会出现在这里，可以直接修改…"
+  },
+  "inlineReplaceBtn": {
+    "message": "替换输入框"
+  },
+  "inlineAppendBtn": {
+    "message": "追加"
+  },
+  "inlineUndoBtn": {
+    "message": "还原原文"
+  },
+  "inlineRetryBtn": {
+    "message": "重新翻译"
+  },
+  "inlineNoTextRetry": {
+    "message": "没有得到译文，请重试"
+  },
+  "inlineTranscribeFailed": {
+    "message": "转写失败"
+  },
+  "inlineDownloadingPack": {
+    "message": "正在下载语言包 {n}%"
+  },
+  "inlineCopied": {
+    "message": "已复制译文"
+  },
+  "inlineCopyFailed": {
+    "message": "复制失败"
+  },
+  "inlineLiveOn": {
+    "message": "已开启边输边译"
+  },
+  "inlineLiveOff": {
+    "message": "已关闭边输边译"
+  },
+  "inlinePinnedPos": {
+    "message": "面板位置已固定 · 双击可复位"
+  },
+  "inlineSiteMuted": {
+    "message": "已把 {host} 加入「不自动弹出」"
+  },
+  "inlinePillLabel": {
+    "message": "转写 {lang}"
+  },
+  "inlineSameAsTarget": {
+    "message": "这段内容已经是目标语言了"
+  },
+  "inlineFieldUnavailable": {
+    "message": "这个输入框已经不在页面里了"
+  },
+  "inlineTooLong": {
+    "message": "内容太长（>8000 字），请分成几段转写"
+  },
+  "inlineDisconnectedRetry": {
+    "message": "连接已断开，请点「重新翻译」"
+  },
+  "inlineDisconnectedResume": {
+    "message": "连接已断开，回到页面后自动重试"
+  },
+  "inlineDisconnectedRetrying": {
+    "message": "连接已断开，正在重试…"
+  },
+  "inlineStaleError": {
+    "message": "扩展上下文已失效，请刷新页面。"
+  },
+  "inlineTranscribing": {
+    "message": "本地模型转写中…"
+  },
+  "inlineFieldGone": {
+    "message": "输入框已经不在页面上了"
+  },
+  "inlineCopiedNoChange": {
+    "message": "已复制译文（未改动输入框）"
+  },
+  "inlineNoTranslationYet": {
+    "message": "还没有译文"
+  },
+  "inlinePillLabelLang": {
+    "message": "转写 {lang}"
   }
 }
