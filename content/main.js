@@ -1024,7 +1024,7 @@ async function samplePageText() {
       selectionRequest += 1;
     });
     ui.on('copied', (ok) => {
-      if (!ok) console.warn('[本地翻译] 复制失败');
+      if (!ok) console.warn('[Local Translate] Copy failed');
     });
 
     document.addEventListener('mouseup', onMouseUp, true);

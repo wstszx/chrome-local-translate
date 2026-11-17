@@ -1593,5 +1593,44 @@
   },
   "engineSelftestTranslateFailed": {
     "message": "translate failed: {error}"
+  },
+  "bgCannotInjectScript": {
+    "message": "Cannot inject translation script on this page (chrome:// and Chrome Web Store pages are not supported)."
+  },
+  "panelEngineBuiltinModel": {
+    "message": "Built-in translation model"
+  },
+  "panelFallbackToNano": {
+    "message": " · Built-in translation model unavailable, automatically switched to Gemini Nano"
+  },
+  "panelNoActiveTab": {
+    "message": "No active tab"
+  },
+  "panelNoTitle": {
+    "message": "(No title)"
+  },
+  "panelResetSessionLabelFallback": {
+    "message": "Reset local session"
+  },
+  "diagCpuCores": {
+    "message": "CPU logical cores"
+  },
+  "diagMemoryApprox": {
+    "message": "Memory (approx.)"
+  },
+  "diagCacheEntries": {
+    "message": "Cache entries"
+  },
+  "diagCurrentEngine": {
+    "message": "Current engine"
+  },
+  "diagHintAvailability": {
+    "message": "Tip: availability only reflects language pair support. create also depends on permissions, model download / user gesture."
+  },
+  "diagHintSelftest": {
+    "message": "Click \"Step-by-step environment self-test\" to compare real creation results in side panel, background, and offscreen contexts."
+  },
+  "diagPairAvailability": {
+    "message": "▼ Language pair availability (top 20 common targets)"
   }
 }

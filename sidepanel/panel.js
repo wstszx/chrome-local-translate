@@ -391,14 +391,14 @@ async function refreshDiag() {
       `${msg('diagTranslatorApi','Translator API')}：${support.translator ? msg('supported','Supported') : msg('notSupported','Not supported')}`,
       `${msg('diagDetectorApi','LanguageDetector API')}：${support.detector ? msg('supported','Supported') : msg('notSupported','Not supported')}`,
       `${msg('diagPromptApi','Prompt API (Gemini Nano)')}：${support.nano ? msg('supported','Supported') : msg('notSupported','Not supported')}`,
-      `${msg('diagCpuCores','CPU 逻辑核心')}：${navigator.hardwareConcurrency || msg('unknown','Unknown')}`,
-      `${msg('diagMemoryApprox','内存（近似）')}：${navigator.deviceMemory ? `${navigator.deviceMemory} GB` : msg('unknown','Unknown')}`,
-      `${msg('diagCacheEntries','缓存条目')}：${cache.size}`,
-      `${msg('diagCurrentEngine','当前引擎')}：${settings ? settings.engine : '-'}`,
+      `${msg('diagCpuCores','CPU logical cores')}：${navigator.hardwareConcurrency || msg('unknown','Unknown')}`,
+      `${msg('diagMemoryApprox','Memory (approx.)')}：${navigator.deviceMemory ? `${navigator.deviceMemory} GB` : msg('unknown','Unknown')}`,
+      `${msg('diagCacheEntries','Cache entries')}：${cache.size}`,
+      `${msg('diagCurrentEngine','Current engine')}：${settings ? settings.engine : '-'}`,
       `${msg('backendHost','Inference host')}：${res.host || msg('hostAuto','Auto')}`,
-      msg('diagHintAvailability','提示：availability 只代表「能力支持」，create 还取决于上下文（文档 / 用户手势）'),
-      msg('diagHintSelftest','点「分环境自检」可以对比侧边栏与后台两边的真实创建结果'),
-      msg('diagPairAvailability','— 语言对可用性 —'),
+      msg('diagHintAvailability','Tip: availability only reflects language pair support. create also depends on permissions, model download / user gesture.'),
+      msg('diagHintSelftest','Click "Step-by-step environment self-test" to compare real creation results in side panel, background, and offscreen contexts.'),
+      msg('diagPairAvailability','▼ Language pair availability (top 20 common targets)'),
       ...pairLines,
     ]
       .map((line) => `<div>${escapeHtml(line)}</div>`)
@@ -529,9 +529,9 @@ async function translateCurrent() {
       currentTranslation = res.text || '';
       setOutput(renderText(currentTranslation));
       setOutMeta(
-        `${langLabel(res.sourceLang)} → ${langLabel(res.targetLang)} · ${res.engine === 'nano' ? 'Gemini Nano' : '内置翻译模型'} · ${Math.round(
+        `${langLabel(res.sourceLang)} → ${langLabel(res.targetLang)} · ${res.engine === 'nano' ? 'Gemini Nano' : msg('panelEngineBuiltinModel', 'Built-in translation model')} · ${Math.round(
           performance.now() - started,
-        )} ms${res.fallbackFrom ? ' · 内置翻译模型不可用，已自动改用 Gemini Nano' : ''}`,
+        )} ms${res.fallbackFrom ? msg('panelFallbackToNano', ' · Built-in translation model unavailable, automatically switched to Gemini Nano') : ''}`,
       );
       btn.disabled = false;
       if (streamTimer) clearTimeout(streamTimer);
@@ -545,7 +545,7 @@ async function translateCurrent() {
     }
   }
   if (streamTimer) clearTimeout(streamTimer);
-  const engineName = settings && settings.engine === 'nano' ? 'Gemini Nano' : '本地翻译模型';
+  const engineName = settings && settings.engine === 'nano' ? 'Gemini Nano' : msg('panelEngineBuiltinModel', 'Built-in translation model');
   setOutMeta(`${langLabel($('src-lang').value)} → ${langLabel($('tgt-lang').value)} · ${engineName} · ${Math.round(performance.now() - started)} ms`);
   btn.disabled = false;
 }
@@ -692,12 +692,12 @@ async function refreshActiveTab() {
   const titleEl = $('page-title');
   const urlEl = $('page-url');
   if (!activeTab) {
-    titleEl.textContent = '无活动标签页';
+    titleEl.textContent = msg('panelNoActiveTab', 'No active tab');
     urlEl.textContent = '';
     renderSitePrefUI();
     return;
   }
-  titleEl.textContent = activeTab.title || '（无标题）';
+  titleEl.textContent = activeTab.title || msg('panelNoTitle', '(No title)');
   urlEl.textContent = activeTab.url || '';
   renderSitePrefUI();
   await refreshPageStatus();
@@ -1331,7 +1331,7 @@ function bindEvents() {
     await send({ type: 'lt:engine:reset' });
     btn.textContent = msg('resetDone', 'Reset ✓');
     setTimeout(() => {
-      btn.textContent = msg('resetSessionLabel', btn.dataset.label || '重置本地会话');
+      btn.textContent = msg('resetSessionLabel', btn.dataset.label || msg('panelResetSessionLabelFallback', 'Reset local session'));
     }, 1600);
   });
   $('theme').addEventListener('change', () => {

@@ -1593,5 +1593,44 @@
   },
   "engineSelftestTranslateFailed": {
     "message": "translate 失败：{error}"
+  },
+  "bgCannotInjectScript": {
+    "message": "当前页面无法注入翻译脚本（chrome:// 或 Chrome 应用商店页面不支持）。"
+  },
+  "panelEngineBuiltinModel": {
+    "message": "内置翻译模型"
+  },
+  "panelFallbackToNano": {
+    "message": " · 内置翻译模型不可用，已自动改用 Gemini Nano"
+  },
+  "panelNoActiveTab": {
+    "message": "无活动标签页"
+  },
+  "panelNoTitle": {
+    "message": "（无标题）"
+  },
+  "panelResetSessionLabelFallback": {
+    "message": "重置本地会话"
+  },
+  "diagCpuCores": {
+    "message": "CPU 逻辑核心"
+  },
+  "diagMemoryApprox": {
+    "message": "内存（近似）"
+  },
+  "diagCacheEntries": {
+    "message": "缓存条目"
+  },
+  "diagCurrentEngine": {
+    "message": "当前引擎"
+  },
+  "diagHintAvailability": {
+    "message": "提示：availability 只反映语言对支持。create 还取决于权限、模型下载 / 用户手势）"
+  },
+  "diagHintSelftest": {
+    "message": "点「逐步环境自检」可对比侧边栏、后台和离屏的真实创建情况。"
+  },
+  "diagPairAvailability": {
+    "message": "▼ 语言对可用性（前 20 个常用目标）"
   }
 }
