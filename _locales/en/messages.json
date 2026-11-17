@@ -1167,5 +1167,128 @@
   },
   "popupInputPlaceholder": {
     "message": "Type or paste text, Ctrl/Cmd + Enter to translate"
+  },
+  "csBubbleDragTitle": {
+    "message": "Drag to move the bubble; double-click the header to return to selection"
+  },
+  "csBubbleResetTitle": {
+    "message": "Return to selection position (unpin)"
+  },
+  "csBubbleSpeakTitle": {
+    "message": "Read translation aloud"
+  },
+  "csBubbleCopyTitle": {
+    "message": "Copy translation"
+  },
+  "csBubbleExplainTitle": {
+    "message": "Explain original with Gemini Nano"
+  },
+  "csBubbleCloseTitle": {
+    "message": "Close"
+  },
+  "csStaleTitle": {
+    "message": "Extension was reloaded"
+  },
+  "csRefreshPage": {
+    "message": "Refresh page"
+  },
+  "csTranslatingLocal": {
+    "message": "Translating with local model…"
+  },
+  "csOfflineNote": {
+    "message": "Fully on-device. Your text never leaves this computer."
+  },
+  "csRestoreOriginal": {
+    "message": "Restore original"
+  },
+  "csCancel": {
+    "message": "Cancel"
+  },
+  "csPinnedPosition": {
+    "message": "Position pinned"
+  },
+  "csFollowSelection": {
+    "message": "Following selection"
+  },
+  "csCopied": {
+    "message": "Copied"
+  },
+  "csCopyFailed": {
+    "message": "Copy failed"
+  },
+  "csRetry": {
+    "message": "Retry"
+  },
+  "csLocalModelTranslating": {
+    "message": "Translating with local model…"
+  },
+  "csEngineLocal": {
+    "message": "Local"
+  },
+  "csEngineBuiltin": {
+    "message": "Built-in translation model"
+  },
+  "csBackendUnreachable": {
+    "message": "Background did not respond (it may be restarting). Please wait a moment and try again."
+  },
+  "csTranslateFailed": {
+    "message": "Translation failed"
+  },
+  "csExplainFailed": {
+    "message": "Explanation failed"
+  },
+  "csFallbackToNano": {
+    "message": "Built-in translation model unavailable, switched to Gemini Nano automatically"
+  },
+  "csDetectingPageLang": {
+    "message": "Detecting page language…"
+  },
+  "csPageAlreadyTarget": {
+    "message": "Page is already in “{lang}”, no translation needed"
+  },
+  "csNoTranslatableText": {
+    "message": "No translatable text found"
+  },
+  "csNoTranslatableParagraphs": {
+    "message": "No translatable paragraphs found"
+  },
+  "csHoverModeHint": {
+    "message": "Hover mode: move the cursor over a paragraph to see its translation{skip}"
+  },
+  "csSkippedTargetLang": {
+    "message": " (skipped {n} paragraphs already in target language)"
+  },
+  "csSkippedTargetLangShort": {
+    "message": "skipped {n} paragraphs already in target language"
+  },
+  "csTotalFirstScreen": {
+    "message": "{total} paragraphs total{skip}, translating current screen first…"
+  },
+  "csBatchAborted": {
+    "message": "aborted"
+  },
+  "csBackgroundNoResponse": {
+    "message": "Background did not respond"
+  },
+  "csProgressTranslated": {
+    "message": "Translated {done}/{total} paragraphs{failed}"
+  },
+  "csProgressFailedPart": {
+    "message": " ({failed} failed)"
+  },
+  "csProgressDoneWithFailures": {
+    "message": "Done: {ok} succeeded, {failed} failed{err}"
+  },
+  "csProgressDone": {
+    "message": "Done: translated {done} paragraphs{skipped}"
+  },
+  "csProgressSkippedPart": {
+    "message": ", skipped {n}"
+  },
+  "csProgressErrorPart": {
+    "message": " ({err})"
+  },
+  "csPageTranslateFailed": {
+    "message": "Translation failed: {err}"
   }
 }

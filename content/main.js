@@ -15,6 +15,17 @@
 
   const U = NS.util;
   const ui = NS.ui;
+  const msg = (key, fallback = '', subs = null) => {
+    try {
+      let text = (chrome.i18n && chrome.i18n.getMessage(key, subs || undefined)) || fallback || '';
+      if (subs && typeof subs === 'object' && !Array.isArray(subs)) {
+        for (const [k, v] of Object.entries(subs)) text = text.replace(new RegExp(`\\{${k}\\}`, 'g'), String(v));
+      }
+      return text;
+    } catch (err) {
+      return fallback || '';
+    }
+  };
 
   /** 是否顶层 frame：只有顶层显示进度条 / 上报状态 / 自动翻译，子 frame 静默干活 */
   const IS_TOP = (() => {
@@ -101,7 +112,7 @@
       // 「第一次能用、后面就不能用」。
       const e = err instanceof Error ? err : new Error(String((err && err.message) || err));
       e.code = 'backend-unreachable';
-      e.message = '后台暂时没有应答（可能正在重启），请稍等一两秒再试一次。';
+      e.message = msg('csBackendUnreachable','后台暂时没有应答（可能正在重启），请稍等一两秒再试一次。');
       return e;
     }
     return err instanceof Error ? err : new Error(String((err && err.message) || err));
@@ -179,7 +190,7 @@
     if (!state.settings) return;
     const req = ++selectionRequest;
     const s = effectivePageSettings(state.settings);
-    const engineLabel = s.engine === 'nano' ? 'Gemini Nano' : s.engine === 'translator' ? '本地翻译模型' : '本地模型';
+    const engineLabel = s.engine === 'nano' ? 'Gemini Nano' : s.engine === 'translator' ? msg('csEngineBuiltin','本地翻译模型') : msg('csEngineLocal','本地模型');
     state.lastSelection = { text, rect, showSource, context };
     ui.showBubble({
       rect,
@@ -206,7 +217,7 @@
         },
       });
       if (req !== selectionRequest) return;
-      if (!res || res.ok === false) throw new Error((res && res.error) || '翻译失败');
+      if (!res || res.ok === false) throw new Error((res && res.error) || msg('csTranslateFailed','翻译失败'));
       ui.showBubble({
         rect,
         translation: res.text,
@@ -215,8 +226,8 @@
         sourceLang: res.sourceLang || 'auto',
         targetLang: res.targetLang || s.targetLang,
         engine: res.engine,
-        engineLabel: res.engine === 'nano' ? 'Gemini Nano' : '本地翻译模型',
-        hint: res.fallbackFrom ? '内置翻译模型不可用，已自动改用 Gemini Nano' : '',
+        engineLabel: res.engine === 'nano' ? 'Gemini Nano' : msg('csEngineBuiltin','本地翻译模型'),
+        hint: res.fallbackFrom ? msg('csFallbackToNano','内置翻译模型不可用，已自动改用 Gemini Nano') : '',
         loading: false,
       });
     } catch (err) {
@@ -240,7 +251,7 @@
     });
     try {
       const res = await sendBG({ type: 'lt:explain', payload: { text, lang: s.uiLang } });
-      if (!res || res.ok === false) throw new Error((res && res.error) || '解释失败');
+      if (!res || res.ok === false) throw new Error((res && res.error) || msg('csExplainFailed','解释失败'));
       ui.showBubble({ rect, translation: res.text, sourceText: text, loading: false, showSource: true, engineLabel: 'Gemini Nano' });
     } catch (err) {
       ui.showBubble({ rect, error: String((err && err.message) || err), loading: false, showSource: true, sourceText: text });
@@ -506,8 +517,8 @@ async function samplePageText() {
     state.lastError = '';
 
     if (IS_TOP) {
-      ui.showProgress({ title: '正在使用本地模型翻译…' });
-      ui.setProgress({ done: 0, total: 1, message: '识别页面语言…' });
+      ui.showProgress({ title: msg('csTranslatingLocal','正在使用本地模型翻译…') });
+      ui.setProgress({ done: 0, total: 1, message: msg('csDetectingPageLang','识别页面语言…') });
     }
     try {
       document.documentElement.setAttribute('data-lt-active', '1');
@@ -526,7 +537,7 @@ async function samplePageText() {
 
       if (U.normalizeCode(source) === U.normalizeCode(s.targetLang)) {
         if (IS_TOP) {
-          ui.setProgress({ done: 1, total: 1, message: `页面已经是「${U.langLabel(s.targetLang)}」，无需翻译` });
+          ui.setProgress({ done: 1, total: 1, message: msg('csPageAlreadyTarget','页面已经是「{lang}」，无需翻译').replace('{lang}', U.langLabel(s.targetLang)) });
           setTimeout(ui.hideProgress, 2600);
         }
         state.phase = 'idle';
@@ -545,7 +556,7 @@ async function samplePageText() {
       }
       if (!nodes.length) {
         if (IS_TOP) {
-          ui.setProgress({ done: 1, total: 1, message: '没有找到可翻译的文本' });
+          ui.setProgress({ done: 1, total: 1, message: msg('csNoTranslatableText','没有找到可翻译的文本') });
           setTimeout(ui.hideProgress, 2600);
         }
         state.phase = 'idle';
@@ -556,8 +567,8 @@ async function samplePageText() {
         state.hoverNodes = nodes;
         enableHoverMode();
         if (IS_TOP) {
-          const skipNote = state.sameLangSkipped ? `（已跳过 ${state.sameLangSkipped} 段目标语言文本）` : '';
-          ui.setProgress({ done: 1, total: 1, message: `悬停对照模式：把鼠标移到段落上即可看到译文${skipNote}` });
+          const skipNote = state.sameLangSkipped ? msg('csSkippedTargetLang','（已跳过 {n} 段目标语言文本）').replace('{n}', String(state.sameLangSkipped)) : '';
+          ui.setProgress({ done: 1, total: 1, message: msg('csHoverModeHint','悬停对照模式：把鼠标移到段落上即可看到译文{skip}').replace('{skip}', skipNote) });
           setTimeout(ui.hideProgress, 3200);
           notifyBG('lt:done', { url: location.href, sourceLang: source, target: s.targetLang, nodes: nodes.length, mode: 'hover' });
         }
@@ -585,7 +596,7 @@ async function samplePageText() {
       const total = sorted.length;
       if (!sorted.length) {
         if (IS_TOP) {
-          ui.setProgress({ done: 1, total: 1, message: '没有找到可翻译的段落' });
+          ui.setProgress({ done: 1, total: 1, message: msg('csNoTranslatableParagraphs','没有找到可翻译的段落') });
           setTimeout(ui.hideProgress, 2600);
         }
         state.phase = 'done';
@@ -593,11 +604,11 @@ async function samplePageText() {
       }
       let done = 0;
       let failed = 0;
-      const skipNote = state.sameLangSkipped ? `，已跳过 ${state.sameLangSkipped} 段目标语言文本` : '';
-      if (IS_TOP) ui.setProgress({ done: 0, total, message: `共 ${total} 段${skipNote}，先翻当前屏幕…` });
+      const skipNote = state.sameLangSkipped ? msg('csSkippedTargetLangShort','，已跳过 {n} 段目标语言文本').replace('{n}', String(state.sameLangSkipped)) : '';
+      if (IS_TOP) ui.setProgress({ done: 0, total, message: msg('csTotalFirstScreen','共 {total} 段{skip}，先翻当前屏幕…').replace('{total}', String(total)).replace('{skip}', skipNote) });
 
       for (let i = 0; i < sorted.length; i += BATCH_SIZE) {
-        if (token !== state.token) return { ok: false, error: 'aborted' };
+        if (token !== state.token) return { ok: false, error: msg('csBatchAborted','aborted') };
         const slice = sorted.slice(i, i + BATCH_SIZE);
         let res = null;
         let fatal = '';
@@ -620,11 +631,11 @@ async function samplePageText() {
           // 后台断开 / 上下文失效等原因必须留下来，否则用户只看到「失败 N 段」
           fatal = normalizeErr(err).message;
         }
-        if (token !== state.token) return { ok: false, error: 'aborted' };
+        if (token !== state.token) return { ok: false, error: msg('csBatchAborted','aborted') };
         // 整批请求都没有应答（不是个别段落失败）：立刻停手，别对剩下的每一批
         // 重复失败——并把原因报给用户。
         if (!res || res.ok === false) {
-          state.lastError = fatal || (res && res.error) || '后台没有应答';
+          state.lastError = fatal || (res && res.error) || msg('csBackgroundNoResponse','后台没有应答');
           failed += total - done;
           done = total;
           break;
@@ -640,15 +651,15 @@ async function samplePageText() {
           }
         });
         done += slice.length;
-        if (IS_TOP) ui.setProgress({ done, total, message: `已翻译 ${done}/${total} 段${failed ? `（${failed} 段失败）` : ''}` });
+        if (IS_TOP) ui.setProgress({ done, total, message: msg('csProgressTranslated','已翻译 {done}/{total} 段{failed}').replace('{done}', String(done)).replace('{total}', String(total)).replace('{failed}', failed ? msg('csProgressFailedPart','（{failed} 段失败）').replace('{failed}', String(failed)) : '') });
       }
 
       state.phase = 'done';
-      const msg = failed
-        ? `完成：成功 ${done - failed} 段，失败 ${failed} 段${state.lastError ? `（${state.lastError}）` : ''}`
-        : `完成：共翻译 ${done} 段${state.sameLangSkipped ? `，跳过 ${state.sameLangSkipped} 段` : ''}`;
+      const doneMsg = failed
+        ? msg('csProgressDoneWithFailures','完成：成功 {ok} 段，失败 {failed} 段{err}').replace('{ok}', String(done - failed)).replace('{failed}', String(failed)).replace('{err}', state.lastError ? msg('csProgressErrorPart','（{err}）').replace('{err}', state.lastError) : '')
+        : msg('csProgressDone','完成：共翻译 {done} 段{skipped}').replace('{done}', String(done)).replace('{skipped}', state.sameLangSkipped ? msg('csProgressSkippedPart','，跳过 {n} 段').replace('{n}', String(state.sameLangSkipped)) : '');
       if (IS_TOP) {
-        ui.setProgress({ done: total, total, message: msg });
+        ui.setProgress({ done: total, total, message: doneMsg });
         setTimeout(() => ui.hideProgress(), 3200);
         notifyBG('lt:done', {
           url: location.href,
@@ -664,13 +675,13 @@ async function samplePageText() {
     } catch (err) {
       state.phase = 'idle';
       const norm = normalizeErr(err);
-      const msg = norm.message;
-      state.lastError = msg;
+      const errMsg = norm.message;
+      state.lastError = errMsg;
       if (IS_TOP) {
-        ui.setProgress({ done: 0, total: 1, message: `翻译失败：${msg}` });
+        ui.setProgress({ done: 0, total: 1, message: msg('csPageTranslateFailed','翻译失败：{err}').replace('{err}', errMsg) });
         setTimeout(() => ui.hideProgress(), 6000);
       }
-      return { ok: false, error: msg, code: norm.code };
+      return { ok: false, error: errMsg, code: norm.code };
     } finally {
       if (state.phase !== 'working') ui.hideProgress();
     }

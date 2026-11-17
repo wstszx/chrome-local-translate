@@ -5,6 +5,17 @@
 (function () {
   const NS = globalThis.__LOCAL_TRANSLATE__;
   const U = NS.util;
+  const msg = (key, fallback = '', subs = null) => {
+    try {
+      let text = (chrome.i18n && chrome.i18n.getMessage(key, subs || undefined)) || fallback || '';
+      if (subs && typeof subs === 'object' && !Array.isArray(subs)) {
+        for (const [k, v] of Object.entries(subs)) text = text.replace(new RegExp(`\\{${k}\\}`, 'g'), String(v));
+      }
+      return text;
+    } catch (err) {
+      return fallback || '';
+    }
+  };
 
   const STYLE = `
     :host { all: initial; }
@@ -97,33 +108,33 @@
 
   const MARKUP = `
     <div class="lt-bubble" hidden role="dialog" aria-live="polite">
-      <div class="lt-head" title="按住拖动气泡；双击标题栏回到选区位置">
+      <div class="lt-head">
         <span class="lt-grip" aria-hidden="true">⠿</span>
         <span class="lt-badge lt-pair"></span>
         <span class="lt-badge lt-engine"></span>
         <span class="lt-spacer"></span>
-        <button class="lt-btn lt-reset" title="回到选区位置（取消固定）">⌖</button>
-        <button class="lt-btn lt-speak" title="朗读译文">🔊</button>
-        <button class="lt-btn lt-copy" title="复制译文">⧉</button>
-        <button class="lt-btn lt-explain" title="用 Gemini Nano 解释原文" hidden>💡</button>
-        <button class="lt-btn lt-close" title="关闭">✕</button>
+        <button class="lt-btn lt-reset">⌖</button>
+        <button class="lt-btn lt-speak">🔊</button>
+        <button class="lt-btn lt-copy">⧉</button>
+        <button class="lt-btn lt-explain" hidden>💡</button>
+        <button class="lt-btn lt-close">✕</button>
       </div>
       <div class="lt-src" hidden></div>
       <div class="lt-body"><span class="lt-text"></span></div>
       <div class="lt-state" hidden></div>
     </div>
     <div class="lt-stale" hidden role="alert">
-      <div class="lt-stale-title">扩展已被重新加载</div>
+      <div class="lt-stale-title"></div>
       <div class="lt-stale-text"></div>
-      <div class="lt-actions"><button class="lt-stale-refresh" type="button">刷新页面</button></div>
+      <div class="lt-actions"><button class="lt-stale-refresh" type="button"></button></div>
     </div>
     <div class="lt-toast" hidden role="status">
-      <div class="lt-toast-title"><span class="lt-spinner"></span><span class="lt-toast-title-text">正在使用本地模型翻译…</span></div>
-      <div class="lt-toast-text">全程离线，内容不会离开你的电脑</div>
+      <div class="lt-toast-title"><span class="lt-spinner"></span><span class="lt-toast-title-text"></span></div>
+      <div class="lt-toast-text"></div>
       <div class="lt-bar"><i></i></div>
       <div class="lt-actions">
-        <button class="lt-restore">还原原文</button>
-        <button class="lt-stop">取消</button>
+        <button class="lt-restore"></button>
+        <button class="lt-stop"></button>
       </div>
     </div>
   `;
@@ -260,7 +271,7 @@
     if (bubble) bubble.classList.remove('lt-dragging');
     if (moved) {
       persistPosition();
-      flashBadge('已固定位置');
+      flashBadge(msg('csPinnedPosition', '已固定位置'));
     }
   }
 
@@ -269,7 +280,7 @@
     clearPosition();
     if (bubble && !bubble.hidden) {
       place();
-      flashBadge('已跟随选区');
+      flashBadge(msg('csFollowSelection', '已跟随选区'));
     }
   }
 
@@ -280,6 +291,26 @@
   function emit(name, ...args) {
     const fn = listeners[name];
     if (fn) fn(...args);
+  }
+
+  function applyUiI18n() {
+    if (!root) return;
+    const set = (sel, prop, key, fallback) => {
+      const el = root.querySelector(sel);
+      if (el) el[prop] = msg(key, fallback);
+    };
+    set('.lt-head', 'title', 'csBubbleDragTitle', '按住拖动气泡；双击标题栏回到选区位置');
+    set('.lt-reset', 'title', 'csBubbleResetTitle', '回到选区位置（取消固定）');
+    set('.lt-speak', 'title', 'csBubbleSpeakTitle', '朗读译文');
+    set('.lt-copy', 'title', 'csBubbleCopyTitle', '复制译文');
+    set('.lt-explain', 'title', 'csBubbleExplainTitle', '用 Gemini Nano 解释原文');
+    set('.lt-close', 'title', 'csBubbleCloseTitle', '关闭');
+    set('.lt-stale-title', 'textContent', 'csStaleTitle', '扩展已被重新加载');
+    set('.lt-stale-refresh', 'textContent', 'csRefreshPage', '刷新页面');
+    set('.lt-toast-title-text', 'textContent', 'csTranslatingLocal', '正在使用本地模型翻译…');
+    set('.lt-toast-text', 'textContent', 'csOfflineNote', '全程离线，内容不会离开你的电脑');
+    set('.lt-restore', 'textContent', 'csRestoreOriginal', '还原原文');
+    set('.lt-stop', 'textContent', 'csCancel', '取消');
   }
 
   function ensure() {
@@ -298,6 +329,7 @@
     root.innerHTML = `<style>${STYLE}</style>${MARKUP}`;
     bubble = root.querySelector('.lt-bubble');
     toast = root.querySelector('.lt-toast');
+    applyUiI18n();
     (document.documentElement || document.body).appendChild(hostEl);
     wire();
     window.addEventListener(
@@ -339,7 +371,7 @@
       const textEl = bubble.querySelector('.lt-text');
       const ok = await U.copyText(textEl.textContent || '');
       emit('copied', ok);
-      flashBadge(ok ? '已复制' : '复制失败');
+      flashBadge(ok ? msg('csCopied', '已复制') : msg('csCopyFailed', '复制失败'));
     });
     bubble.querySelector('.lt-speak').addEventListener('click', (e) => {
       e.stopPropagation();
@@ -383,7 +415,7 @@
     pair.textContent = `${U.langLabel(state.sourceLang)} → ${U.langLabel(state.targetLang)}`;
 
     const engine = q('.lt-engine');
-    engine.textContent = data.engineLabel || (state.engine === 'nano' ? 'Gemini Nano' : state.engine === 'translator' ? '本地翻译模型' : '本地');
+    engine.textContent = data.engineLabel || (state.engine === 'nano' ? 'Gemini Nano' : state.engine === 'translator' ? msg('csEngineBuiltin', '本地翻译模型') : msg('csEngineLocal', '本地'));
 
     const src = q('.lt-src');
     if (data.showSource === false || !state.text) {
@@ -403,7 +435,7 @@
     if (data.error) {
       st.hidden = false;
       st.classList.add('lt-error');
-      st.innerHTML = `<span>${escapeHtml(data.error)}</span><button class="lt-link lt-retry">重试</button>`;
+      st.innerHTML = `<span>${escapeHtml(data.error)}</span><button class="lt-link lt-retry">${msg('csRetry','重试')}</button>`;
       const retry = st.querySelector('.lt-retry');
       if (retry) retry.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -412,7 +444,7 @@
     } else if (data.loading) {
       st.hidden = false;
       st.classList.remove('lt-error');
-      st.innerHTML = '<span class="lt-spin"></span><span>本地模型翻译中…</span>';
+      st.innerHTML = `<span class="lt-spin"></span><span>${msg('csLocalModelTranslating','本地模型翻译中…')}</span>`;
     } else if (data.hint) {
       st.hidden = false;
       st.classList.remove('lt-error');
@@ -546,7 +578,7 @@
 
   /* -------------------- 「扩展已失效」提示 -------------------- */
 
-  function notice(text, { title = '扩展已被重新加载', actionText = '刷新页面', onAction = null } = {}) {
+  function notice(text, { title = msg('csStaleTitle','扩展已被重新加载'), actionText = msg('csRefreshPage','刷新页面'), onAction = null } = {}) {
     ensure();
     const box = root.querySelector('.lt-stale');
     box.hidden = false;
@@ -567,7 +599,7 @@
     if (box) box.hidden = true;
   }
 
-  function showProgress({ title = '正在使用本地模型翻译…', text = '全程离线，内容不会离开你的电脑' } = {}) {
+  function showProgress({ title = msg('csTranslatingLocal','正在使用本地模型翻译…'), text = msg('csOfflineNote','全程离线，内容不会离开你的电脑') } = {}) {
     ensure();
     toast.hidden = false;
     toast.querySelector('.lt-toast-title-text').textContent = title;

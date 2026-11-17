@@ -1167,5 +1167,128 @@
   },
   "popupInputPlaceholder": {
     "message": "输入或粘贴文本，Ctrl / Cmd + Enter 翻译"
+  },
+  "csBubbleDragTitle": {
+    "message": "按住拖动气泡；双击标题栏回到选区位置"
+  },
+  "csBubbleResetTitle": {
+    "message": "回到选区位置（取消固定）"
+  },
+  "csBubbleSpeakTitle": {
+    "message": "朗读译文"
+  },
+  "csBubbleCopyTitle": {
+    "message": "复制译文"
+  },
+  "csBubbleExplainTitle": {
+    "message": "用 Gemini Nano 解释原文"
+  },
+  "csBubbleCloseTitle": {
+    "message": "关闭"
+  },
+  "csStaleTitle": {
+    "message": "扩展已被重新加载"
+  },
+  "csRefreshPage": {
+    "message": "刷新页面"
+  },
+  "csTranslatingLocal": {
+    "message": "正在使用本地模型翻译…"
+  },
+  "csOfflineNote": {
+    "message": "全程离线，内容不会离开你的电脑"
+  },
+  "csRestoreOriginal": {
+    "message": "还原原文"
+  },
+  "csCancel": {
+    "message": "取消"
+  },
+  "csPinnedPosition": {
+    "message": "已固定位置"
+  },
+  "csFollowSelection": {
+    "message": "已跟随选区"
+  },
+  "csCopied": {
+    "message": "已复制"
+  },
+  "csCopyFailed": {
+    "message": "复制失败"
+  },
+  "csRetry": {
+    "message": "重试"
+  },
+  "csLocalModelTranslating": {
+    "message": "本地模型翻译中…"
+  },
+  "csEngineLocal": {
+    "message": "本地"
+  },
+  "csEngineBuiltin": {
+    "message": "本地翻译模型"
+  },
+  "csBackendUnreachable": {
+    "message": "后台暂时没有应答（可能正在重启），请稍等一两秒再试一次。"
+  },
+  "csTranslateFailed": {
+    "message": "翻译失败"
+  },
+  "csExplainFailed": {
+    "message": "解释失败"
+  },
+  "csFallbackToNano": {
+    "message": "内置翻译模型不可用，已自动改用 Gemini Nano"
+  },
+  "csDetectingPageLang": {
+    "message": "识别页面语言…"
+  },
+  "csPageAlreadyTarget": {
+    "message": "页面已经是「{lang}」，无需翻译"
+  },
+  "csNoTranslatableText": {
+    "message": "没有找到可翻译的文本"
+  },
+  "csNoTranslatableParagraphs": {
+    "message": "没有找到可翻译的段落"
+  },
+  "csHoverModeHint": {
+    "message": "悬停对照模式：把鼠标移到段落上即可看到译文{skip}"
+  },
+  "csSkippedTargetLang": {
+    "message": "（已跳过 {n} 段目标语言文本）"
+  },
+  "csSkippedTargetLangShort": {
+    "message": "，已跳过 {n} 段目标语言文本"
+  },
+  "csTotalFirstScreen": {
+    "message": "共 {total} 段{skip}，先翻当前屏幕…"
+  },
+  "csBatchAborted": {
+    "message": "aborted"
+  },
+  "csBackgroundNoResponse": {
+    "message": "后台没有应答"
+  },
+  "csProgressTranslated": {
+    "message": "已翻译 {done}/{total} 段{failed}"
+  },
+  "csProgressFailedPart": {
+    "message": "（{failed} 段失败）"
+  },
+  "csProgressDoneWithFailures": {
+    "message": "完成：成功 {ok} 段，失败 {failed} 段{err}"
+  },
+  "csProgressDone": {
+    "message": "完成：共翻译 {done} 段{skipped}"
+  },
+  "csProgressSkippedPart": {
+    "message": "，跳过 {n} 段"
+  },
+  "csProgressErrorPart": {
+    "message": "（{err}）"
+  },
+  "csPageTranslateFailed": {
+    "message": "翻译失败：{err}"
   }
 }
