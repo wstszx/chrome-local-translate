@@ -591,37 +591,38 @@ function renderSitePrefUI() {
   if (hostEl) hostEl.textContent = host || '—';
   const pref = getSitePref(host);
   if (!host) {
-    if (summary) summary.textContent = '当前标签页不支持站点偏好。';
+    if (summary) summary.textContent = msg('sitePrefsUnsupported', '当前标签页不支持站点偏好。');
     if (globalHint) globalHint.textContent = '';
-    if (btnAuto) { btnAuto.disabled = true; btnAuto.textContent = '此站点自动翻译：—'; }
-    if (btnNever) { btnNever.disabled = true; btnNever.textContent = '加入永不翻译'; }
+    if (btnAuto) { btnAuto.disabled = true; btnAuto.textContent = `${msg('sitePrefAuto','自动翻译')}：—`; }
+    if (btnNever) { btnNever.disabled = true; btnNever.textContent = msg('siteNeverAddBtn','加入永不翻译'); }
     return;
   }
   if (btnAuto) btnAuto.disabled = false;
   if (btnNever) btnNever.disabled = false;
   const parts = [];
+  const modeName = (m) => m === 'dual' ? msg('modeDual','双语') : m === 'hover' ? msg('modeHover','悬停') : msg('modeReplace','替换');
   if (pref) {
-    if (pref.targetLang) parts.push(`目标：${langLabel(pref.targetLang)}`);
-    if (pref.sourceLang) parts.push(`源：${pref.sourceLang === 'auto' ? '自动' : langLabel(pref.sourceLang)}`);
-    if (pref.displayMode) parts.push(`模式：${pref.displayMode === 'dual' ? '双语' : pref.displayMode === 'hover' ? '悬停' : '替换'}`);
-    if (pref.autoTranslate === true) parts.push('自动翻译：开');
-    if (pref.autoTranslate === false) parts.push('自动翻译：关');
-    if (pref.neverTranslate) parts.push('永不翻译：开');
+    if (pref.targetLang) parts.push(`${msg('sitePrefTarget','目标')}：${langLabel(pref.targetLang)}`);
+    if (pref.sourceLang) parts.push(`${msg('sitePrefSource','源')}：${pref.sourceLang === 'auto' ? msg('autoDetect','自动') : langLabel(pref.sourceLang)}`);
+    if (pref.displayMode) parts.push(`${msg('sitePrefMode','模式')}：${modeName(pref.displayMode)}`);
+    if (pref.autoTranslate === true) parts.push(`${msg('sitePrefAuto','自动翻译')}：${msg('on','开')}`);
+    if (pref.autoTranslate === false) parts.push(`${msg('sitePrefAuto','自动翻译')}：${msg('off','关')}`);
+    if (pref.neverTranslate) parts.push(`${msg('sitePrefNever','永不翻译')}：${msg('on','开')}`);
   }
-  if (summary) summary.textContent = parts.length ? parts.join(' · ') : '尚未为此站点保存偏好。';
+  if (summary) summary.textContent = parts.length ? parts.join(' · ') : msg('sitePrefsNone','尚未为此站点保存偏好。');
   const globalNotes = [];
   const autoSites = (settings && settings.autoTranslateSites) || [];
   const neverSites = (settings && settings.neverSites) || [];
   const inAuto = autoSites.some((s) => String(s || '').toLowerCase() === host);
   const inNever = neverSites.some((s) => String(s || '').toLowerCase() === host);
-  if (inNever) globalNotes.push('在全局“永不翻译”列表中');
-  if (inAuto) globalNotes.push('在全局“自动翻译”列表中');
-  if (!inAuto && !inNever && autoSites.length === 0 && settings && settings.autoTranslate) globalNotes.push('全局自动翻译已开启（所有网站）');
-  if (globalHint) globalHint.textContent = globalNotes.length ? `全局规则：${globalNotes.join('；')}` : '';
+  if (inNever) globalNotes.push(msg('globalNeverList','在全局“永不翻译”列表中'));
+  if (inAuto) globalNotes.push(msg('globalAutoList','在全局“自动翻译”列表中'));
+  if (!inAuto && !inNever && autoSites.length === 0 && settings && settings.autoTranslate) globalNotes.push(msg('globalAutoAll','全局自动翻译已开启（所有网站）'));
+  if (globalHint) globalHint.textContent = globalNotes.length ? `${msg('globalRulesLabel','全局规则')}：${globalNotes.join('；')}` : '';
   const autoOn = !!(pref && pref.autoTranslate);
   const neverOn = !!(pref && pref.neverTranslate);
-  if (btnAuto) btnAuto.textContent = `此站点自动翻译：${autoOn ? '开' : '关'}`;
-  if (btnNever) btnNever.textContent = neverOn ? '从永不翻译移除' : '加入永不翻译';
+  if (btnAuto) btnAuto.textContent = autoOn ? msg('siteAutoOn','此站点自动翻译：开') : msg('siteAutoOffBtn','此站点自动翻译：关');
+  if (btnNever) btnNever.textContent = neverOn ? msg('siteNeverRemove','从永不翻译移除') : msg('siteNeverAddBtn','加入永不翻译');
 }
 
 async function updateSitePrefForActive(mutator) {
@@ -649,16 +650,16 @@ function formatHistoryTime(ts) {
 async function loadHistory() {
   const listEl = $('history-list');
   if (!listEl) return;
-  listEl.innerHTML = '<div class="muted small"><span class="spinner"></span>加载中…</div>';
+  listEl.innerHTML = `<div class="muted small"><span class="spinner"></span>${msg('historyLoading','加载中…')}</div>`;
   try {
     const res = await send({ type: 'lt:history:get' });
     const items = (res && res.items) || [];
     if (!items.length) {
-      listEl.innerHTML = '<div class="muted small">暂无历史记录。翻译或解释后会在此显示最近内容（仅本机保存）。</div>';
+      listEl.innerHTML = `<div class="muted small">${msg('historyEmpty','暂无历史记录。翻译或解释后会在此显示最近内容（仅本机保存）。')}</div>`;
       return;
     }
     listEl.innerHTML = items.map((it) => {
-      const meta = [formatHistoryTime(it.at), it.kind === 'explain' ? '解释' : '翻译', it.engine || '', it.sourceLang && it.targetLang ? `${langLabel(it.sourceLang)} → ${langLabel(it.targetLang)}` : ''].filter(Boolean).join(' · ');
+      const meta = [formatHistoryTime(it.at), it.kind === 'explain' ? msg('historyExplain','解释') : msg('historyTranslate','翻译'), it.engine || '', it.sourceLang && it.targetLang ? `${langLabel(it.sourceLang)} → ${langLabel(it.targetLang)}` : ''].filter(Boolean).join(' · ');
       return `<div class="history-item" data-id="${escapeHtml(it.id)}">
         <div class="history-meta">${escapeHtml(meta)}</div>
         <div class="history-text">${escapeHtml(String(it.text || '').slice(0, 400))}</div>
@@ -672,7 +673,7 @@ async function loadHistory() {
     }).join('');
     listEl._items = items;
   } catch (err) {
-    listEl.innerHTML = `<div class="muted small">加载失败：${escapeHtml(err.message)}</div>`;
+    listEl.innerHTML = `<div class="muted small">${msg('historyLoadFailed','加载失败')}：${escapeHtml(err.message)}</div>`;
   }
 }
 
@@ -706,7 +707,7 @@ async function refreshPageStatus() {
       renderPageStatus();
     }
   } catch (err) {
-    $('page-status').textContent = `无法读取页面状态：${err.message}`;
+    $('page-status').textContent = `${msg('pageStatusReadFailed','无法读取页面状态')}：${err.message}`;
   }
 }
 
@@ -723,15 +724,16 @@ function renderPageStatus() {
     bar.style.width = '0%';
   }
   const target = st.target || (settings && settings.targetLang) || '';
-  const modeLabel = st.mode === 'dual' ? '双语对照' : st.mode === 'hover' ? '悬停对照' : st.mode === 'replace' ? '替换原文' : '';
+  const modeLabel = st.mode === 'dual' ? msg('pageDual','双语对照') : st.mode === 'hover' ? msg('pageHover','悬停对照') : st.mode === 'replace' ? msg('pageTranslate','翻译整页') : '';
+  const seg = msg('segments','段');
   const label =
     phase === 'working'
-      ? `翻译中：${st.done || 0}/${st.total || '?'} 段${modeLabel ? ` · ${modeLabel}` : ''}`
+      ? `${msg('pageStatusWorking','翻译中')}：${st.done || 0}/${st.total || '?'} ${seg}${modeLabel ? ` · ${modeLabel}` : ''}`
       : phase === 'done'
-        ? `已翻译 ${st.translated || st.nodes || 0} 段${modeLabel ? ` · ${modeLabel}` : ''}${st.sourceLang ? ` · ${langLabel(st.sourceLang)} → ${langLabel(target)}` : ''}${st.failed ? ` · 失败 ${st.failed} 段` : ''}`
+        ? `${msg('pageStatusDone','已翻译')} ${st.translated || st.nodes || 0} ${seg}${modeLabel ? ` · ${modeLabel}` : ''}${st.sourceLang ? ` · ${langLabel(st.sourceLang)} → ${langLabel(target)}` : ''}${st.failed ? ` · ${msg('failed','失败')} ${st.failed} ${seg}` : ''}`
         : st.error
-          ? `失败：${st.error}`
-          : '未翻译';
+          ? `${msg('pageStatusFailed','失败')}：${st.error}`
+          : msg('pageStatusIdleText','未翻译');
   $('page-status').textContent = label;
 
   const guide = $('page-guide');
@@ -1317,7 +1319,7 @@ function bindEvents() {
   $('cache-clear').addEventListener('click', async () => {
     await send({ type: 'lt:cache:clear' });
     const size = await send({ type: 'lt:cache:size' });
-    $('cache-size').textContent = `已清空（${size.size} 条）`;
+    $('cache-size').textContent = `${size.size}`;
   });
   $('engine-reset').addEventListener('click', async () => {
     const btn = $('engine-reset');
