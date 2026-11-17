@@ -1545,5 +1545,44 @@
   },
   "engineErrStatus": {
     "message": "Status: {status}"
+  },
+  "csExtensionReloaded": {
+    "message": "The extension was just reloaded or updated (via \"Reload\" in chrome://extensions). The old script on this page is no longer valid. Refresh this page (F5) to continue."
+  },
+  "toneDefaultLabel": {
+    "message": "Faithful"
+  },
+  "toneDefaultHint": {
+    "message": "Accurate and neutral, close to the original structure"
+  },
+  "toneNaturalLabel": {
+    "message": "Natural"
+  },
+  "toneNaturalHint": {
+    "message": "Matches native expressions in the target language"
+  },
+  "toneFormalLabel": {
+    "message": "Formal"
+  },
+  "toneFormalHint": {
+    "message": "Business, official, or email tone"
+  },
+  "toneCasualLabel": {
+    "message": "Casual"
+  },
+  "toneCasualHint": {
+    "message": "Chat, subtitles, and social media"
+  },
+  "toneTechnicalLabel": {
+    "message": "Technical"
+  },
+  "toneTechnicalHint": {
+    "message": "Preserve terminology; keep original term on first use when helpful"
+  },
+  "toneAcademicLabel": {
+    "message": "Academic"
+  },
+  "toneAcademicHint": {
+    "message": "Papers and reports with standardized terminology"
   }
 }

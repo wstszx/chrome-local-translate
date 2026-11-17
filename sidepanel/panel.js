@@ -140,7 +140,12 @@ function fillLanguageSelects() {
 
   const toneSel = $('tone');
   toneSel.innerHTML = '';
-  for (const t of TONES) toneSel.appendChild(new Option(`${t.zh} — ${t.hint}`, t.value));
+  for (const t of TONES) {
+    const cap = t.value.charAt(0).toUpperCase() + t.value.slice(1);
+    const label = msg(`tone${cap}Label`, t.zh || t.en || t.value);
+    const hint = msg(`tone${cap}Hint`, t.hint || '');
+    toneSel.appendChild(new Option(hint ? `${label} — ${hint}` : label, t.value));
+  }
 }
 
 function updateRuleCounts() {

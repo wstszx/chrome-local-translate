@@ -1545,5 +1545,44 @@
   },
   "engineErrStatus": {
     "message": "状态：{status}"
+  },
+  "csExtensionReloaded": {
+    "message": "扩展刚刚被重新加载（chrome://extensions 里的「刷新」）或更新过，这个页面上的旧脚本已经失效。刷新本页（F5）后即可继续使用。"
+  },
+  "toneDefaultLabel": {
+    "message": "忠实原文"
+  },
+  "toneDefaultHint": {
+    "message": "准确、中立，贴近原文结构"
+  },
+  "toneNaturalLabel": {
+    "message": "自然地道"
+  },
+  "toneNaturalHint": {
+    "message": "符合目标语言母语者表达习惯"
+  },
+  "toneFormalLabel": {
+    "message": "正式书面"
+  },
+  "toneFormalHint": {
+    "message": "商务 / 公文 / 邮件"
+  },
+  "toneCasualLabel": {
+    "message": "口语轻松"
+  },
+  "toneCasualHint": {
+    "message": "聊天、字幕、社媒"
+  },
+  "toneTechnicalLabel": {
+    "message": "技术文档"
+  },
+  "toneTechnicalHint": {
+    "message": "保留术语原词，首次出现可加括号"
+  },
+  "toneAcademicLabel": {
+    "message": "学术严谨"
+  },
+  "toneAcademicHint": {
+    "message": "论文、报告，术语规范"
   }
 }

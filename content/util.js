@@ -36,14 +36,67 @@
     }
   `;
 
-  const ZH_NAMES = {
-    zh: '中文（简体）', 'zh-Hant': '中文（繁體）', en: '英语', ja: '日语', ko: '韩语', fr: '法语', de: '德语',
-    es: '西班牙语', pt: '葡萄牙语', it: '意大利语', ru: '俄语', uk: '乌克兰语', nl: '荷兰语', pl: '波兰语',
-    cs: '捷克语', sk: '斯洛伐克语', sl: '斯洛文尼亚语', hr: '克罗地亚语', bg: '保加利亚语', ro: '罗马尼亚语',
-    hu: '匈牙利语', el: '希腊语', da: '丹麦语', sv: '瑞典语', no: '挪威语', fi: '芬兰语', lt: '立陶宛语',
-    tr: '土耳其语', ar: '阿拉伯语', he: '希伯来语', hi: '印地语', bn: '孟加拉语', ta: '泰米尔语',
-    te: '泰卢固语', th: '泰语', vi: '越南语', id: '印尼语',
+  const LANG_NAMES = {
+    zh: { zh: '中文（简体）', en: 'Chinese (Simplified)' },
+    'zh-Hant': { zh: '中文（繁體）', en: 'Chinese (Traditional)' },
+    en: { zh: '英语', en: 'English' },
+    ja: { zh: '日语', en: 'Japanese' },
+    ko: { zh: '韩语', en: 'Korean' },
+    fr: { zh: '法语', en: 'French' },
+    de: { zh: '德语', en: 'German' },
+    es: { zh: '西班牙语', en: 'Spanish' },
+    pt: { zh: '葡萄牙语', en: 'Portuguese' },
+    it: { zh: '意大利语', en: 'Italian' },
+    ru: { zh: '俄语', en: 'Russian' },
+    uk: { zh: '乌克兰语', en: 'Ukrainian' },
+    nl: { zh: '荷兰语', en: 'Dutch' },
+    pl: { zh: '波兰语', en: 'Polish' },
+    cs: { zh: '捷克语', en: 'Czech' },
+    sk: { zh: '斯洛伐克语', en: 'Slovak' },
+    sl: { zh: '斯洛文尼亚语', en: 'Slovenian' },
+    hr: { zh: '克罗地亚语', en: 'Croatian' },
+    bg: { zh: '保加利亚语', en: 'Bulgarian' },
+    ro: { zh: '罗马尼亚语', en: 'Romanian' },
+    hu: { zh: '匈牙利语', en: 'Hungarian' },
+    el: { zh: '希腊语', en: 'Greek' },
+    da: { zh: '丹麦语', en: 'Danish' },
+    sv: { zh: '瑞典语', en: 'Swedish' },
+    no: { zh: '挪威语', en: 'Norwegian' },
+    fi: { zh: '芬兰语', en: 'Finnish' },
+    lt: { zh: '立陶宛语', en: 'Lithuanian' },
+    tr: { zh: '土耳其语', en: 'Turkish' },
+    ar: { zh: '阿拉伯语', en: 'Arabic' },
+    he: { zh: '希伯来语', en: 'Hebrew' },
+    hi: { zh: '印地语', en: 'Hindi' },
+    bn: { zh: '孟加拉语', en: 'Bengali' },
+    ta: { zh: '泰米尔语', en: 'Tamil' },
+    te: { zh: '泰卢固语', en: 'Telugu' },
+    th: { zh: '泰语', en: 'Thai' },
+    vi: { zh: '越南语', en: 'Vietnamese' },
+    id: { zh: '印尼语', en: 'Indonesian' },
   };
+  const LANG_CODES_LOWER = new Map(Object.keys(LANG_NAMES).map((k) => [k.toLowerCase(), k]));
+
+  function uiIsZh() {
+    try {
+      const lang = (globalThis.chrome && chrome.i18n && chrome.i18n.getUILanguage && chrome.i18n.getUILanguage()) || '';
+      if (lang) return String(lang).toLowerCase().startsWith('zh');
+    } catch (err) { /* ignore */ }
+    try {
+      const nav = String(navigator.language || '').toLowerCase();
+      if (nav) return nav.startsWith('zh');
+    } catch (err) { /* ignore */ }
+    return true;
+  }
+
+  function umsg(key, fallback = '') {
+    try {
+      const i18n = globalThis.chrome && globalThis.chrome.i18n;
+      return (i18n && typeof i18n.getMessage === 'function' && i18n.getMessage(key)) || fallback || '';
+    } catch (err) {
+      return fallback || '';
+    }
+  }
 
   const ALIASES = {
     'zh-cn': 'zh', 'zh-sg': 'zh', 'zh-hans': 'zh', 'zh-tw': 'zh-Hant', 'zh-hk': 'zh-Hant', 'zh-mo': 'zh-Hant',
@@ -55,19 +108,21 @@
     if (!tag || typeof tag !== 'string') return '';
     const raw = tag.trim().replace(/_/g, '-');
     const lower = raw.toLowerCase();
-    if (ZH_NAMES[lower]) return lower === 'zh-hant' ? 'zh-Hant' : lower;
+    if (LANG_CODES_LOWER.has(lower)) return LANG_CODES_LOWER.get(lower);
     if (ALIASES[lower]) return ALIASES[lower];
     const primary = lower.split('-')[0];
-    if (ZH_NAMES[primary]) return primary;
+    if (LANG_CODES_LOWER.has(primary)) return LANG_CODES_LOWER.get(primary);
     if (ALIASES[primary]) return ALIASES[primary];
     if (primary === 'zh') return /hant|tw|hk|mo/.test(lower) ? 'zh-Hant' : 'zh';
     return primary;
   }
 
   function langLabel(code) {
-    if (!code || code === 'auto') return '自动检测';
+    if (!code || code === 'auto') return umsg('autoDetect', uiIsZh() ? '自动检测' : 'Auto detect');
     const n = normalizeCode(code);
-    return ZH_NAMES[n] || ZH_NAMES[n.toLowerCase()] || n;
+    const item = LANG_NAMES[n] || LANG_NAMES[String(n).toLowerCase()];
+    if (item) return uiIsZh() ? item.zh : item.en;
+    return n;
   }
 
   const RTL = new Set(['ar', 'he', 'fa', 'ur']);
@@ -342,15 +397,14 @@
     return true;
   }
 
-  const STALE_TEXT =
-    '扩展刚刚被重新加载（chrome://extensions 里的「刷新」）或更新过，这个页面上的旧脚本已经失效。刷新本页（F5）后即可继续使用。';
+  const STALE_TEXT_FALLBACK = '扩展刚刚被重新加载（chrome://extensions 里的「刷新」）或更新过，这个页面上的旧脚本已经失效。刷新本页（F5）后即可继续使用。';
 
   NS.util = {
     extAlive,
     isContextInvalidated,
     isContextGone,
     installStaleGuard,
-    staleText: () => STALE_TEXT,
+    staleText: () => umsg('csExtensionReloaded', STALE_TEXT_FALLBACK),
     normalizeCode,
     langLabel,
     isRtl,
@@ -370,18 +424,17 @@
     designTokens: NS.designTokens, // ui.js / inline.js 通过 U.designTokens 访问
   };
 
-  /** 输入框转写面板用的语言下拉（第一项 = 跟随主目标语言） */
-  NS.inlineLanguages = [
-    { value: '', label: '跟随主语言' },
-    ...[
-      ['en', '英语'], ['zh', '中文（简体）'], ['zh-Hant', '中文（繁體）'], ['ja', '日语'], ['ko', '韩语'],
-      ['fr', '法语'], ['de', '德语'], ['es', '西班牙语'], ['pt', '葡萄牙语'], ['it', '意大利语'],
-      ['ru', '俄语'], ['uk', '乌克兰语'], ['nl', '荷兰语'], ['pl', '波兰语'], ['cs', '捷克语'],
-      ['sk', '斯洛伐克语'], ['sl', '斯洛文尼亚语'], ['hr', '克罗地亚语'], ['bg', '保加利亚语'],
-      ['ro', '罗马尼亚语'], ['hu', '匈牙利语'], ['el', '希腊语'], ['da', '丹麦语'], ['sv', '瑞典语'],
-      ['no', '挪威语'], ['fi', '芬兰语'], ['lt', '立陶宛语'], ['tr', '土耳其语'], ['ar', '阿拉伯语'],
-      ['he', '希伯来语'], ['hi', '印地语'], ['bn', '孟加拉语'], ['ta', '泰米尔语'], ['te', '泰卢固语'],
-      ['th', '泰语'], ['vi', '越南语'], ['id', '印尼语'],
-    ].map(([value, label]) => ({ value, label })),
-  ];
+  /** 输入框转写面板用的语言下拉（第一项 = 跟随主语言） */
+  const INLINE_LANG_CODES = ['en','zh','zh-Hant','ja','ko','fr','de','es','pt','it','ru','uk','nl','pl','cs','sk','sl','hr','bg','ro','hu','el','da','sv','no','fi','lt','tr','ar','he','hi','bn','ta','te','th','vi','id'];
+  function buildInlineLanguages() {
+    return [
+      { value: '', label: umsg('followTargetLang', uiIsZh() ? '跟随主语言' : 'Follow target language') },
+      ...INLINE_LANG_CODES.map((code) => ({ value: code, label: langLabel(code) })),
+    ];
+  }
+  try {
+    Object.defineProperty(NS, 'inlineLanguages', { get: buildInlineLanguages, configurable: true });
+  } catch (err) {
+    NS.inlineLanguages = buildInlineLanguages();
+  }
 })();
