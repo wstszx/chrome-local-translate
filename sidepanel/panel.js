@@ -740,15 +740,15 @@ function renderPageStatus() {
   if (guide) {
     let tip = '';
     if (phase === 'working') {
-      tip = '正在本地翻译当前页面。你可以稍候查看进度；如长时间无响应，可在“设置 > 性能与显示”重置本地会话后重试。';
+      tip = msg('guideWorking','正在本地翻译当前页面。你可以稍候查看进度；如长时间无响应，可在“设置 > 性能与显示”重置本地会话后重试。');
     } else if (phase === 'done') {
       tip = st.mode === 'hover'
-        ? '悬停对照已启用：将鼠标移到段落上查看译文。需要固定译文可改用“翻译整页”或“双语对照”。'
-        : '翻译完成。可使用“还原原文”恢复页面，或在下方为此站点记住偏好以便下次自动应用。';
+        ? msg('guideDoneHover','悬停对照已启用：将鼠标移到段落上查看译文。需要固定译文可改用“翻译整页”或“双语对照”。')
+        : msg('guideDone','翻译完成。可使用“还原原文”恢复页面，或在下方为此站点记住偏好以便下次自动应用。');
     } else if (st.error) {
-      tip = '翻译失败：请检查当前页面是否可注入脚本（chrome:// 等页面不支持）、语言包/模型是否就绪，或点击“刷新状态/重新检测”。';
+      tip = msg('guideError','翻译失败：请检查当前页面是否可注入脚本（chrome:// 等页面不支持）、语言包/模型是否就绪，或点击“刷新状态/重新检测”。');
     } else {
-      tip = '未翻译：可点击“翻译整页”“双语对照”或“悬停对照”。若希望下次自动处理此站点，可在下方保存站点偏好。';
+      tip = msg('guideIdle','未翻译：可点击“翻译整页”“双语对照”或“悬停对照”。若希望下次自动处理此站点，可在下方保存站点偏好。');
     }
     guide.textContent = tip;
     guide.hidden = false;
@@ -764,10 +764,10 @@ async function translatePage(mode) {
   try {
     const res = await send({ type: 'lt:page:translate', payload: { tabId: activeTab.id, mode } });
     if (res && res.ok === false) throw new Error(res.error);
-    if (res && res.skipped === 'same-language') $('page-status').textContent = '页面已经是目标语言';
-    if (res && res.skipped === 'no-text') $('page-status').textContent = '没有找到可翻译的文本';
+    if (res && res.skipped === 'same-language') $('page-status').textContent = msg('skippedSameLanguage','页面已经是目标语言');
+    if (res && res.skipped === 'no-text') $('page-status').textContent = msg('skippedNoText','没有找到可翻译的文本');
   } catch (err) {
-    $('page-status').textContent = `失败：${err.message}`;
+    $('page-status').textContent = `${msg('pageStatusFailed','失败')}：${err.message}`;
   } finally {
     $('page-translate').disabled = false;
     $('page-dual').disabled = false;
@@ -782,7 +782,7 @@ async function restorePage() {
     pageStatus = { phase: 'idle', translated: 0 };
     renderPageStatus();
   } catch (err) {
-    $('page-status').textContent = `还原失败：${err.message}`;
+    $('page-status').textContent = `${msg('restoreFailed','还原失败')}：${err.message}`;
   }
 }
 
@@ -790,17 +790,17 @@ async function translateSelection(explain = false) {
   if (!activeTab || typeof activeTab.id !== 'number') return;
   const box = $('sel-result');
   box.hidden = false;
-  box.innerHTML = '<span class="spinner"></span>读取选中文本…';
+  box.innerHTML = `<span class="spinner"></span>${msg('readingSelection','读取选中文本…')}`;
   try {
     const sel = await chrome.tabs.sendMessage(activeTab.id, { type: 'lt:get-selection' });
     const text = sel && sel.text;
     if (!text) {
-      box.innerHTML = '<span class="muted">当前页面没有选中的文本</span>';
+      box.innerHTML = `<span class="muted">${msg('noSelection','当前页面没有选中的文本')}</span>`;
       return;
     }
     if (explain) {
       const res = await send({ type: 'lt:explain', payload: { text, lang: (settings && settings.uiLang) || 'zh' } });
-      box.innerHTML = `<div class="muted small">Gemini Nano 解释：</div>${renderText(res.text)}`;
+      box.innerHTML = `<div class="muted small">${msg('nanoExplanation','Gemini Nano 解释：')}</div>${renderText(res.text)}`;
     } else {
       const res = await send({ type: 'lt:translate', payload: { text, source: 'auto', target: $('tgt-lang').value } });
       box.innerHTML = `<div class="muted small">${langLabel(res.sourceLang)} → ${langLabel(res.targetLang)}：</div>${renderText(res.text)}`;
