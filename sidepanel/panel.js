@@ -225,7 +225,7 @@ const saveDebounced = (() => {
   let pending = {};
   return (patch) => {
     pending = { ...pending, ...patch };
-    showSaveStatus('保存中…', 1200);
+    showSaveStatus(msg('saving', '保存中…'), 1200);
     if (timer) clearTimeout(timer);
     timer = setTimeout(async () => {
       const p = pending;
@@ -236,7 +236,7 @@ const saveDebounced = (() => {
         renderSitePrefUI();
         showSaveStatus();
       } catch (err) {
-        showSaveStatus('保存失败', 2200);
+        showSaveStatus(msg('saveFailed', '保存失败'), 2200);
         showError($('text-error'), err.message);
       }
     }, 400);
@@ -1285,7 +1285,7 @@ function bindEvents() {
     a.download = 'chrome-local-translate-site-rules.json';
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
-    showSaveStatus('已导出站点规则', 1600);
+    showSaveStatus(msg('exportedSiteRules', '已导出站点规则'), 1600);
   });
   if ($('site-rules-import')) $('site-rules-import').addEventListener('click', () => $('site-rules-import-file') && $('site-rules-import-file').click());
   if ($('site-rules-import-file')) $('site-rules-import-file').addEventListener('change', async (e) => {
@@ -1300,9 +1300,9 @@ function bindEvents() {
       if (Array.isArray(data.neverSites)) lists.neverSites = normalizeHostLines(data.neverSites.join('\n'));
       if (Array.isArray(data.inlineNeverSites)) lists.inlineNeverSites = normalizeHostLines(data.inlineNeverSites.join('\n'));
       await setSiteRuleLists(lists);
-      showSaveStatus('已导入站点规则', 1600);
+      showSaveStatus(msg('importedSiteRules', '已导入站点规则'), 1600);
     } catch (err) {
-      showSaveStatus('导入失败：文件格式无效', 2200);
+      showSaveStatus(msg('importInvalid', '导入失败：文件格式无效'), 2200);
     }
   });
   $('min-chars').addEventListener('change', () => patchSettings({ minAutoChars: Number($('min-chars').value) || 0 }));
@@ -1334,8 +1334,9 @@ function bindEvents() {
 
   // 文本面板
   const input = $('input');
+  const setCount = (n) => { $('count').textContent = `${n} ${msg('charsUnit', '字')}`; };
   input.addEventListener('input', () => {
-    $('count').textContent = `${input.value.length} 字`;
+    setCount(input.value.length);
     if ($('auto-input').checked) {
       clearTimeout(input._timer);
       input._timer = setTimeout(() => translateCurrent(), 900);
@@ -1352,7 +1353,7 @@ function bindEvents() {
   $('do-clear').addEventListener('click', () => {
     stopStream();
     input.value = '';
-    $('count').textContent = '0 字';
+    setCount(0);
     currentTranslation = '';
     setOutput('');
     setOutMeta('译文');
@@ -1363,7 +1364,7 @@ function bindEvents() {
       const text = await navigator.clipboard.readText();
       if (!text) return;
       input.value = text;
-      $('count').textContent = `${text.length} 字`;
+      setCount(text.length);
       translateCurrent();
     } catch (err) {
       showError($('text-error'), '无法读取剪贴板，请手动粘贴（Ctrl/Cmd + V）');
@@ -1386,7 +1387,7 @@ function bindEvents() {
   $('out-back').addEventListener('click', () => {
     if (!currentTranslation) return;
     input.value = currentTranslation;
-    $('count').textContent = `${currentTranslation.length} 字`;
+    setCount(currentTranslation.length);
     const s = $('src-lang').value;
     const t = $('tgt-lang').value;
     $('src-lang').value = t;
@@ -1463,7 +1464,7 @@ function bindEvents() {
         const tabBtn = document.querySelector('.tab-btn[data-tab="text"]');
         if (tabBtn) tabBtn.click();
         $('input').value = item.text || '';
-        $('count').textContent = `${($('input').value || '').length} 字`;
+        setCount(($('input').value || '').length);
         currentTranslation = item.translation || '';
         setOutput(renderText(currentTranslation));
         setOutMeta(item.kind === 'explain' ? '历史记录（解释）' : '历史记录');
