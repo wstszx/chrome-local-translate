@@ -1491,5 +1491,59 @@
   },
   "osUnknownAction": {
     "message": "离屏文档收到未知动作：{kind}"
+  },
+  "engineErrNoApi": {
+    "message": "当前环境没有 Translator API（需要 Chrome 138+ 桌面版；移动端暂不支持）。"
+  },
+  "engineErrNoNano": {
+    "message": "当前环境没有 Gemini Nano（Prompt API 不可用）。常见原因：① 模型未下载 —— chrome://components 里的 \"Optimization Guide On Device Model\" 需要存在且已更新；② 硬件不满足（需 >4GB 显存，或 16GB 内存 + 4 核以上）；③ Chrome 版本过旧。若硬件/版本没问题，可在侧边栏点「让 Chrome 下载 Gemini Nano」触发下载。"
+  },
+  "engineErrNeedGesture": {
+    "message": "首次使用需要下载语言包 / 模型，请点击按钮确认下载。"
+  },
+  "engineErrUnsupportedPair": {
+    "message": "Chrome 内置模型不支持这个语言对。"
+  },
+  "engineErrMtpSampling": {
+    "message": "Gemini Nano 会话创建失败：Chrome 开启了 MTP 推测解码，要求使用兼容的采样参数。扩展已自动用兼容参数重试，若仍报错请在侧边栏点「重置引擎」后重试。"
+  },
+  "engineErrPairCreateFailed": {
+    "message": "Chrome 拒绝为该语言对创建翻译实例：availability() 报告可用，但 create() 返回 NotSupportedError。常见原因是 create() 不在「有用户手势的文档」里执行（例如在扩展后台/Worker 中调用），或 Chrome TranslateKit 语言包未启用该语言对。"
+  },
+  "engineErrSameLanguage": {
+    "message": "原文与目标语言相同，无需翻译。"
+  },
+  "engineErrQuota": {
+    "message": "文本超出模型输入配额，分段后仍然失败。"
+  },
+  "engineErrAborted": {
+    "message": "已取消。"
+  },
+  "engineErrDownloadFailed": {
+    "message": "模型下载失败，请检查网络（需要非计费连接），或稍后重试。"
+  },
+  "engineErrGenericFailure": {
+    "message": "Chrome 内置翻译引擎报内部错误（Other generic failures occurred.）—— 通常是该语言包状态异常，或翻译会话已经失效。扩展会自动重建会话重试一次；若仍然失败，请在侧边栏点「重置本地会话（翻译报错时可试）」，再在 chrome://components 里检查/更新 Chrome 组件后重试。"
+  },
+  "engineErrBusy": {
+    "message": "模型正忙，请稍后重试。"
+  },
+  "engineErrEmpty": {
+    "message": "没有可翻译的内容。"
+  },
+  "engineErrUnknown": {
+    "message": "翻译失败。"
+  },
+  "engineErrTranslateFailedWithMsg": {
+    "message": "翻译失败：{detail}"
+  },
+  "engineErrMissingLangParams": {
+    "message": "缺少语言参数"
+  },
+  "engineErrMissingTargetLang": {
+    "message": "缺少目标语言"
+  },
+  "engineErrStatus": {
+    "message": "状态：{status}"
   }
 }

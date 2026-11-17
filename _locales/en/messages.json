@@ -1491,5 +1491,59 @@
   },
   "osUnknownAction": {
     "message": "Offscreen received unknown action: {kind}"
+  },
+  "engineErrNoApi": {
+    "message": "Translator API is not available in this environment (requires Chrome 138+ desktop; mobile is not supported)."
+  },
+  "engineErrNoNano": {
+    "message": "Gemini Nano (Prompt API) is not available in this environment. Common causes: ① model not downloaded — \"Optimization Guide On Device Model\" in chrome://components must exist and be up to date; ② hardware requirements not met (>4GB VRAM, or 16GB RAM + 4+ cores); ③ Chrome version too old. If hardware/version are fine, click \"Let Chrome download Gemini Nano\" in the side panel to trigger download."
+  },
+  "engineErrNeedGesture": {
+    "message": "First use requires downloading a language pack/model. Click the button to confirm download."
+  },
+  "engineErrUnsupportedPair": {
+    "message": "Chrome built-in models do not support this language pair."
+  },
+  "engineErrMtpSampling": {
+    "message": "Gemini Nano session creation failed: Chrome enabled MTP speculative decoding and requires compatible sampling parameters. The extension already retried with compatible parameters; if it still fails, click \"Reset engine\" in the side panel and try again."
+  },
+  "engineErrPairCreateFailed": {
+    "message": "Chrome refused to create a translation instance for this language pair: availability() reported available, but create() returned NotSupportedError. Common causes: create() was not executed in a document with user gesture (e.g. called from extension background/worker), or the Chrome TranslateKit language pack does not enable this pair."
+  },
+  "engineErrSameLanguage": {
+    "message": "Source and target languages are the same; no translation needed."
+  },
+  "engineErrQuota": {
+    "message": "Text exceeds model input quota and still failed after chunking."
+  },
+  "engineErrAborted": {
+    "message": "Cancelled."
+  },
+  "engineErrDownloadFailed": {
+    "message": "Model download failed. Check network (non-metered connection required) or try again later."
+  },
+  "engineErrGenericFailure": {
+    "message": "Chrome built-in translation engine reported an internal error (Other generic failures occurred.) — usually the language pack state is abnormal or the translation session expired. The extension will automatically rebuild and retry once; if it still fails, click \"Reset local session (try when translation errors occur)\" in the side panel, then check/update Chrome components in chrome://components and retry."
+  },
+  "engineErrBusy": {
+    "message": "Model is busy, please try again later."
+  },
+  "engineErrEmpty": {
+    "message": "Nothing to translate."
+  },
+  "engineErrUnknown": {
+    "message": "Translation failed."
+  },
+  "engineErrTranslateFailedWithMsg": {
+    "message": "Translation failed: {detail}"
+  },
+  "engineErrMissingLangParams": {
+    "message": "Missing language parameters"
+  },
+  "engineErrMissingTargetLang": {
+    "message": "Missing target language"
+  },
+  "engineErrStatus": {
+    "message": "Status: {status}"
   }
 }
