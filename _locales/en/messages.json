@@ -1440,5 +1440,56 @@
   },
   "inlineTranslateContext": {
     "message": "Content the user is typing in a web input field ({from}→{to})"
+  },
+  "bgWriteFailed": {
+    "message": "Write failed"
+  },
+  "bgNoFocusedInput": {
+    "message": "No focused input field"
+  },
+  "bgPlaceCursorFirst": {
+    "message": "Please place the cursor in the input field to transcribe first"
+  },
+  "bgCannotCreateOffscreen": {
+    "message": "Could not create offscreen document. Please ensure the extension has offscreen permission."
+  },
+  "bgOffscreenNoResponse": {
+    "message": "Offscreen document did not respond"
+  },
+  "bgUnknownEngine": {
+    "message": "Unknown engine: {kind}"
+  },
+  "bgTabNotFound": {
+    "message": "Target tab not found"
+  },
+  "bgUnknownMessageType": {
+    "message": "Unknown message type: {type}"
+  },
+  "bgOffscreenJustification": {
+    "message": "Chrome built-in AI (Translator / Prompt API) requires a document context to run; the extension Service Worker may be unavailable in some cases."
+  },
+  "menuSelectionTranslate": {
+    "message": "Local Translate: Translate selection"
+  },
+  "menuSelectionExplain": {
+    "message": "Local Translate: Explain selection with Gemini Nano"
+  },
+  "menuPageTranslate": {
+    "message": "Local Translate: Translate page (replace original)"
+  },
+  "menuPageDual": {
+    "message": "Local Translate: Bilingual translation (insert below original)"
+  },
+  "menuPageHover": {
+    "message": "Local Translate: Hover translation"
+  },
+  "menuPageRestore": {
+    "message": "Local Translate: Restore original page"
+  },
+  "menuOpenPanel": {
+    "message": "Local Translate: Open side panel"
+  },
+  "osUnknownAction": {
+    "message": "Offscreen received unknown action: {kind}"
   }
 }

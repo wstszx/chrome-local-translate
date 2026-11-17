@@ -1440,5 +1440,56 @@
   },
   "inlineTranslateContext": {
     "message": "用户在网页输入框里正在写的内容（{from}→{to}）"
+  },
+  "bgWriteFailed": {
+    "message": "写入失败"
+  },
+  "bgNoFocusedInput": {
+    "message": "当前没有聚焦的输入框"
+  },
+  "bgPlaceCursorFirst": {
+    "message": "请先把光标放进要转写的输入框"
+  },
+  "bgCannotCreateOffscreen": {
+    "message": "无法创建离屏文档，请确认扩展已获 offscreen 权限"
+  },
+  "bgOffscreenNoResponse": {
+    "message": "离屏文档没有响应"
+  },
+  "bgUnknownEngine": {
+    "message": "未知引擎：{kind}"
+  },
+  "bgTabNotFound": {
+    "message": "找不到目标标签页"
+  },
+  "bgUnknownMessageType": {
+    "message": "未知消息类型：{type}"
+  },
+  "bgOffscreenJustification": {
+    "message": "Chrome 本地 AI（Translator / Prompt API）需要在文档上下文里运行；扩展 Service Worker 在部分情况下不可用。"
+  },
+  "menuSelectionTranslate": {
+    "message": "本地翻译：翻译所选内容"
+  },
+  "menuSelectionExplain": {
+    "message": "本地翻译：用 Gemini Nano 解释所选内容"
+  },
+  "menuPageTranslate": {
+    "message": "本地翻译：翻译整个页面（替换原文）"
+  },
+  "menuPageDual": {
+    "message": "本地翻译：双语对照翻译（原文下方插入译文）"
+  },
+  "menuPageHover": {
+    "message": "本地翻译：悬停对照翻译"
+  },
+  "menuPageRestore": {
+    "message": "本地翻译：还原页面原文"
+  },
+  "menuOpenPanel": {
+    "message": "本地翻译：打开侧边栏"
+  },
+  "osUnknownAction": {
+    "message": "离屏文档收到未知动作：{kind}"
   }
 }

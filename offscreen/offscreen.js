@@ -21,6 +21,18 @@ import {
   warmup,
 } from '../lib/engine.js';
 
+const osMsg = (key, fallback = '', subs = null) => {
+  try {
+    let text = (chrome.i18n && chrome.i18n.getMessage(key, subs || undefined)) || fallback || '';
+    if (subs && typeof subs === 'object' && !Array.isArray(subs)) {
+      for (const [k, v] of Object.entries(subs)) text = text.replace(new RegExp(`\\{${k}\\}`, 'g'), String(v));
+    }
+    return text;
+  } catch (err) {
+    return fallback || '';
+  }
+};
+
 async function handle({ kind, payload = {} }) {
   switch (kind) {
     case 'probe': {
@@ -82,7 +94,7 @@ async function handle({ kind, payload = {} }) {
     case 'ping':
       return { ok: true, ready: true };
     default:
-      return { ok: false, error: `离屏宿主收到未知任务：${kind}` };
+      return { ok: false, error: osMsg('osUnknownAction','离屏文档收到未知动作：{kind}', { kind }) };
   }
 }
 

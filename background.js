@@ -132,14 +132,14 @@ async function rewriteInInputFrame(tabId, instruction, payload = {}) {
   if (best && best.res && best.res.canWrite) {
     const res = await sendToTab(tabId, direct, { frameId: best.frameId }).catch(() => null);
     if (res && res.ok) return { ...res, frameId: best.frameId, via: 'elected' };
-    return { ...(res || {}), ok: false, frameId: best.frameId, error: (res && res.error) || '写入失败' };
+    return { ...(res || {}), ok: false, frameId: best.frameId, error: (res && res.error) || bgMsg('bgWriteFailed','写入失败') };
   }
 
   const fallback = best && best.res ? best.res.error : null;
   return {
     ok: false,
     frameId: null,
-    error: fallback || (claim ? '当前没有聚焦的输入框' : '请先把光标放进要转写的输入框'),
+    error: fallback || (claim ? bgMsg('bgNoFocusedInput','当前没有聚焦的输入框') : bgMsg('bgPlaceCursorFirst','请先把光标放进要转写的输入框')),
   };
 }
 
@@ -161,7 +161,7 @@ async function ensureOffscreen() {
       await chrome.offscreen.createDocument({
         url: OFFSCREEN_PATH,
         reasons: [reason],
-        justification: 'Chrome 内置 AI（Translator / Prompt API）需要在文档上下文中运行，扩展 Service Worker 里可能不可用。',
+        justification: bgMsg('bgOffscreenJustification','Chrome 内置 AI（Translator / Prompt API）需要在文档上下文中运行，扩展 Service Worker 里可能不可用。'),
       });
       return true;
     } catch (err) {
@@ -217,17 +217,17 @@ async function runLocal(kind, payload) {
       return translateBatch(items, options);
     }
     default:
-      throw new AIError('unknown', `未知任务：${kind}`);
+      throw new AIError('unknown', bgMsg('bgUnknownEngine','未知引擎：{kind}', { kind }));
   }
 }
 
 /** 交给离屏文档执行 */
 async function callOffscreen(kind, payload) {
   if (!(await ensureOffscreen())) {
-    throw new AIError('no-api', '无法创建离屏推理文档，请确认扩展已获得 offscreen 权限');
+    throw new AIError('no-api', bgMsg('bgCannotCreateOffscreen','无法创建离屏文档，请确认扩展已获 offscreen 权限'));
   }
   const res = await chrome.runtime.sendMessage({ target: 'offscreen', kind, payload });
-  if (!res) throw new AIError('unknown', '离屏文档没有响应');
+  if (!res) throw new AIError('unknown', bgMsg('bgOffscreenNoResponse','离屏文档没有响应'));
   if (res.ok === false) throw new AIError(res.code || 'unknown', res.error);
   return res;
 }
@@ -516,20 +516,20 @@ async function handle(message, sender) {
     /* ---------- 整页 / 划词（面向标签页） ---------- */
     case 'lt:page:translate': {
       const target = typeof payload.tabId === 'number' ? payload.tabId : tabId;
-      if (typeof target !== 'number') return { ok: false, error: '找不到目标标签页' };
+      if (typeof target !== 'number') return { ok: false, error: bgMsg('bgTabNotFound','找不到目标标签页') };
       broadcast({ type: 'lt:page-status', payload: { tabId: target, status: { phase: 'working' } } });
       return sendToTab(target, { type: 'lt:translate-page', payload: { mode: payload.mode } });
     }
     case 'lt:page:restore': {
       const target = typeof payload.tabId === 'number' ? payload.tabId : tabId;
-      if (typeof target !== 'number') return { ok: false, error: '找不到目标标签页' };
+      if (typeof target !== 'number') return { ok: false, error: bgMsg('bgTabNotFound','找不到目标标签页') };
       const res = await sendToTab(target, { type: 'lt:restore-page' });
       setTabState(target, { phase: 'idle', translated: 0 });
       return res;
     }
     case 'lt:page:status': {
       const target = typeof payload.tabId === 'number' ? payload.tabId : tabId;
-      if (typeof target !== 'number') return { ok: false, error: '找不到目标标签页' };
+      if (typeof target !== 'number') return { ok: false, error: bgMsg('bgTabNotFound','找不到目标标签页') };
       const live = await sendToTopFrame(target, { type: 'lt:status' });
       if (live && live.ok) {
         // 实时状态只覆盖「它真的给了值」的字段：内容脚本的应答里没有 title，
@@ -546,7 +546,7 @@ async function handle(message, sender) {
     case 'lt:selection:translate':
     case 'lt:selection:explain': {
       const target = typeof payload.tabId === 'number' ? payload.tabId : tabId;
-      if (typeof target !== 'number') return { ok: false, error: '找不到目标标签页' };
+      if (typeof target !== 'number') return { ok: false, error: bgMsg('bgTabNotFound','找不到目标标签页') };
       const msgType = type === 'lt:selection:translate' ? 'lt:translate-selection' : 'lt:explain-selection';
       const res = await sendToTab(target, { type: msgType, payload: { text: payload.text } });
       return res && res.ok === false ? res : { ok: true };
@@ -615,7 +615,7 @@ async function handle(message, sender) {
     }
 
     default:
-      return { ok: false, error: `未知消息类型：${type}` };
+      return { ok: false, error: bgMsg('bgUnknownMessageType','未知消息类型：{type}', { type }) };
   }
 }
 
@@ -744,17 +744,19 @@ chrome.runtime.onConnect.addListener((port) => {
 /* 右键菜单 & 快捷键                                                    */
 /* ------------------------------------------------------------------ */
 
-const MENUS = [
-  { id: 'lt-selection-translate', title: '本地翻译：翻译所选内容', contexts: ['selection'] },
-  { id: 'lt-selection-explain', title: '本地翻译：用 Gemini Nano 解释所选内容', contexts: ['selection'] },
-  { id: 'lt-sep-1', type: 'separator', contexts: ['selection', 'page'] },
-  { id: 'lt-page-translate', title: '本地翻译：翻译整个页面（替换原文）', contexts: ['page', 'frame'] },
-  { id: 'lt-page-dual', title: '本地翻译：双语对照翻译（原文下方插入译文）', contexts: ['page', 'frame'] },
-  { id: 'lt-page-hover', title: '本地翻译：悬停对照翻译', contexts: ['page', 'frame'] },
-  { id: 'lt-page-restore', title: '本地翻译：还原页面原文', contexts: ['page', 'frame'] },
-  { id: 'lt-sep-2', type: 'separator', contexts: ['page'] },
-  { id: 'lt-open-panel', title: '本地翻译：打开侧边栏', contexts: ['page', 'action'] },
-];
+function menuItems() {
+  return [
+    { id: 'lt-selection-translate', title: bgMsg('menuSelectionTranslate','本地翻译：翻译所选内容'), contexts: ['selection'] },
+    { id: 'lt-selection-explain', title: bgMsg('menuSelectionExplain','本地翻译：用 Gemini Nano 解释所选内容'), contexts: ['selection'] },
+    { id: 'lt-sep-1', type: 'separator', contexts: ['selection', 'page'] },
+    { id: 'lt-page-translate', title: bgMsg('menuPageTranslate','本地翻译：翻译整个页面（替换原文）'), contexts: ['page', 'frame'] },
+    { id: 'lt-page-dual', title: bgMsg('menuPageDual','本地翻译：双语对照翻译（原文下方插入译文）'), contexts: ['page', 'frame'] },
+    { id: 'lt-page-hover', title: bgMsg('menuPageHover','本地翻译：悬停对照翻译'), contexts: ['page', 'frame'] },
+    { id: 'lt-page-restore', title: bgMsg('menuPageRestore','本地翻译：还原页面原文'), contexts: ['page', 'frame'] },
+    { id: 'lt-sep-2', type: 'separator', contexts: ['page'] },
+    { id: 'lt-open-panel', title: bgMsg('menuOpenPanel','本地翻译：打开侧边栏'), contexts: ['page', 'action'] },
+  ];
+}
 
 async function setupMenus() {
   try {
@@ -762,7 +764,7 @@ async function setupMenus() {
   } catch (err) {
     /* 忽略 */
   }
-  for (const item of MENUS) {
+  for (const item of menuItems()) {
     try {
       chrome.contextMenus.create(item);
     } catch (err) {
