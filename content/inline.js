@@ -891,22 +891,22 @@
     if (!root) return;
     const set = (sel, prop, key, fallback) => { const el = root.querySelector(sel); if (el) el[prop] = msg(key, fallback); };
     const setAttr = (sel, attr, key, fallback) => { const el = root.querySelector(sel); if (el) el.setAttribute(attr, msg(key, fallback)); };
-    setAttr('.lt-pill', 'title', 'inlinePillTitle', '点按打开转写面板；按住拖动可移到任意位置（Alt+Shift+Enter 直接转写）');
-    set('.lt-pill-text', 'textContent', 'inlinePillText', '转写');
-    setAttr('.lt-panel', 'aria-label', 'inlinePanelAria', '输入框转写');
-    setAttr('.lt-head', 'title', 'inlineHeadTitle', '按住拖动面板；双击回到输入框下方');
-    set('.lt-title', 'textContent', 'inlineTitle', '转写');
-    setAttr('.lt-lang', 'title', 'inlineLangTitle', '目标语言');
-    setAttr('.lt-live', 'title', 'inlineLiveTitle', '边输边译（自动跟随输入更新译文）');
-    setAttr('.lt-reset', 'title', 'inlineResetPosTitle', '回到输入框下方');
-    setAttr('.lt-speak', 'title', 'inlineSpeakTitle', '朗读译文');
-    setAttr('.lt-copy', 'title', 'inlineCopyTitle', '复制译文');
-    setAttr('.lt-close', 'title', 'inlineCloseTitle', '关闭（Shift+点击 = 本站不再自动弹出）');
-    setAttr('.lt-out', 'data-placeholder', 'inlineOutputPlaceholder', '译文会出现在这里，可以直接修改…');
-    set('.lt-replace', 'textContent', 'inlineReplaceBtn', '替换输入框');
-    set('.lt-append', 'textContent', 'inlineAppendBtn', '追加');
-    set('.lt-undo', 'textContent', 'inlineUndoBtn', '还原原文');
-    set('.lt-retry', 'textContent', 'inlineRetryBtn', '重新翻译');
+    setAttr('.lt-pill', 'title', 'inlinePillTitle', 'Click to open transcription panel; drag to move (Alt+Shift+Enter to transcribe directly)');
+    set('.lt-pill-text', 'textContent', 'inlinePillText', 'Transcribe');
+    setAttr('.lt-panel', 'aria-label', 'inlinePanelAria', 'Input transcription');
+    setAttr('.lt-head', 'title', 'inlineHeadTitle', 'Drag panel; double-click to return below input');
+    set('.lt-title', 'textContent', 'inlineTitle', 'Transcribe');
+    setAttr('.lt-lang', 'title', 'inlineLangTitle', 'Target language');
+    setAttr('.lt-live', 'title', 'inlineLiveTitle', 'Live translate (auto-update as you type)');
+    setAttr('.lt-reset', 'title', 'inlineResetPosTitle', 'Return below input');
+    setAttr('.lt-speak', 'title', 'inlineSpeakTitle', 'Read translation aloud');
+    setAttr('.lt-copy', 'title', 'inlineCopyTitle', 'Copy translation');
+    setAttr('.lt-close', 'title', 'inlineCloseTitle', 'Close (Shift+click = don’t auto-show on this site)');
+    setAttr('.lt-out', 'data-placeholder', 'inlineOutputPlaceholder', 'Translation will appear here. You can edit it directly…');
+    set('.lt-replace', 'textContent', 'inlineReplaceBtn', 'Replace input');
+    set('.lt-append', 'textContent', 'inlineAppendBtn', 'Append');
+    set('.lt-undo', 'textContent', 'inlineUndoBtn', 'Restore original');
+    set('.lt-retry', 'textContent', 'inlineRetryBtn', 'Translate again');
   }
 
   function ensureUI() {

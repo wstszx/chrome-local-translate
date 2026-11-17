@@ -94,7 +94,7 @@ async function handle({ kind, payload = {} }) {
     case 'ping':
       return { ok: true, ready: true };
     default:
-      return { ok: false, error: osMsg('osUnknownAction','离屏文档收到未知动作：{kind}', { kind }) };
+      return { ok: false, error: osMsg('osUnknownAction','Offscreen received unknown action: {kind}', { kind }) };
   }
 }
 

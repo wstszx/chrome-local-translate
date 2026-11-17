@@ -299,18 +299,18 @@
       const el = root.querySelector(sel);
       if (el) el[prop] = msg(key, fallback);
     };
-    set('.lt-head', 'title', 'csBubbleDragTitle', '按住拖动气泡；双击标题栏回到选区位置');
-    set('.lt-reset', 'title', 'csBubbleResetTitle', '回到选区位置（取消固定）');
-    set('.lt-speak', 'title', 'csBubbleSpeakTitle', '朗读译文');
-    set('.lt-copy', 'title', 'csBubbleCopyTitle', '复制译文');
-    set('.lt-explain', 'title', 'csBubbleExplainTitle', '用 Gemini Nano 解释原文');
-    set('.lt-close', 'title', 'csBubbleCloseTitle', '关闭');
-    set('.lt-stale-title', 'textContent', 'csStaleTitle', '扩展已被重新加载');
-    set('.lt-stale-refresh', 'textContent', 'csRefreshPage', '刷新页面');
-    set('.lt-toast-title-text', 'textContent', 'csTranslatingLocal', '正在使用本地模型翻译…');
-    set('.lt-toast-text', 'textContent', 'csOfflineNote', '全程离线，内容不会离开你的电脑');
-    set('.lt-restore', 'textContent', 'csRestoreOriginal', '还原原文');
-    set('.lt-stop', 'textContent', 'csCancel', '取消');
+    set('.lt-head', 'title', 'csBubbleDragTitle', 'Drag to move the bubble; double-click the header to return to selection');
+    set('.lt-reset', 'title', 'csBubbleResetTitle', 'Return to selection position (unpin)');
+    set('.lt-speak', 'title', 'csBubbleSpeakTitle', 'Read translation aloud');
+    set('.lt-copy', 'title', 'csBubbleCopyTitle', 'Copy translation');
+    set('.lt-explain', 'title', 'csBubbleExplainTitle', 'Explain original with Gemini Nano');
+    set('.lt-close', 'title', 'csBubbleCloseTitle', 'Close');
+    set('.lt-stale-title', 'textContent', 'csStaleTitle', 'Extension was reloaded');
+    set('.lt-stale-refresh', 'textContent', 'csRefreshPage', 'Refresh page');
+    set('.lt-toast-title-text', 'textContent', 'csTranslatingLocal', 'Translating with local model…');
+    set('.lt-toast-text', 'textContent', 'csOfflineNote', 'Fully on-device. Your text never leaves this computer.');
+    set('.lt-restore', 'textContent', 'csRestoreOriginal', 'Restore original');
+    set('.lt-stop', 'textContent', 'csCancel', 'Cancel');
   }
 
   function ensure() {
