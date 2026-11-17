@@ -1,34 +1,21 @@
-# Chrome Web Store 上架资料（1.5.7）
+# Chrome Web Store 上架资料（当前：1.5.8）
 
-> 已打包：`dist-store/chrome-local-translate-1.5.7.zip`（manifest.json 在包根；含 MV3 i18n `_locales/en`、`_locales/zh_CN`，`default_locale: "en"`，面向多国市场）
+> 最新打包：`dist-store/chrome-local-translate-1.5.8.zip`（manifest.json 在包根；含 MV3 i18n `_locales/en`、`_locales/zh_CN`，`default_locale: "en"`）
 > 已通过：`npm run validate` + `npm test`（73/73 + 16/16）
-> 商品：`本地翻译 · Chrome 内置模型` / Listing 默认显示名 `Local Translate – On-Device AI`（ID `ncenacdchlmblbdlljdkjjhhnjimmeje`，发布者 `mywstszx`）
+> 商品：Listing 默认显示名 `Local Translate – On-Device AI`（ID `ncenacdchlmblbdlljdkjjhhnjimmeje`，发布者 `mywstszx`）
 > 控制台：https://chrome.google.com/webstore/devconsole/6482309c-c541-4e2e-9f85-ba5b5fb25664/ncenacdchlmblbdlljdkjjhhnjimmeje/edit
 
-## 当前控制台状态（2026-11-16 更新，已修正截图/语言后重新提交）
-- **Status**：`Pending review`（Draft: “This draft is pending review.”；Published 仍为 1.5.5，公开）。
-- **Package**：Draft **1.5.7** 已上传（Languages: English, Chinese (China)）。上传过程中曾因 `en` manifest 描述超 132 字符被拒，已修复 `_locales/en/messages.json` 的 `extDescription` 后重新打包上传。
-- **Store listing**：
-  - **English – en（default）**
-    - Title（from package）：`Local Translate – On-Device AI`
-    - Summary（from package）：`Private offline translation with Chrome's on-device AI. Translate selections, pages, and input text. No API key; data stays local.`
-    - Description：英文（见下方“英文详细描述（实际已填）”），包含站点偏好/记忆、翻译历史、本地状态与引导、39 种语言对齐等新功能。
-    - **Localized screenshots（4 张，英文 UI）**：
-      1. `dist-store/store-promo-en-1-selection.png`（网页内划词气泡，英文界面）
-      2. `dist-store/store-promo-en-2-dual.png`（整页双语对照，英文界面）
-      3. `dist-store/store-promo-en-3-inline.png`（输入框实时转写，英文界面）
-      4. `dist-store/store-promo-en-4-popup.png`（扩展弹窗/快捷操作，英文界面）
-  - **Chinese (China) – zh-CN**
-    - Title（from package）：`本地翻译 · 设备端离线翻译`
-    - Summary（from package）：`使用 Chrome 内置设备端本地模型进行离线翻译：划词即译、整页翻译、输入框转写，支持术语表与语气控制。无需 API Key，文本不出本机。`
-    - Description：已更新为中文新版（补充站点偏好/记忆、翻译历史、本地状态与引导、39 种语言对齐等）。
-    - **Localized screenshots（3 张，中文 UI）**：
-      1. `dist-store/store-promo-1-inpage-selection.png`（网页内划词气泡）
-      2. `dist-store/store-promo-2-inpage-dual.png`（整页双语对照）
-      3. `dist-store/store-promo-3-inpage-inline.png`（输入框实时转写）
-  - **Global screenshots（4 张）**：与英文截图一致（`store-promo-en-1~4`），作为其他语言回退素材。
-- **提交记录**：首次提交后发现截图语言与 Listing 不匹配且缺少扩展弹窗截图，已在控制台 **Cancel review** 撤回草稿，替换/补充语言对应截图与 zh-CN 文案后 **重新 Save draft 并 Submit for review**（勾选通过审核后自动发布）。
-- **备注**：`<all_urls>` 为核心功能所需，可能继续提示 Broad Host Permissions / 审核时间较长。zh-CN 本地化截图当前未单独包含弹窗图，可后续补充。
+## 当前控制台状态（2026-11-17 更新）
+- **Status**：`Pending review`（Published: 1.5.7，公开；Draft: **1.5.8** pending review / 自动发布已选择）。
+- **Package**：Draft **1.5.8** 已上传（Languages: English, Chinese (China)）。
+- **Store listing**：沿用 1.5.7 已校正内容（未改动素材/文案结构）：
+  - **English – en（default）**：Title/Summary 来自 package；Description 为英文新版；Localized screenshots 4 张（`dist-store/store-promo-en-1-selection.png`、`store-promo-en-2-dual.png`、`store-promo-en-3-inline.png`、`store-promo-en-4-popup.png`）。
+  - **Chinese (China) – zh-CN**：Title/Summary 来自 package；Description 为中文新版；Localized screenshots 3 张（`dist-store/store-promo-1-inpage-selection.png`、`store-promo-2-inpage-dual.png`、`store-promo-3-inpage-inline.png`）。
+  - **Global screenshots（4 张）**：与英文一致（`store-promo-en-1~4`）。
+- **1.5.8 本次提交包含**：
+  - 自愿支持入口（不影响功能、不引入追踪/网络请求）：侧边栏/弹窗支持链接（爱发电 + Ko-fi `https://ko-fi.com/fbread`，GitHub Sponsors 预留）、`lib/links.js`、`_locales` `sponsorLabel`、README 支持说明、`.github/FUNDING.yml`。
+  - 设置页复杂度简化（渐进披露）：设置项分组折叠（引擎/Nano 高级、输入框转写高级与排错、整页全局站点规则与高级、性能高级、诊断故障排除）、文案收敛与交叉指引、页面 Tab「本地模型与状态」运维入口归并、站点优先级/全局命中提示、保存状态反馈、站点列表输入自动整理（去空白/去重/规范化 host）。
+- **备注**：`<all_urls>` 为核心功能所需，可能继续提示 Broad Host Permissions / 审核时间较长。 eingel
 
 ## 1. 商店信息（照填）
 
@@ -101,19 +88,26 @@
 
 > ✅ `privacy.html` 联系邮箱：`mywstszx@gmail.com`。隐私政策已托管：`https://chrome-local-translate-privacy.wstszx.workers.dev/privacy.html`（商店表单已填写）。
 
-## 3. 提交 checklist（1.5.7 当前状态）
+## 3. 提交 checklist（1.5.8）
 
-- [x] `manifest.json` MV3，版本 1.5.7，`npm run validate` + `npm test` 通过；已加入 `default_locale` 与 `_locales/en`、`_locales/zh_CN`（名称/描述/命令本地化）
-- [x] ZIP 内只有生产文件（无 node_modules / tests / demo / docs）
-- [x] `privacy.html` 已换真实邮箱 `mywstszx@gmail.com`
-- [x] `privacy.html` 已托管到公开 URL，并填入商店表单：`https://chrome-local-translate-privacy.wstszx.workers.dev/privacy.html`
-- [x] 英文截图（4 张，含扩展弹窗）已生成并上传至 en Localized + Global：`dist-store/store-promo-en-1-selection.png`、`store-promo-en-2-dual.png`、`store-promo-en-3-inline.png`、`store-promo-en-4-popup.png`（源：`dist-store/promo-en-*.html`）
-- [x] 中文截图（3 张，网页内功能）已上传至 zh-CN Localized：`dist-store/store-promo-1-inpage-selection.png`、`store-promo-2-inpage-dual.png`、`store-promo-3-inpage-inline.png`（源：`dist-store/promo-1-selection.html`、`promo-2-dual.html`、`promo-3-inline.html`）
+- [x] `manifest.json` MV3，版本 1.5.8，`npm run validate` + `npm test` 通过；`default_locale` 与 `_locales/en`、`_locales/zh_CN` 完整
+- [x] ZIP 内为生产文件（无 node_modules / tests / demo / docs）
+- [x] 隐私政策已托管并填写：`https://chrome-local-translate-privacy.wstszx.workers.dev/privacy.html`
+- [x] en/zh-CN Listing 与截图已按语言匹配并保持正确（本次未改动素材）
+- [x] 打包并上传 Draft：`dist-store/chrome-local-translate-1.5.8.zip`（含支持链接与设置页简化）
+- [x] 保存 Draft 并提交审核（2026-11-17，Status: **Pending review**，选择通过审核后自动发布；Published 当前为 1.5.7）
 - [ ] （可选）制作 440×280 或 1400×560 推广图
 - [ ] （可选）为 zh-CN 补充扩展弹窗/侧边栏截图
-- [x] 开发者控制台上传 1.5.7 Draft 包（`dist-store/chrome-local-translate-1.5.7.zip`）
-- [x] 更新 Listing 文案（en/zh-CN）并按语言匹配截图后保存 Draft
-- [x] 已撤回首次审核并按建议修正后重新提交（2026-11-16，Status: Pending review，选择通过审核后自动发布）
+- [ ] （可选）1.5.8 审核通过后确认线上版本与支持链接/设置页表现
+
+## 4. 本地仓库记录
+- 分支/提交：`main`（含 1.5.8 支持链接与设置页简化提交，待本次文档更新后推送 `origin/main`）
+  - `f8cf965` feat: add voluntary support links and bump to 1.5.8
+  - `6e363c8` feat: support multiple voluntary sponsor links (Afdian/Ko-fi/GitHub)
+  - `8ced640` chore: add Ko-fi sponsor link
+  - `0807915` refactor(sidepanel): simplify settings UI with progressive disclosure
+- 历史：`34c685c`（1.5.7 描述修复）、`b0b20c0`/`43ef8c8`（1.5.7 提交与素材记录）等
+- 工作区：`privacy.html` 有未提交修改；`dist-store/`、`dist-privacy/` 下存在未跟踪素材/脚本（打包 zip 已生成但被忽略）。
 
 ## 4. 本地仓库记录
 - 分支/提交：`main` @ `34c685c`（已推送 `origin/main`）
