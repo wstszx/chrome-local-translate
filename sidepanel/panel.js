@@ -70,10 +70,10 @@ function send(message) {
 function friendlyError(msg) {
   const text = String(msg || '');
   if (/extension context invalidated/i.test(text)) {
-    return '与扩展后台的连接已断开（扩展刚被重新加载或更新）。请关闭并重新打开侧边栏。';
+    return msg('errExtensionContextInvalidated', '与扩展后台的连接已断开（扩展刚被重新加载或更新）。请关闭并重新打开侧边栏。');
   }
   if (/receiving end does not exist|message port closed/i.test(text)) {
-    return '暂时联系不上扩展后台（可能正在启动）。请稍等一两秒后重试。';
+    return msg('errNoReceivingEnd', '暂时联系不上扩展后台（可能正在启动）。请稍等一两秒后重试。');
   }
   return text;
 }
@@ -273,15 +273,15 @@ async function refreshEnginePill() {
     if (support.translator) parts.push(`内置翻译模型：${statusLabel(res.translator)}`);
     if (support.nano) parts.push(`Nano：${statusLabel(res.nano)}`);
     if (!support.translator && !support.nano) {
-      pill.textContent = '本机不可用';
+      pill.textContent = msg('statusUnavailableLocal', '本机不可用');
       pill.className = 'pill err';
       return { support, res };
     }
-    pill.textContent = support.translator && res.translator === 'available' ? '本地模型就绪' : parts[0];
+    pill.textContent = support.translator && res.translator === 'available' ? msg('statusReady', '本地模型就绪') : parts[0];
     pill.className = `pill ${res.translator === 'available' || res.nano === 'available' ? 'ok' : res.translator === 'unavailable' && !support.nano ? 'err' : 'warn'}`;
     return { support, res };
   } catch (err) {
-    pill.textContent = '未知';
+    pill.textContent = msg('statusUnknown', '未知');
     pill.className = 'pill err';
     return null;
   }
@@ -290,17 +290,17 @@ async function refreshEnginePill() {
 function statusLabel(status) {
   switch (status) {
     case 'available':
-      return '已就绪';
+      return msg('labelAvailable', '已就绪');
     case 'downloadable':
-      return '待下载';
+      return msg('labelDownloadable', '待下载');
     case 'downloading':
-      return '下载中';
+      return msg('labelDownloading', '下载中');
     case 'unsupported':
-      return '不支持';
+      return msg('labelUnsupported', '不支持');
     case 'unavailable':
-      return '不可用';
+      return msg('labelUnavailable', '不可用');
     default:
-      return status || '未知';
+      return status || msg('statusUnknown', '未知');
   }
 }
 
@@ -448,7 +448,7 @@ async function translateCurrent() {
   showError($('text-error'), '');
   const btn = $('do-translate');
   btn.disabled = true;
-  setOutMeta('本地推理中…');
+  setOutMeta(msg('translating', '本地推理中…'));
   setOutput('<span class="spinner"></span>', true);
   currentTranslation = '';
   const started = performance.now();
@@ -534,7 +534,7 @@ async function translateCurrent() {
     } catch (err2) {
       showError($('text-error'), err2.message);
       setOutput('');
-      setOutMeta('翻译失败');
+      setOutMeta(msg('translateFailed', '翻译失败'));
       btn.disabled = false;
       return;
     }
@@ -550,7 +550,7 @@ async function explainCurrent() {
   if (!text) return;
   showError($('text-error'), '');
   $('do-explain').disabled = true;
-  setOutMeta('Gemini Nano 解释中…');
+  setOutMeta(msg('explaining', 'Gemini Nano 解释中…'));
   setOutput('<span class="spinner"></span>', true);
   try {
     const res = await send({ type: 'lt:explain', payload: { text, lang: (settings && settings.uiLang) || 'zh' } });
@@ -663,9 +663,9 @@ async function loadHistory() {
         <div class="history-text">${escapeHtml(String(it.text || '').slice(0, 400))}</div>
         <div class="history-trans">${escapeHtml(String(it.translation || '').slice(0, 600))}</div>
         <div class="history-actions">
-          <button type="button" class="mini" data-action="load" data-id="${escapeHtml(it.id)}">载入</button>
-          <button type="button" class="mini" data-action="copy" data-id="${escapeHtml(it.id)}">复制译文</button>
-          <button type="button" class="mini" data-action="remove" data-id="${escapeHtml(it.id)}">删除</button>
+          <button type="button" class="mini" data-action="load" data-id="${escapeHtml(it.id)}">${msg('load','载入')}</button>
+          <button type="button" class="mini" data-action="copy" data-id="${escapeHtml(it.id)}">${msg('copyTranslation','复制译文')}</button>
+          <button type="button" class="mini" data-action="remove" data-id="${escapeHtml(it.id)}">${msg('delete','删除')}</button>
         </div>
       </div>`;
     }).join('');
@@ -1373,8 +1373,8 @@ function bindEvents() {
   $('out-copy').addEventListener('click', async () => {
     if (!currentTranslation) return;
     await navigator.clipboard.writeText(currentTranslation);
-    $('out-copy').textContent = '已复制 ✓';
-    setTimeout(() => ($('out-copy').textContent = '复制'), 1200);
+    $('out-copy').textContent = msg('copied', '已复制 ✓');
+    setTimeout(() => ($('out-copy').textContent = msg('copy', '复制')), 1200);
   });
   $('out-speak').addEventListener('click', () => {
     if (!currentTranslation || !window.speechSynthesis) return;
@@ -1455,8 +1455,8 @@ function bindEvents() {
       if (!item) return;
       if (action === 'copy') {
         await navigator.clipboard.writeText(item.translation || '');
-        btn.textContent = '已复制';
-        setTimeout(() => (btn.textContent = '复制译文'), 1200);
+        btn.textContent = msg('copiedShort', '已复制');
+        setTimeout(() => (btn.textContent = msg('copyTranslation', '复制译文')), 1200);
         return;
       }
       if (action === 'load') {
@@ -1538,11 +1538,11 @@ function bindEvents() {
     const text = $('diag').dataset.raw || $('diag').innerText || '';
     try {
       await navigator.clipboard.writeText(text);
-      $('diag-copy').textContent = '已复制 ✓';
+      $('diag-copy').textContent = msg('copied', '已复制 ✓');
     } catch (err) {
-      $('diag-copy').textContent = '复制失败';
+      $('diag-copy').textContent = msg('copyFailed', '复制失败');
     }
-    setTimeout(() => ($('diag-copy').textContent = '复制诊断信息'), 1400);
+    setTimeout(() => ($('diag-copy').textContent = msg('copyDiagnostics', '复制诊断信息')), 1400);
   });
 
   // 来自 background 的广播
@@ -1600,7 +1600,7 @@ function bindEvents() {
     const res = await send({ type: 'lt:settings:get' });
     settings = res.settings;
   } catch (err) {
-    showError($('text-error'), '无法读取设置，请重新加载扩展');
+    showError($('text-error'), msg('errReadSettings', '无法读取设置，请重新加载扩展'));
   }
   syncForm();
   const footerTagline = $('footer-tagline');
