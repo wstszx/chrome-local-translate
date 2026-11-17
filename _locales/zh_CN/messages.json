@@ -43,268 +43,1099 @@
     "message": "项目主页",
     "description": "页脚项目链接文案"
   },
-  "tabText": { "message": "文本" },
-  "tabPage": { "message": "页面" },
-  "tabHistory": { "message": "历史" },
-  "tabSettings": { "message": "设置" },
-  "statusDetecting": { "message": "检测中…" },
-  "swapLangs": { "message": "交换语言" },
-  "translate": { "message": "翻译" },
-  "explain": { "message": "解释" },
-  "paste": { "message": "粘贴" },
-  "clear": { "message": "清空" },
-  "copy": { "message": "复制" },
-  "speak": { "message": "朗读" },
-  "backTranslate": { "message": "回译" },
-  "translationOutput": { "message": "译文" },
-  "openSidePanel": { "message": "打开侧边栏" },
-  "translatePage": { "message": "翻译整页" },
-  "bilingualView": { "message": "双语对照" },
-  "restoreOriginal": { "message": "还原原文" },
-  "refreshStatus": { "message": "刷新状态" },
-  "settingsAutoSave": { "message": "设置会自动保存" },
-  "inputAutoTranslate": { "message": "输入即译" },
-  "countChars": { "message": "0 字" },
-  "inputPlaceholder": { "message": "粘贴或输入文本…\nCtrl / Cmd + Enter 立即翻译（全程离线推理）" },
-  "outputPlaceholder": { "message": "译文会显示在这里" },
-  "textPrivacyHint": { "message": "推理在本机完成：Chrome 的内置翻译模型或 Gemini Nano（Prompt API）。文本不会离开这台电脑。" },
-  "pageNoTitle": { "message": "—" },
-  "pageTranslate": { "message": "翻译整页" },
-  "pageDual": { "message": "双语对照" },
-  "pageHover": { "message": "悬停对照" },
-  "pageRestore": { "message": "还原原文" },
-  "pageRefresh": { "message": "刷新状态" },
-  "pageStatusIdle": { "message": "未翻译" },
-  "sitePrefsTitle": { "message": "此站点偏好" },
-  "sitePrefsNone": { "message": "尚未为此站点保存偏好。" },
-  "siteSavePref": { "message": "记住当前语言/模式" },
-  "siteClearPref": { "message": "清除此站点偏好" },
-  "siteAutoOff": { "message": "此站点自动翻译：关" },
-  "siteNeverAdd": { "message": "加入永不翻译" },
-  "sitePrefsHint": { "message": "站点偏好仅保存在本机，并优先于“设置”中的全局站点规则。" },
-  "selectionTitle": { "message": "选中文本" },
-  "selTranslate": { "message": "翻译选中内容" },
-  "selExplain": { "message": "解释" },
-  "modelsTitle": { "message": "本地模型与状态" },
-  "downloadPair": { "message": "下载当前语言对的语言包" },
-  "dlStatusDefault": { "message": "语言包按需下载，下载后可离线使用。" },
-  "useNanoEngine": { "message": "改用 Gemini Nano 引擎" },
-  "advancedTroubleshoot": { "message": "高级与故障排除" },
-  "downloadNano": { "message": "下载/启用 Gemini Nano" },
-  "selftest": { "message": "分环境自检" },
-  "openComponents": { "message": "打开 chrome://components" },
-  "openOnDevice": { "message": "打开 on-device-internals" },
-  "modelsTroubleshootHint": { "message": "若语言包或 Nano 不可用，可在此检查组件状态、查看诊断页或对比运行环境结果。" },
-  "historyTitle": { "message": "翻译历史" },
-  "historyLocalOnly": { "message": "（仅保存在本机）" },
-  "historyEnabled": { "message": "保存翻译与解释记录" },
-  "historyRefresh": { "message": "刷新" },
-  "historyClear": { "message": "清空历史" },
-  "historyHint": { "message": "最近记录会显示在下方，点击“载入”可放回文本页继续编辑或回译。" },
-  "engineTitle": { "message": "翻译引擎" },
-  "toneTitle": { "message": "语气 / 风格" },
-  "toneNanoNote": { "message": "（Gemini Nano 生效）" },
-  "advancedNano": { "message": "高级（Gemini Nano）：术语表与翻译背景" },
-  "glossaryTitle": { "message": "术语表" },
-  "glossaryNote": { "message": "（每行：原文=译文）" },
-  "contextTitle": { "message": "翻译背景" },
-  "contextNote": { "message": "（帮助理解语境，不会被翻译）" },
-  "selectionBubbleTitle": { "message": "划词翻译" },
-  "showBubble": { "message": "选中文本后显示译文气泡" },
-  "dblclickTranslate": { "message": "双击单词时翻译" },
-  "inlineRewriteTitle": { "message": "输入框转写" },
-  "inlineRewriteHint": { "message": "在网页输入框中将内容转写为目标语言（本地处理，不上传）。" },
-  "inlineEnabled": { "message": "启用输入框转写" },
-  "inlineTargetLabel": { "message": "转写目标语言" },
-  "inlineAdvanced": { "message": "高级与排错" },
-  "inlineLive": { "message": "面板打开时随输入自动更新译文" },
-  "inlineMinChars": { "message": "最少字数" },
-  "inlineNeverTitle": { "message": "不自动弹出的网站" },
-  "inlineNeverNote": { "message": "（每行一个域名，失焦自动整理；可在全局站点规则统一管理）" },
-  "inlineShortcutHint": { "message": "页内快捷键：Alt+Shift+Enter。如需修改默认键位，可在 chrome://extensions/shortcuts 中设置。" },
-  "inlineProbe": { "message": "自检当前输入框" },
-  "inlineProbeHint": { "message": "自检会检查当前标签页各框架（含 iframe）是否能识别输入目标与文本，便于排查“无反应”问题。" },
-  "pageTranslationTitle": { "message": "整页翻译" },
-  "pageAutoTranslate": { "message": "打开网页时自动翻译" },
-  "globalSiteRulesAdvanced": { "message": "全局站点规则与高级" },
-  "siteRulesManagerHint": { "message": "优先级：页面标签中的“此站点偏好” > 此处全局站点规则 > 默认设置。" },
-  "addHostPlaceholder": { "message": "输入域名（如 example.com），回车添加" },
-  "add": { "message": "添加" },
-  "searchHostPlaceholder": { "message": "搜索域名…" },
-  "exportJson": { "message": "导出 JSON" },
-  "importJson": { "message": "导入 JSON" },
-  "clearAllRules": { "message": "清空全部规则" },
-  "bulkEdit": { "message": "批量文本编辑（高级）" },
-  "autoTranslateSitesTitle": { "message": "自动翻译的网站" },
-  "autoTranslateSitesNote": { "message": "（每行一个域名；留空=所有网站）" },
-  "neverTranslateSitesTitle": { "message": "永不翻译的网站" },
-  "neverTranslateSitesNote": { "message": "（每行一个域名）" },
-  "inlineNeverMirrorTitle": { "message": "输入框不自动弹出的网站" },
-  "inlineNeverMirrorNote": { "message": "（与“输入框转写”共享）" },
-  "minAutoChars": { "message": "自动翻译的最少正文字数" },
-  "maxNodes": { "message": "单页最多翻译段落数" },
-  "skipSameLang": { "message": "跳过已是目标语言的段落" },
-  "performanceTitle": { "message": "性能与显示" },
-  "cacheEnabled": { "message": "启用译文缓存（同一句只翻一次）" },
-  "cacheClear": { "message": "清理缓存" },
-  "themeLabel": { "message": "主题" },
-  "advanced": { "message": "高级" },
-  "concurrencyLabel": { "message": "并发请求" },
-  "resetSession": { "message": "重置本地会话（翻译异常时使用）" },
-  "diagnosticsTitle": { "message": "状态与诊断" },
-  "recheck": { "message": "重新检测" },
-  "copyDiagnostics": { "message": "复制诊断信息" },
-  "troubleshootAdvanced": { "message": "故障排除（高级）" },
-  "troubleshootHint": { "message": "用于定位兼容性问题；语言包/Nano 下载与 Chrome 内部诊断页入口在“页面”标签的“本地模型与状态”中。" },
-  "shortcutsHint": { "message": "快捷键：Alt+Shift+T 整页翻译 · Alt+Shift+S 翻译选中内容 · Alt+Shift+Y 打开侧边栏（可在 chrome://extensions/shortcuts 修改）" },
-  "charsUnit": { "message": "字" },
-  "saving": { "message": "保存中…" },
-  "saveFailed": { "message": "保存失败" },
-  "exportedSiteRules": { "message": "已导出站点规则" },
-  "importedSiteRules": { "message": "已导入站点规则" },
-  "importInvalid": { "message": "导入失败：文件格式无效" },
-  "pageSelectionHint": { "message": "用 Gemini Nano 讲清楚" },
-  "historySaveHint": { "message": "最近记录会显示在下方，点击“载入”可放回文本页继续编辑或回译。" },
-  "engineAuto": { "message": "自动（推荐：优先内置翻译，不支持时用 Gemini Nano）" },
-  "engineTranslator": { "message": "内置翻译模型（速度快、适合常规翻译）" },
-  "engineNano": { "message": "Gemini Nano（支持语气、术语表、解释等高级能力）" },
-  "inlineModeButton": { "message": "显示浮标，点击或按 Alt+Shift+Enter 转写" },
-  "inlineModeAuto": { "message": "自动展开并随输入更新" },
-  "inlineModeOff": { "message": "关闭" },
-  "inlineInsertReplace": { "message": "快捷键动作：替换输入框内容" },
-  "inlineInsertAppend": { "message": "快捷键动作：追加译文到末尾" },
-  "inlineInsertCopy": { "message": "快捷键动作：仅复制译文" },
-  "displayReplace": { "message": "替换原文（可还原）" },
-  "displayDual": { "message": "双语对照（保留原文）" },
-  "displayHover": { "message": "悬停对照" },
-  "themeAuto": { "message": "跟随系统" },
-  "themeLight": { "message": "浅色" },
-  "themeDark": { "message": "深色" },
-  "concurrency1": { "message": "1（最省电）" },
-  "concurrency2": { "message": "2（推荐）" },
-  "concurrency3": { "message": "3" },
-  "concurrency4": { "message": "4（最快）" },
-  "siteRuleAuto": { "message": "自动翻译" },
-  "siteRuleNever": { "message": "永不翻译" },
-  "siteRuleInline": { "message": "输入框不弹出" },
-  "remove": { "message": "移除" },
-  "siteRulesEmpty": { "message": "暂无全局站点规则。可在上方添加域名，或在下方批量文本编辑中粘贴。" },
-  "siteRulesNoMatch": { "message": "没有匹配的站点规则。" },
-  "engineLabel": { "message": "翻译引擎" },
-  "toneLabel": { "message": "语气 / 风格" },
-  "toneNanoHint": { "message": "（Gemini Nano 生效）" },
-  "advancedNanoSummary": { "message": "高级（Gemini Nano）：术语表与翻译背景" },
-  "glossaryLabel": { "message": "术语表" },
-  "glossaryHint": { "message": "（每行：原文=译文）" },
-  "glossaryPlaceholder": { "message": "Gemini Nano=双子星纳米\nprompt=提示词" },
-  "contextLabel": { "message": "翻译背景" },
-  "contextHint": { "message": "（帮助理解语境，不会被翻译）" },
-  "contextPlaceholder": { "message": "例如：这是一段 React 官方文档的更新日志" },
-  "selectionTranslationLabel": { "message": "划词翻译" },
-  "inlineTargetLanguage": { "message": "转写目标语言" },
-  "inlineNeverSitesLabel": { "message": "不自动弹出的网站" },
-  "inlineNeverSitesHint": { "message": "（每行一个域名，失焦自动整理；可在“整页翻译 > 全局站点规则与高级”统一管理）" },
-  "inlineProbeBtn": { "message": "自检当前输入框" },
-  "inlineProbeDesc": { "message": "自检会检查当前标签页各框架（含 iframe）是否能识别输入目标与文本，便于排查“无反应”问题。" },
-  "siteRulesPriorityHint": { "message": "优先级：页面标签中的“此站点偏好” > 此处全局站点规则 > 默认设置。" },
-  "siteRuleFlagAuto": { "message": "自动翻译" },
-  "siteRuleFlagNever": { "message": "永不翻译" },
-  "siteRuleFlagInline": { "message": "输入框不自动弹出" },
-  "bulkTextEdit": { "message": "批量文本编辑（高级）" },
-  "autoSitesLabel": { "message": "自动翻译的网站" },
-  "autoSitesHint": { "message": "（每行一个域名；留空=所有网站）" },
-  "neverSitesLabel": { "message": "永不翻译的网站" },
-  "neverSitesHint": { "message": "（每行一个域名）" },
-  "inlineNeverMirrorLabel": { "message": "输入框不自动弹出的网站" },
-  "inlineNeverMirrorHint": { "message": "（与“输入框转写”共享）" },
-  "minAutoCharsLabel": { "message": "自动翻译的最少正文字数" },
-  "maxNodesLabel": { "message": "单页最多翻译段落数" },
-  "performanceDisplayLabel": { "message": "性能与显示" },
-  "cacheLabel": { "message": "启用译文缓存（同一句只翻一次）" },
-  "cacheClearBtn": { "message": "清理缓存" },
-  "theme": { "message": "主题" },
-  "advancedLabel": { "message": "高级" },
-  "concurrency": { "message": "并发请求" },
-  "resetLocalSession": { "message": "重置本地会话（翻译异常时使用）" },
-  "statusDiagnostics": { "message": "状态与诊断" },
-  "recheckBtn": { "message": "重新检测" },
-  "copyDiagBtn": { "message": "复制诊断信息" },
-  "troubleshootLabel": { "message": "故障排除（高级）" },
-  "troubleshootDesc": { "message": "用于定位兼容性问题；语言包/Nano 下载与 Chrome 内部诊断页入口在“页面”标签的“本地模型与状态”中。" },
-  "shortcutsLabel": { "message": "快捷键：Alt+Shift+T 整页翻译 · Alt+Shift+S 翻译选中内容 · Alt+Shift+Y 打开侧边栏（可在 chrome://extensions/shortcuts 修改）" },
-  "errExtensionContextInvalidated": { "message": "与扩展后台的连接已断开（扩展刚被重新加载或更新）。请关闭并重新打开侧边栏。" },
-  "errNoReceivingEnd": { "message": "暂时联系不上扩展后台（可能正在启动）。请稍等一两秒后重试。" },
-  "errReadSettings": { "message": "无法读取设置，请重新加载扩展" },
-  "statusReady": { "message": "本地模型就绪" },
-  "statusUnavailableLocal": { "message": "本机不可用" },
-  "statusUnknown": { "message": "未知" },
-  "labelAvailable": { "message": "已就绪" },
-  "labelDownloadable": { "message": "待下载" },
-  "labelDownloading": { "message": "下载中" },
-  "labelUnsupported": { "message": "不支持" },
-  "labelUnavailable": { "message": "不可用" },
-  "copied": { "message": "已复制 ✓" },
-  "copyFailed": { "message": "复制失败" },
-  "copiedShort": { "message": "已复制" },
-  "load": { "message": "载入" },
-  "delete": { "message": "删除" },
-  "copyTranslation": { "message": "复制译文" },
-  "translating": { "message": "本地推理中…" },
-  "translateFailed": { "message": "翻译失败" },
-  "explaining": { "message": "Gemini Nano 解释中…" },
-  "explainFailed": { "message": "解释失败" },
-  "resetDone": { "message": "已重置 ✓" },
-  "resetSessionLabel": { "message": "重置本地会话" },
-  "sitePrefsUnsupported": { "message": "当前标签页不支持站点偏好。" },
-  "siteAutoOn": { "message": "此站点自动翻译：开" },
-  "siteAutoOffBtn": { "message": "此站点自动翻译：关" },
-  "siteNeverRemove": { "message": "从永不翻译移除" },
-  "siteNeverAddBtn": { "message": "加入永不翻译" },
-  "sitePrefTarget": { "message": "目标" },
-  "sitePrefSource": { "message": "源" },
-  "sitePrefMode": { "message": "模式" },
-  "sitePrefAuto": { "message": "自动翻译" },
-  "sitePrefNever": { "message": "永不翻译" },
-  "modeReplace": { "message": "替换" },
-  "modeDual": { "message": "双语" },
-  "modeHover": { "message": "悬停" },
-  "on": { "message": "开" },
-  "off": { "message": "关" },
-  "autoDetect": { "message": "自动" },
-  "globalRulesLabel": { "message": "全局规则" },
-  "globalNeverList": { "message": "在全局“永不翻译”列表中" },
-  "globalAutoList": { "message": "在全局“自动翻译”列表中" },
-  "globalAutoAll": { "message": "全局自动翻译已开启（所有网站）" },
-  "historyLoading": { "message": "加载中…" },
-  "historyEmpty": { "message": "暂无历史记录。翻译或解释后会在此显示最近内容（仅本机保存）。" },
-  "historyLoadFailed": { "message": "加载失败" },
-  "historyExplain": { "message": "解释" },
-  "historyTranslate": { "message": "翻译" },
-  "pageStatusReadFailed": { "message": "无法读取页面状态" },
-  "pageStatusWorking": { "message": "翻译中" },
-  "pageStatusDone": { "message": "已翻译" },
-  "pageStatusFailed": { "message": "失败" },
-  "pageStatusIdleText": { "message": "未翻译" },
-  "segments": { "message": "段" },
-  "failed": { "message": "失败" },
-  "guideWorking": { "message": "正在本地翻译当前页面。你可以稍候查看进度；如长时间无响应，可在“设置 > 性能与显示”重置本地会话后重试。" },
-  "guideDoneHover": { "message": "悬停对照已启用：将鼠标移到段落上查看译文。需要固定译文可改用“翻译整页”或“双语对照”。" },
-  "guideDone": { "message": "翻译完成。可使用“还原原文”恢复页面，或在下方为此站点记住偏好以便下次自动应用。" },
-  "guideError": { "message": "翻译失败：请检查当前页面是否可注入脚本（chrome:// 等页面不支持）、语言包/模型是否就绪，或点击“刷新状态/重新检测”。" },
-  "guideIdle": { "message": "未翻译：可点击“翻译整页”“双语对照”或“悬停对照”。若希望下次自动处理此站点，可在下方保存站点偏好。" },
-  "skippedSameLanguage": { "message": "页面已经是目标语言" },
-  "skippedNoText": { "message": "没有找到可翻译的文本" },
-  "restoreFailed": { "message": "还原失败" },
-  "readingSelection": { "message": "读取选中文本…" },
-  "noSelection": { "message": "当前页面没有选中的文本" },
-  "nanoExplanation": { "message": "Gemini Nano 解释：" },
-  "popupErrContext": { "message": "与扩展后台的连接已断开（扩展刚被重新加载或更新）。请关闭弹窗后重新打开。" },
-  "popupErrNoReceivingEnd": { "message": "暂时联系不上扩展后台（可能正在启动）。请稍等一两秒后重试。" },
-  "popupReadSettingsFailed": { "message": "无法读取设置，请重新加载扩展" },
-  "popupAutoDetect": { "message": "自动检测" },
-  "popupBuiltinModel": { "message": "内置翻译模型" },
-  "popupTranslating": { "message": "翻译中…" },
-  "popupStarted": { "message": "已开始 ✓" },
-  "popupHint": { "message": "离线推理 · 无需 API Key · 不上传任何文本" },
-  "popupOutputPlaceholder": { "message": "本地模型输出" }
+  "tabText": {
+    "message": "文本"
+  },
+  "tabPage": {
+    "message": "页面"
+  },
+  "tabHistory": {
+    "message": "历史"
+  },
+  "tabSettings": {
+    "message": "设置"
+  },
+  "statusDetecting": {
+    "message": "检测中…"
+  },
+  "swapLangs": {
+    "message": "交换语言"
+  },
+  "translate": {
+    "message": "翻译"
+  },
+  "explain": {
+    "message": "解释"
+  },
+  "paste": {
+    "message": "粘贴"
+  },
+  "clear": {
+    "message": "清空"
+  },
+  "copy": {
+    "message": "复制"
+  },
+  "speak": {
+    "message": "朗读"
+  },
+  "backTranslate": {
+    "message": "回译"
+  },
+  "translationOutput": {
+    "message": "译文"
+  },
+  "openSidePanel": {
+    "message": "打开侧边栏"
+  },
+  "translatePage": {
+    "message": "翻译整页"
+  },
+  "bilingualView": {
+    "message": "双语对照"
+  },
+  "restoreOriginal": {
+    "message": "还原原文"
+  },
+  "refreshStatus": {
+    "message": "刷新状态"
+  },
+  "settingsAutoSave": {
+    "message": "设置会自动保存"
+  },
+  "inputAutoTranslate": {
+    "message": "输入即译"
+  },
+  "countChars": {
+    "message": "0 字"
+  },
+  "inputPlaceholder": {
+    "message": "粘贴或输入文本…\nCtrl / Cmd + Enter 立即翻译（全程离线推理）"
+  },
+  "outputPlaceholder": {
+    "message": "译文会显示在这里"
+  },
+  "textPrivacyHint": {
+    "message": "推理在本机完成：Chrome 的内置翻译模型或 Gemini Nano（Prompt API）。文本不会离开这台电脑。"
+  },
+  "pageNoTitle": {
+    "message": "—"
+  },
+  "pageTranslate": {
+    "message": "翻译整页"
+  },
+  "pageDual": {
+    "message": "双语对照"
+  },
+  "pageHover": {
+    "message": "悬停对照"
+  },
+  "pageRestore": {
+    "message": "还原原文"
+  },
+  "pageRefresh": {
+    "message": "刷新状态"
+  },
+  "pageStatusIdle": {
+    "message": "未翻译"
+  },
+  "sitePrefsTitle": {
+    "message": "此站点偏好"
+  },
+  "sitePrefsNone": {
+    "message": "尚未为此站点保存偏好。"
+  },
+  "siteSavePref": {
+    "message": "记住当前语言/模式"
+  },
+  "siteClearPref": {
+    "message": "清除此站点偏好"
+  },
+  "siteAutoOff": {
+    "message": "此站点自动翻译：关"
+  },
+  "siteNeverAdd": {
+    "message": "加入永不翻译"
+  },
+  "sitePrefsHint": {
+    "message": "站点偏好仅保存在本机，并优先于“设置”中的全局站点规则。"
+  },
+  "selectionTitle": {
+    "message": "选中文本"
+  },
+  "selTranslate": {
+    "message": "翻译选中内容"
+  },
+  "selExplain": {
+    "message": "解释"
+  },
+  "modelsTitle": {
+    "message": "本地模型与状态"
+  },
+  "downloadPair": {
+    "message": "下载当前语言对的语言包"
+  },
+  "dlStatusDefault": {
+    "message": "语言包按需下载，下载后可离线使用。"
+  },
+  "useNanoEngine": {
+    "message": "改用 Gemini Nano 引擎"
+  },
+  "advancedTroubleshoot": {
+    "message": "高级与故障排除"
+  },
+  "downloadNano": {
+    "message": "下载/启用 Gemini Nano"
+  },
+  "selftest": {
+    "message": "分环境自检"
+  },
+  "openComponents": {
+    "message": "打开 chrome://components"
+  },
+  "openOnDevice": {
+    "message": "打开 on-device-internals"
+  },
+  "modelsTroubleshootHint": {
+    "message": "若语言包或 Nano 不可用，可在此检查组件状态、查看诊断页或对比运行环境结果。"
+  },
+  "historyTitle": {
+    "message": "翻译历史"
+  },
+  "historyLocalOnly": {
+    "message": "（仅保存在本机）"
+  },
+  "historyEnabled": {
+    "message": "保存翻译与解释记录"
+  },
+  "historyRefresh": {
+    "message": "刷新"
+  },
+  "historyClear": {
+    "message": "清空历史"
+  },
+  "historyHint": {
+    "message": "最近记录会显示在下方，点击“载入”可放回文本页继续编辑或回译。"
+  },
+  "engineTitle": {
+    "message": "翻译引擎"
+  },
+  "toneTitle": {
+    "message": "语气 / 风格"
+  },
+  "toneNanoNote": {
+    "message": "（Gemini Nano 生效）"
+  },
+  "advancedNano": {
+    "message": "高级（Gemini Nano）：术语表与翻译背景"
+  },
+  "glossaryTitle": {
+    "message": "术语表"
+  },
+  "glossaryNote": {
+    "message": "（每行：原文=译文）"
+  },
+  "contextTitle": {
+    "message": "翻译背景"
+  },
+  "contextNote": {
+    "message": "（帮助理解语境，不会被翻译）"
+  },
+  "selectionBubbleTitle": {
+    "message": "划词翻译"
+  },
+  "showBubble": {
+    "message": "选中文本后显示译文气泡"
+  },
+  "dblclickTranslate": {
+    "message": "双击单词时翻译"
+  },
+  "inlineRewriteTitle": {
+    "message": "输入框转写"
+  },
+  "inlineRewriteHint": {
+    "message": "在网页输入框中将内容转写为目标语言（本地处理，不上传）。"
+  },
+  "inlineEnabled": {
+    "message": "启用输入框转写"
+  },
+  "inlineTargetLabel": {
+    "message": "转写目标语言"
+  },
+  "inlineAdvanced": {
+    "message": "高级与排错"
+  },
+  "inlineLive": {
+    "message": "面板打开时随输入自动更新译文"
+  },
+  "inlineMinChars": {
+    "message": "最少字数"
+  },
+  "inlineNeverTitle": {
+    "message": "不自动弹出的网站"
+  },
+  "inlineNeverNote": {
+    "message": "（每行一个域名，失焦自动整理；可在全局站点规则统一管理）"
+  },
+  "inlineShortcutHint": {
+    "message": "页内快捷键：Alt+Shift+Enter。如需修改默认键位，可在 chrome://extensions/shortcuts 中设置。"
+  },
+  "inlineProbe": {
+    "message": "自检当前输入框"
+  },
+  "inlineProbeHint": {
+    "message": "自检会检查当前标签页各框架（含 iframe）是否能识别输入目标与文本，便于排查“无反应”问题。"
+  },
+  "pageTranslationTitle": {
+    "message": "整页翻译"
+  },
+  "pageAutoTranslate": {
+    "message": "打开网页时自动翻译"
+  },
+  "globalSiteRulesAdvanced": {
+    "message": "全局站点规则与高级"
+  },
+  "siteRulesManagerHint": {
+    "message": "优先级：页面标签中的“此站点偏好” > 此处全局站点规则 > 默认设置。"
+  },
+  "addHostPlaceholder": {
+    "message": "输入域名（如 example.com），回车添加"
+  },
+  "add": {
+    "message": "添加"
+  },
+  "searchHostPlaceholder": {
+    "message": "搜索域名…"
+  },
+  "exportJson": {
+    "message": "导出 JSON"
+  },
+  "importJson": {
+    "message": "导入 JSON"
+  },
+  "clearAllRules": {
+    "message": "清空全部规则"
+  },
+  "bulkEdit": {
+    "message": "批量文本编辑（高级）"
+  },
+  "autoTranslateSitesTitle": {
+    "message": "自动翻译的网站"
+  },
+  "autoTranslateSitesNote": {
+    "message": "（每行一个域名；留空=所有网站）"
+  },
+  "neverTranslateSitesTitle": {
+    "message": "永不翻译的网站"
+  },
+  "neverTranslateSitesNote": {
+    "message": "（每行一个域名）"
+  },
+  "inlineNeverMirrorTitle": {
+    "message": "输入框不自动弹出的网站"
+  },
+  "inlineNeverMirrorNote": {
+    "message": "（与“输入框转写”共享）"
+  },
+  "minAutoChars": {
+    "message": "自动翻译的最少正文字数"
+  },
+  "maxNodes": {
+    "message": "单页最多翻译段落数"
+  },
+  "skipSameLang": {
+    "message": "跳过已是目标语言的段落"
+  },
+  "performanceTitle": {
+    "message": "性能与显示"
+  },
+  "cacheEnabled": {
+    "message": "启用译文缓存（同一句只翻一次）"
+  },
+  "cacheClear": {
+    "message": "清理缓存"
+  },
+  "themeLabel": {
+    "message": "主题"
+  },
+  "advanced": {
+    "message": "高级"
+  },
+  "concurrencyLabel": {
+    "message": "并发请求"
+  },
+  "resetSession": {
+    "message": "重置本地会话（翻译异常时使用）"
+  },
+  "diagnosticsTitle": {
+    "message": "状态与诊断"
+  },
+  "recheck": {
+    "message": "重新检测"
+  },
+  "copyDiagnostics": {
+    "message": "复制诊断信息"
+  },
+  "troubleshootAdvanced": {
+    "message": "故障排除（高级）"
+  },
+  "troubleshootHint": {
+    "message": "用于定位兼容性问题；语言包/Nano 下载与 Chrome 内部诊断页入口在“页面”标签的“本地模型与状态”中。"
+  },
+  "shortcutsHint": {
+    "message": "快捷键：Alt+Shift+T 整页翻译 · Alt+Shift+S 翻译选中内容 · Alt+Shift+Y 打开侧边栏（可在 chrome://extensions/shortcuts 修改）"
+  },
+  "charsUnit": {
+    "message": "字"
+  },
+  "saving": {
+    "message": "保存中…"
+  },
+  "saveFailed": {
+    "message": "保存失败"
+  },
+  "exportedSiteRules": {
+    "message": "已导出站点规则"
+  },
+  "importedSiteRules": {
+    "message": "已导入站点规则"
+  },
+  "importInvalid": {
+    "message": "导入失败：文件格式无效"
+  },
+  "pageSelectionHint": {
+    "message": "用 Gemini Nano 讲清楚"
+  },
+  "historySaveHint": {
+    "message": "最近记录会显示在下方，点击“载入”可放回文本页继续编辑或回译。"
+  },
+  "engineAuto": {
+    "message": "自动（推荐：优先内置翻译，不支持时用 Gemini Nano）"
+  },
+  "engineTranslator": {
+    "message": "内置翻译模型（速度快、适合常规翻译）"
+  },
+  "engineNano": {
+    "message": "Gemini Nano（支持语气、术语表、解释等高级能力）"
+  },
+  "inlineModeButton": {
+    "message": "显示浮标，点击或按 Alt+Shift+Enter 转写"
+  },
+  "inlineModeAuto": {
+    "message": "自动展开并随输入更新"
+  },
+  "inlineModeOff": {
+    "message": "关闭"
+  },
+  "inlineInsertReplace": {
+    "message": "快捷键动作：替换输入框内容"
+  },
+  "inlineInsertAppend": {
+    "message": "快捷键动作：追加译文到末尾"
+  },
+  "inlineInsertCopy": {
+    "message": "快捷键动作：仅复制译文"
+  },
+  "displayReplace": {
+    "message": "替换原文（可还原）"
+  },
+  "displayDual": {
+    "message": "双语对照（保留原文）"
+  },
+  "displayHover": {
+    "message": "悬停对照"
+  },
+  "themeAuto": {
+    "message": "跟随系统"
+  },
+  "themeLight": {
+    "message": "浅色"
+  },
+  "themeDark": {
+    "message": "深色"
+  },
+  "concurrency1": {
+    "message": "1（最省电）"
+  },
+  "concurrency2": {
+    "message": "2（推荐）"
+  },
+  "concurrency3": {
+    "message": "3"
+  },
+  "concurrency4": {
+    "message": "4（最快）"
+  },
+  "siteRuleAuto": {
+    "message": "自动翻译"
+  },
+  "siteRuleNever": {
+    "message": "永不翻译"
+  },
+  "siteRuleInline": {
+    "message": "输入框不弹出"
+  },
+  "remove": {
+    "message": "移除"
+  },
+  "siteRulesEmpty": {
+    "message": "暂无全局站点规则。可在上方添加域名，或在下方批量文本编辑中粘贴。"
+  },
+  "siteRulesNoMatch": {
+    "message": "没有匹配的站点规则。"
+  },
+  "engineLabel": {
+    "message": "翻译引擎"
+  },
+  "toneLabel": {
+    "message": "语气 / 风格"
+  },
+  "toneNanoHint": {
+    "message": "（Gemini Nano 生效）"
+  },
+  "advancedNanoSummary": {
+    "message": "高级（Gemini Nano）：术语表与翻译背景"
+  },
+  "glossaryLabel": {
+    "message": "术语表"
+  },
+  "glossaryHint": {
+    "message": "（每行：原文=译文）"
+  },
+  "glossaryPlaceholder": {
+    "message": "Gemini Nano=双子星纳米\nprompt=提示词"
+  },
+  "contextLabel": {
+    "message": "翻译背景"
+  },
+  "contextHint": {
+    "message": "（帮助理解语境，不会被翻译）"
+  },
+  "contextPlaceholder": {
+    "message": "例如：这是一段 React 官方文档的更新日志"
+  },
+  "selectionTranslationLabel": {
+    "message": "划词翻译"
+  },
+  "inlineTargetLanguage": {
+    "message": "转写目标语言"
+  },
+  "inlineNeverSitesLabel": {
+    "message": "不自动弹出的网站"
+  },
+  "inlineNeverSitesHint": {
+    "message": "（每行一个域名，失焦自动整理；可在“整页翻译 > 全局站点规则与高级”统一管理）"
+  },
+  "inlineProbeBtn": {
+    "message": "自检当前输入框"
+  },
+  "inlineProbeDesc": {
+    "message": "自检会检查当前标签页各框架（含 iframe）是否能识别输入目标与文本，便于排查“无反应”问题。"
+  },
+  "siteRulesPriorityHint": {
+    "message": "优先级：页面标签中的“此站点偏好” > 此处全局站点规则 > 默认设置。"
+  },
+  "siteRuleFlagAuto": {
+    "message": "自动翻译"
+  },
+  "siteRuleFlagNever": {
+    "message": "永不翻译"
+  },
+  "siteRuleFlagInline": {
+    "message": "输入框不自动弹出"
+  },
+  "bulkTextEdit": {
+    "message": "批量文本编辑（高级）"
+  },
+  "autoSitesLabel": {
+    "message": "自动翻译的网站"
+  },
+  "autoSitesHint": {
+    "message": "（每行一个域名；留空=所有网站）"
+  },
+  "neverSitesLabel": {
+    "message": "永不翻译的网站"
+  },
+  "neverSitesHint": {
+    "message": "（每行一个域名）"
+  },
+  "inlineNeverMirrorLabel": {
+    "message": "输入框不自动弹出的网站"
+  },
+  "inlineNeverMirrorHint": {
+    "message": "（与“输入框转写”共享）"
+  },
+  "minAutoCharsLabel": {
+    "message": "自动翻译的最少正文字数"
+  },
+  "maxNodesLabel": {
+    "message": "单页最多翻译段落数"
+  },
+  "performanceDisplayLabel": {
+    "message": "性能与显示"
+  },
+  "cacheLabel": {
+    "message": "启用译文缓存（同一句只翻一次）"
+  },
+  "cacheClearBtn": {
+    "message": "清理缓存"
+  },
+  "theme": {
+    "message": "主题"
+  },
+  "advancedLabel": {
+    "message": "高级"
+  },
+  "concurrency": {
+    "message": "并发请求"
+  },
+  "resetLocalSession": {
+    "message": "重置本地会话（翻译异常时使用）"
+  },
+  "statusDiagnostics": {
+    "message": "状态与诊断"
+  },
+  "recheckBtn": {
+    "message": "重新检测"
+  },
+  "copyDiagBtn": {
+    "message": "复制诊断信息"
+  },
+  "troubleshootLabel": {
+    "message": "故障排除（高级）"
+  },
+  "troubleshootDesc": {
+    "message": "用于定位兼容性问题；语言包/Nano 下载与 Chrome 内部诊断页入口在“页面”标签的“本地模型与状态”中。"
+  },
+  "shortcutsLabel": {
+    "message": "快捷键：Alt+Shift+T 整页翻译 · Alt+Shift+S 翻译选中内容 · Alt+Shift+Y 打开侧边栏（可在 chrome://extensions/shortcuts 修改）"
+  },
+  "errExtensionContextInvalidated": {
+    "message": "与扩展后台的连接已断开（扩展刚被重新加载或更新）。请关闭并重新打开侧边栏。"
+  },
+  "errNoReceivingEnd": {
+    "message": "暂时联系不上扩展后台（可能正在启动）。请稍等一两秒后重试。"
+  },
+  "errReadSettings": {
+    "message": "无法读取设置，请重新加载扩展"
+  },
+  "statusReady": {
+    "message": "本地模型就绪"
+  },
+  "statusUnavailableLocal": {
+    "message": "本机不可用"
+  },
+  "statusUnknown": {
+    "message": "未知"
+  },
+  "labelAvailable": {
+    "message": "已就绪"
+  },
+  "labelDownloadable": {
+    "message": "待下载"
+  },
+  "labelDownloading": {
+    "message": "下载中"
+  },
+  "labelUnsupported": {
+    "message": "不支持"
+  },
+  "labelUnavailable": {
+    "message": "不可用"
+  },
+  "copied": {
+    "message": "已复制 ✓"
+  },
+  "copyFailed": {
+    "message": "复制失败"
+  },
+  "copiedShort": {
+    "message": "已复制"
+  },
+  "load": {
+    "message": "载入"
+  },
+  "delete": {
+    "message": "删除"
+  },
+  "copyTranslation": {
+    "message": "复制译文"
+  },
+  "translating": {
+    "message": "本地推理中…"
+  },
+  "translateFailed": {
+    "message": "翻译失败"
+  },
+  "explaining": {
+    "message": "Gemini Nano 解释中…"
+  },
+  "explainFailed": {
+    "message": "解释失败"
+  },
+  "resetDone": {
+    "message": "已重置 ✓"
+  },
+  "resetSessionLabel": {
+    "message": "重置本地会话"
+  },
+  "sitePrefsUnsupported": {
+    "message": "当前标签页不支持站点偏好。"
+  },
+  "siteAutoOn": {
+    "message": "此站点自动翻译：开"
+  },
+  "siteAutoOffBtn": {
+    "message": "此站点自动翻译：关"
+  },
+  "siteNeverRemove": {
+    "message": "从永不翻译移除"
+  },
+  "siteNeverAddBtn": {
+    "message": "加入永不翻译"
+  },
+  "sitePrefTarget": {
+    "message": "目标"
+  },
+  "sitePrefSource": {
+    "message": "源"
+  },
+  "sitePrefMode": {
+    "message": "模式"
+  },
+  "sitePrefAuto": {
+    "message": "自动翻译"
+  },
+  "sitePrefNever": {
+    "message": "永不翻译"
+  },
+  "modeReplace": {
+    "message": "替换"
+  },
+  "modeDual": {
+    "message": "双语"
+  },
+  "modeHover": {
+    "message": "悬停"
+  },
+  "on": {
+    "message": "开"
+  },
+  "off": {
+    "message": "关"
+  },
+  "autoDetect": {
+    "message": "自动"
+  },
+  "globalRulesLabel": {
+    "message": "全局规则"
+  },
+  "globalNeverList": {
+    "message": "在全局“永不翻译”列表中"
+  },
+  "globalAutoList": {
+    "message": "在全局“自动翻译”列表中"
+  },
+  "globalAutoAll": {
+    "message": "全局自动翻译已开启（所有网站）"
+  },
+  "historyLoading": {
+    "message": "加载中…"
+  },
+  "historyEmpty": {
+    "message": "暂无历史记录。翻译或解释后会在此显示最近内容（仅本机保存）。"
+  },
+  "historyLoadFailed": {
+    "message": "加载失败"
+  },
+  "historyExplain": {
+    "message": "解释"
+  },
+  "historyTranslate": {
+    "message": "翻译"
+  },
+  "pageStatusReadFailed": {
+    "message": "无法读取页面状态"
+  },
+  "pageStatusWorking": {
+    "message": "翻译中"
+  },
+  "pageStatusDone": {
+    "message": "已翻译"
+  },
+  "pageStatusFailed": {
+    "message": "失败"
+  },
+  "pageStatusIdleText": {
+    "message": "未翻译"
+  },
+  "segments": {
+    "message": "段"
+  },
+  "failed": {
+    "message": "失败"
+  },
+  "guideWorking": {
+    "message": "正在本地翻译当前页面。你可以稍候查看进度；如长时间无响应，可在“设置 > 性能与显示”重置本地会话后重试。"
+  },
+  "guideDoneHover": {
+    "message": "悬停对照已启用：将鼠标移到段落上查看译文。需要固定译文可改用“翻译整页”或“双语对照”。"
+  },
+  "guideDone": {
+    "message": "翻译完成。可使用“还原原文”恢复页面，或在下方为此站点记住偏好以便下次自动应用。"
+  },
+  "guideError": {
+    "message": "翻译失败：请检查当前页面是否可注入脚本（chrome:// 等页面不支持）、语言包/模型是否就绪，或点击“刷新状态/重新检测”。"
+  },
+  "guideIdle": {
+    "message": "未翻译：可点击“翻译整页”“双语对照”或“悬停对照”。若希望下次自动处理此站点，可在下方保存站点偏好。"
+  },
+  "skippedSameLanguage": {
+    "message": "页面已经是目标语言"
+  },
+  "skippedNoText": {
+    "message": "没有找到可翻译的文本"
+  },
+  "restoreFailed": {
+    "message": "还原失败"
+  },
+  "readingSelection": {
+    "message": "读取选中文本…"
+  },
+  "noSelection": {
+    "message": "当前页面没有选中的文本"
+  },
+  "nanoExplanation": {
+    "message": "Gemini Nano 解释："
+  },
+  "popupErrContext": {
+    "message": "与扩展后台的连接已断开（扩展刚被重新加载或更新）。请关闭弹窗后重新打开。"
+  },
+  "popupErrNoReceivingEnd": {
+    "message": "暂时联系不上扩展后台（可能正在启动）。请稍等一两秒后重试。"
+  },
+  "popupReadSettingsFailed": {
+    "message": "无法读取设置，请重新加载扩展"
+  },
+  "popupAutoDetect": {
+    "message": "自动检测"
+  },
+  "popupBuiltinModel": {
+    "message": "内置翻译模型"
+  },
+  "popupTranslating": {
+    "message": "翻译中…"
+  },
+  "popupStarted": {
+    "message": "已开始 ✓"
+  },
+  "popupHint": {
+    "message": "离线推理 · 无需 API Key · 不上传任何文本"
+  },
+  "popupOutputPlaceholder": {
+    "message": "本地模型输出"
+  },
+  "builtinTranslatorModel": {
+    "message": "内置翻译模型"
+  },
+  "detecting": {
+    "message": "检测中…"
+  },
+  "detectFailed": {
+    "message": "检测失败"
+  },
+  "envUnavailable": {
+    "message": "当前环境不可用"
+  },
+  "nanoEnvUnavailable": {
+    "message": "当前环境不可用（浏览器没有 Prompt API；硬件不满足或 Chrome 版本过旧）"
+  },
+  "backendHost": {
+    "message": "后台推理宿主"
+  },
+  "hostOffscreen": {
+    "message": "离屏文档（Service Worker 里不可用时自动切换）"
+  },
+  "hostSw": {
+    "message": "Service Worker"
+  },
+  "hostAuto": {
+    "message": "自动选择"
+  },
+  "downloadingPair": {
+    "message": "正在下载语言包… {n}%"
+  },
+  "downloadPreparing": {
+    "message": "正在准备下载（首次可能较慢，请保持网络畅通）…"
+  },
+  "pairReady": {
+    "message": "语言包已就绪：{pair}，之后完全离线可用。"
+  },
+  "downloadFailed": {
+    "message": "下载失败"
+  },
+  "downloadingNano": {
+    "message": "正在下载 Gemini Nano… {n}%"
+  },
+  "nanoDownloadPreparing": {
+    "message": "正在触发 Gemini Nano 下载（约 2~4GB，请保持网络与非计费连接）…"
+  },
+  "nanoReady": {
+    "message": "Gemini Nano 已就绪。"
+  },
+  "nanoReadyBg": {
+    "message": "Gemini Nano 已就绪（后台上下文确认可用）。"
+  },
+  "nanoHintDownloadable": {
+    "message": "{status}：点下方「让 Chrome 下载 Gemini Nano」即可启用"
+  },
+  "nanoHintUnavailable": {
+    "message": "{status}：多为模型未下载或硬件不满足 —— 先点「让 Chrome 下载 Gemini Nano」试一次；仍失败则点失败提示里的「打开 chrome://components」，找 \"Optimization Guide Manifest Component: nano_v3_gpu_component\"（名字含 nano 的那个）点「检查更新」，状态由 New 变 Up-to-date 即模型已装好；若状态不变，多为硬件不满足（>4GB 显存，或 16GB 内存 + 4 核）或磁盘剩余不足 22GB。"
+  },
+  "supported": {
+    "message": "支持"
+  },
+  "notSupported": {
+    "message": "不支持"
+  },
+  "unknown": {
+    "message": "未知"
+  },
+  "detectFailedShort": {
+    "message": "检测失败"
+  },
+  "selftestRunning": {
+    "message": "正在自检（会在两个上下文里各创建一次模型，可能需要几秒）…"
+  },
+  "selftestLangPair": {
+    "message": "语言对"
+  },
+  "selftestSidepanel": {
+    "message": "【侧边栏（文档 + 用户手势）】"
+  },
+  "selftestBackground": {
+    "message": "【扩展后台（Service Worker）】"
+  },
+  "selftestAvailability": {
+    "message": "availability"
+  },
+  "selftestCreate": {
+    "message": "create"
+  },
+  "selftestSample": {
+    "message": "试译"
+  },
+  "selftestNano": {
+    "message": "Gemini Nano"
+  },
+  "selftestHost": {
+    "message": "后台宿主"
+  },
+  "selftestFailed": {
+    "message": "自检失败"
+  },
+  "selftestNoResult": {
+    "message": "自检未拿到结果，请查看下面的原始输出。"
+  },
+  "selftestOkLocal": {
+    "message": "✅ 侧边栏里可以创建该语言对的翻译实例"
+  },
+  "selftestOkBgFailed": {
+    "message": "，但后台不能（Chrome 只允许「有用户手势的文档」创建）——扩展会自动改用离屏文档 / Gemini Nano，正常可用。"
+  },
+  "selftestLocalFailed": {
+    "message": "⚠️ 侧边栏里也创建失败："
+  },
+  "selftestLocalFailedExplain": {
+    "message": "说明这个语言对的语言包在 Chrome 侧不可用（availability 只是能力查询，Chrome 会刻意模糊语言包状态）。"
+  },
+  "selftestNanoOkSuggest": {
+    "message": "这台机器的 Gemini Nano 正常 → 建议直接点上面的「改用 Gemini Nano 引擎」，翻译/解释都不受影响。"
+  },
+  "selftestNanoBadSuggest": {
+    "message": "Gemini Nano 也不可用，请检查 chrome://on-device-internals 与硬件要求。"
+  },
+  "selftestExtraSuggest": {
+    "message": "另外建议：chrome://components → Chrome TranslateKit 点「检查更新」，以及 chrome://flags/#translation-api 选 “Enabled without language pack limit”。"
+  },
+  "dlPairRejected": {
+    "message": "<b>Chrome 拒绝为这个语言对创建翻译实例。</b>"
+  },
+  "dlCreateFailed": {
+    "message": "<b>语言包创建失败。</b>"
+  },
+  "dlHint1": {
+    "message": "① 立刻能用：切到 Gemini Nano（这台机器上已就绪），翻译不受影响。"
+  },
+  "dlHint2": {
+    "message": "② 检查语言包：新标签打开 <code>chrome://components</code> → 找 <b>Chrome TranslateKit</b> → 点「检查更新」。"
+  },
+  "dlHint3": {
+    "message": "③ 解除语言对限制：<code>chrome://flags/#translation-api</code> → 选 <b>Enabled without language pack limit</b> → 重启 Chrome（若无此开关请忽略）。"
+  },
+  "dlHint4": {
+    "message": "④ 换个语言对验证（例如 英语 → 日语）：若只有当前这个对失败，说明是语言包问题而不是扩展问题。"
+  },
+  "dlHint5": {
+    "message": "⑤ 后台上下文结果："
+  },
+  "dlBgOk": {
+    "message": "创建成功"
+  },
+  "nanoNotReadyTitle": {
+    "message": "<b>Gemini Nano 没能就绪。</b>按顺序检查："
+  },
+  "nanoHintStep1": {
+    "message": "① 点下面的「打开 chrome://components」→ 找 <b>Optimization Guide Manifest Component: nano_v3_gpu_component</b>（名字里含 nano 的那个）→ 点「检查更新」，等状态从 <b>New</b> 变成 <b>Up-to-date</b>（约 2GB）；"
+  },
+  "nanoHintStep2": {
+    "message": "② 确认 <code>chrome://flags/#prompt-api-for-gemini-nano</code>（若存在）为 <b>Enabled</b> 并重启浏览器；"
+  },
+  "nanoHintStep3": {
+    "message": "③ 硬件要求：&gt;4GB 显存，或 16GB 内存 + 4 核以上；磁盘至少 22GB 可用；"
+  },
+  "nanoHintStep4": {
+    "message": "④ 点下面的「打开 on-device-internals」→ Model Status 看具体错误。"
+  },
+  "nanoHintStep5": {
+    "message": "⑤ 后台上下文结果："
+  },
+  "openInternalFail": {
+    "message": "无法直接跳转（{err}），请把地址复制到新标签，手动粘贴后打开：{url}"
+  },
+  "openInternalFailShort": {
+    "message": "无法直接跳转（{err}），请手动在地址栏输入：{url}"
+  },
+  "hwCpuMem": {
+    "message": "CPU {cores} 核 · 内存约 {mem}"
+  },
+  "hwCpuMemUnknown": {
+    "message": "未知（Chrome 未暴露）"
+  },
+  "hwQuota": {
+    "message": "存储配额约 {gb}GB（不等于磁盘总剩余空间，仅供参考）"
+  },
+  "hwWarn": {
+    "message": "⚠️ {reasons}"
+  },
+  "hwOkGpuUnknown": {
+    "message": "CPU/内存达标；显存无法在浏览器里检测，仍需 chrome://components 确认模型是否真的下完"
+  },
+  "probeRunning": {
+    "message": "正在问每一层框架…"
+  },
+  "probeNoActiveTab": {
+    "message": "没有活动标签页"
+  },
+  "probeActiveTab": {
+    "message": "活动标签页："
+  },
+  "probeClaimedFrame": {
+    "message": "认领的框架："
+  },
+  "probeNoClaimYet": {
+    "message": "（还没有：先在输入框里打几个字）"
+  },
+  "probeNoFrames": {
+    "message": "没有任何框架回答 —— 内容脚本没注入（chrome:// 等特殊页面不支持）。"
+  },
+  "probeTopFrame": {
+    "message": "顶层页面"
+  },
+  "probeIframe": {
+    "message": "iframe"
+  },
+  "probeTranscription": {
+    "message": "转写"
+  },
+  "probeEnabled": {
+    "message": "已启用"
+  },
+  "probeDisabled": {
+    "message": "已关闭"
+  },
+  "probeMode": {
+    "message": "模式"
+  },
+  "probeFocus": {
+    "message": "焦点"
+  },
+  "probeHas": {
+    "message": "有"
+  },
+  "probeNone": {
+    "message": "无"
+  },
+  "probeTarget": {
+    "message": "目标"
+  },
+  "probeTargetAgent": {
+    "message": "封闭 Shadow DOM，靠主世界助手"
+  },
+  "probeTargetNormal": {
+    "message": "普通元素"
+  },
+  "probeCharsRead": {
+    "message": "读到字符数"
+  },
+  "probeHowToRead": {
+    "message": "怎么读这份报告："
+  },
+  "probeHint1": {
+    "message": "· 某个 iframe 那行「目标：有」「读到字符数 > 0」→ 扩展看得见那个输入框，转写应该正常。"
+  },
+  "probeHint2": {
+    "message": "· 所有框架都「目标：无」→ 扩展没抓到那个输入框（请把这行截图/复制给我）。"
+  },
+  "probeHint3": {
+    "message": "· 「读到字符数 = 0」但有目标 → 抓到了元素却没读到文字（多半是特殊的富文本编辑器）。"
+  },
+  "probeFailed": {
+    "message": "自检失败"
+  },
+  "clipboardReadFailed": {
+    "message": "无法读取剪贴板，请手动粘贴（Ctrl/Cmd + V）"
+  },
+  "switchedToNano": {
+    "message": "已切换到 Gemini Nano：翻译、解释都会使用本机的 Gemini Nano 模型。"
+  },
+  "switchFailed": {
+    "message": "切换失败"
+  },
+  "historyRecordExplain": {
+    "message": "历史记录（解释）"
+  },
+  "historyRecord": {
+    "message": "历史记录"
+  },
+  "outputWillShowHere": {
+    "message": "译文会显示在这里"
+  },
+  "translationLabel": {
+    "message": "译文"
+  },
+  "nanoExplanationLabel": {
+    "message": "Gemini Nano 解释"
+  },
+  "downloadingLangPack": {
+    "message": "正在下载语言包 {n}%"
+  },
+  "downloadingLangPackShort": {
+    "message": "正在下载语言包… {n}%"
+  },
+  "diagDetecting": {
+    "message": " 检测中…"
+  },
+  "siteInlineExceptions": {
+    "message": "· {n} 个站点例外"
+  },
+  "siteAutoNeverSummary": {
+    "message": "· 自动 {a} / 永不 {n}"
+  },
+  "followTargetLang": {
+    "message": "跟随上面的目标语言"
+  },
+  "autoDetectOption": {
+    "message": "自动检测"
+  }
 }

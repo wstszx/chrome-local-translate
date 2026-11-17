@@ -43,269 +43,1099 @@
     "message": "Project home",
     "description": "Footer project link label"
   },
-  "tabText": { "message": "Text" },
-  "tabPage": { "message": "Page" },
-  "tabHistory": { "message": "History" },
-  "tabSettings": { "message": "Settings" },
-  "statusDetecting": { "message": "Detecting…" },
-  "swapLangs": { "message": "Swap languages" },
-  "translate": { "message": "Translate" },
-  "explain": { "message": "Explain" },
-  "paste": { "message": "Paste" },
-  "clear": { "message": "Clear" },
-  "copy": { "message": "Copy" },
-  "speak": { "message": "Speak" },
-  "backTranslate": { "message": "Back-translate" },
-  "translationOutput": { "message": "Translation" },
-  "openSidePanel": { "message": "Open side panel" },
-  "translatePage": { "message": "Translate page" },
-  "bilingualView": { "message": "Bilingual view" },
-  "restoreOriginal": { "message": "Restore original" },
-  "refreshStatus": { "message": "Refresh status" },
-  "settingsAutoSave": { "message": "Settings are saved automatically" },
-  "inputAutoTranslate": { "message": "Translate as you type" },
-  "countChars": { "message": "0 chars" },
-  "inputPlaceholder": { "message": "Paste or type text…\nCtrl/Cmd + Enter to translate (fully on-device)" },
-  "outputPlaceholder": { "message": "Translation will appear here" },
-  "textPrivacyHint": { "message": "Inference runs locally (Chrome built-in translation model or Gemini Nano). Your text never leaves this device." },
-  "pageNoTitle": { "message": "—" },
-  "pageTranslate": { "message": "Translate page" },
-  "pageDual": { "message": "Bilingual view" },
-  "pageHover": { "message": "Hover view" },
-  "pageRestore": { "message": "Restore original" },
-  "pageRefresh": { "message": "Refresh status" },
-  "pageStatusIdle": { "message": "Not translated" },
-  "sitePrefsTitle": { "message": "Site preferences" },
-  "sitePrefsNone": { "message": "No preferences saved for this site yet." },
-  "siteSavePref": { "message": "Remember current language/mode" },
-  "siteClearPref": { "message": "Clear site preferences" },
-  "siteAutoOff": { "message": "Auto-translate for this site: Off" },
-  "siteNeverAdd": { "message": "Add to never translate" },
-  "sitePrefsHint": { "message": "Site preferences are stored locally and override global site rules in Settings." },
-  "selectionTitle": { "message": "Selected text" },
-  "selTranslate": { "message": "Translate selection" },
-  "selExplain": { "message": "Explain" },
-  "modelsTitle": { "message": "Local models & status" },
-  "downloadPair": { "message": "Download language pair pack" },
-  "dlStatusDefault": { "message": "Language packs are downloaded on demand and can be used offline after download." },
-  "useNanoEngine": { "message": "Use Gemini Nano engine" },
-  "advancedTroubleshoot": { "message": "Advanced & troubleshooting" },
-  "downloadNano": { "message": "Download/enable Gemini Nano" },
-  "selftest": { "message": "Run self-test" },
-  "openComponents": { "message": "Open chrome://components" },
-  "openOnDevice": { "message": "Open on-device-internals" },
-  "modelsTroubleshootHint": { "message": "If language packs or Nano are unavailable, check component status, diagnostics pages, or compare runtime environments here." },
-  "historyTitle": { "message": "Translation history" },
-  "historyLocalOnly": { "message": "(stored locally only)" },
-  "historyEnabled": { "message": "Save translation and explanation history" },
-  "historyRefresh": { "message": "Refresh" },
-  "historyClear": { "message": "Clear history" },
-  "historyHint": { "message": "Recent records appear below. Click “Load” to put an item back into the Text tab." },
-  "engineTitle": { "message": "Translation engine" },
-  "toneTitle": { "message": "Tone / style" },
-  "toneNanoNote": { "message": "(Gemini Nano)" },
-  "advancedNano": { "message": "Advanced (Gemini Nano): glossary & context" },
-  "glossaryTitle": { "message": "Glossary" },
-  "glossaryNote": { "message": "(one per line: source=target)" },
-  "contextTitle": { "message": "Translation context" },
-  "contextNote": { "message": "(helps understand context; not translated)" },
-  "selectionBubbleTitle": { "message": "Selection translation" },
-  "showBubble": { "message": "Show translation bubble for selected text" },
-  "dblclickTranslate": { "message": "Translate on double-click" },
-  "inlineRewriteTitle": { "message": "Input rewrite" },
-  "inlineRewriteHint": { "message": "Rewrite input content into the target language in web fields (processed locally)." },
-  "inlineEnabled": { "message": "Enable input rewrite" },
-  "inlineTargetLabel": { "message": "Target language" },
-  "inlineAdvanced": { "message": "Advanced & troubleshooting" },
-  "inlineLive": { "message": "Update translation automatically while typing when panel is open" },
-  "inlineMinChars": { "message": "Minimum characters" },
-  "inlineNeverTitle": { "message": "Sites where popup should not auto-open" },
-  "inlineNeverNote": { "message": "(one domain per line, normalized on blur; also manageable in global site rules)" },
-  "inlineShortcutHint": { "message": "Page shortcut: Alt+Shift+Enter. You can change it in chrome://extensions/shortcuts." },
-  "inlineProbe": { "message": "Check current input field" },
-  "inlineProbeHint": { "message": "Checks frames (including iframes) in the current tab to see whether an input target and text can be detected." },
-  "pageTranslationTitle": { "message": "Page translation" },
-  "pageAutoTranslate": { "message": "Auto-translate pages on open" },
-  "globalSiteRulesAdvanced": { "message": "Global site rules & advanced" },
-  "siteRulesManagerHint": { "message": "Priority: per-site preferences in Page tab > global site rules here > defaults." },
-  "addHostPlaceholder": { "message": "Enter domain (e.g. example.com), press Enter to add" },
-  "add": { "message": "Add" },
-  "searchHostPlaceholder": { "message": "Search domains…" },
-  "exportJson": { "message": "Export JSON" },
-  "importJson": { "message": "Import JSON" },
-  "clearAllRules": { "message": "Clear all rules" },
-  "bulkEdit": { "message": "Bulk text edit (advanced)" },
-  "autoTranslateSitesTitle": { "message": "Auto-translate sites" },
-  "autoTranslateSitesNote": { "message": "(one domain per line; empty = all sites)" },
-  "neverTranslateSitesTitle": { "message": "Never translate sites" },
-  "neverTranslateSitesNote": { "message": "(one domain per line)" },
-  "inlineNeverMirrorTitle": { "message": "Sites where input rewrite popup should not auto-open" },
-  "inlineNeverMirrorNote": { "message": "(shared with Input rewrite)" },
-  "minAutoChars": { "message": "Minimum page text length for auto-translate" },
-  "maxNodes": { "message": "Maximum translated segments per page" },
-  "skipSameLang": { "message": "Skip segments already in target language" },
-  "performanceTitle": { "message": "Performance & display" },
-  "cacheEnabled": { "message": "Enable translation cache (translate once)" },
-  "cacheClear": { "message": "Clear cache" },
-  "themeLabel": { "message": "Theme" },
-  "advanced": { "message": "Advanced" },
-  "concurrencyLabel": { "message": "Concurrency" },
-  "resetSession": { "message": "Reset local session (use if translation fails)" },
-  "diagnosticsTitle": { "message": "Status & diagnostics" },
-  "recheck": { "message": "Re-check" },
-  "copyDiagnostics": { "message": "Copy diagnostics" },
-  "troubleshootAdvanced": { "message": "Troubleshooting (advanced)" },
-  "troubleshootHint": { "message": "For compatibility issues; language pack/Nano download and Chrome diagnostic pages are in Page > Local models & status." },
-  "shortcutsHint": { "message": "Shortcuts: Alt+Shift+T translate page · Alt+Shift+S translate selection · Alt+Shift+Y open side panel (change in chrome://extensions/shortcuts)" },
-  "charsUnit": { "message": "chars" },
-  "saving": { "message": "Saving…" },
-  "saveFailed": { "message": "Save failed" },
-  "exportedSiteRules": { "message": "Site rules exported" },
-  "importedSiteRules": { "message": "Site rules imported" },
-  "importInvalid": { "message": "Import failed: invalid file format" },
-  "pageSelectionHint": { "message": "Explain with Gemini Nano" },
-  "historySaveHint": { "message": "Recent records appear below. Click “Load” to put an item back into the Text tab." },
-  "engineAuto": { "message": "Auto (recommended: prefer built-in translation, fall back to Gemini Nano)" },
-  "engineTranslator": { "message": "Built-in translation model (fast, for general translation)" },
-  "engineNano": { "message": "Gemini Nano (supports tone, glossary, explanation, etc.)" },
-  "inlineModeButton": { "message": "Show button; click or press Alt+Shift+Enter to rewrite" },
-  "inlineModeAuto": { "message": "Auto-open and update while typing" },
-  "inlineModeOff": { "message": "Off" },
-  "inlineInsertReplace": { "message": "Shortcut action: replace input content" },
-  "inlineInsertAppend": { "message": "Shortcut action: append translation" },
-  "inlineInsertCopy": { "message": "Shortcut action: copy translation only" },
-  "displayReplace": { "message": "Replace original (can restore)" },
-  "displayDual": { "message": "Bilingual (keep original)" },
-  "displayHover": { "message": "Hover translation" },
-  "themeAuto": { "message": "Follow system" },
-  "themeLight": { "message": "Light" },
-  "themeDark": { "message": "Dark" },
-  "concurrency1": { "message": "1 (lowest power)" },
-  "concurrency2": { "message": "2 (recommended)" },
-  "concurrency3": { "message": "3" },
-  "concurrency4": { "message": "4 (fastest)" },
-  "siteRuleAuto": { "message": "Auto-translate" },
-  "siteRuleNever": { "message": "Never translate" },
-  "siteRuleInline": { "message": "No input popup" },
-  "remove": { "message": "Remove" },
-  "clear": { "message": "Clear" },
-  "siteRulesEmpty": { "message": "No global site rules yet. Add a domain above or paste in bulk text edit below." },
-  "siteRulesNoMatch": { "message": "No matching site rules." },
-  "engineLabel": { "message": "Translation engine" },
-  "toneLabel": { "message": "Tone / style" },
-  "toneNanoHint": { "message": "(Gemini Nano)" },
-  "advancedNanoSummary": { "message": "Advanced (Gemini Nano): glossary & context" },
-  "glossaryLabel": { "message": "Glossary" },
-  "glossaryHint": { "message": "(one per line: source=target)" },
-  "glossaryPlaceholder": { "message": "Gemini Nano=Gemini Nano\nprompt=prompt" },
-  "contextLabel": { "message": "Translation context" },
-  "contextHint": { "message": "(helps understand context; not translated)" },
-  "contextPlaceholder": { "message": "e.g. Release notes for React official docs" },
-  "selectionTranslationLabel": { "message": "Selection translation" },
-  "inlineTargetLanguage": { "message": "Target language" },
-  "inlineNeverSitesLabel": { "message": "Sites where popup should not auto-open" },
-  "inlineNeverSitesHint": { "message": "(one domain per line, normalized on blur; also manageable in global site rules)" },
-  "inlineProbeBtn": { "message": "Check current input field" },
-  "inlineProbeDesc": { "message": "Checks frames (including iframes) in the current tab to see whether an input target and text can be detected." },
-  "siteRulesPriorityHint": { "message": "Priority: per-site preferences in Page tab > global site rules here > defaults." },
-  "siteRuleFlagAuto": { "message": "Auto-translate" },
-  "siteRuleFlagNever": { "message": "Never translate" },
-  "siteRuleFlagInline": { "message": "No input popup" },
-  "bulkTextEdit": { "message": "Bulk text edit (advanced)" },
-  "autoSitesLabel": { "message": "Auto-translate sites" },
-  "autoSitesHint": { "message": "(one domain per line; empty = all sites)" },
-  "neverSitesLabel": { "message": "Never translate sites" },
-  "neverSitesHint": { "message": "(one domain per line)" },
-  "inlineNeverMirrorLabel": { "message": "Sites where input rewrite popup should not auto-open" },
-  "inlineNeverMirrorHint": { "message": "(shared with Input rewrite)" },
-  "minAutoCharsLabel": { "message": "Minimum page text length for auto-translate" },
-  "maxNodesLabel": { "message": "Maximum translated segments per page" },
-  "performanceDisplayLabel": { "message": "Performance & display" },
-  "cacheLabel": { "message": "Enable translation cache (translate once)" },
-  "cacheClearBtn": { "message": "Clear cache" },
-  "theme": { "message": "Theme" },
-  "advancedLabel": { "message": "Advanced" },
-  "concurrency": { "message": "Concurrency" },
-  "resetLocalSession": { "message": "Reset local session (use if translation fails)" },
-  "statusDiagnostics": { "message": "Status & diagnostics" },
-  "recheckBtn": { "message": "Re-check" },
-  "copyDiagBtn": { "message": "Copy diagnostics" },
-  "troubleshootLabel": { "message": "Troubleshooting (advanced)" },
-  "troubleshootDesc": { "message": "For compatibility issues; language pack/Nano download and Chrome diagnostic pages are in Page > Local models & status." },
-  "shortcutsLabel": { "message": "Shortcuts: Alt+Shift+T translate page · Alt+Shift+S translate selection · Alt+Shift+Y open side panel (change in chrome://extensions/shortcuts)" },
-  "errExtensionContextInvalidated": { "message": "Connection to the extension background was lost (the extension was reloaded or updated). Please close and reopen the side panel." },
-  "errNoReceivingEnd": { "message": "Cannot reach the extension background right now (it may be starting). Please try again in a moment." },
-  "errReadSettings": { "message": "Failed to read settings. Please reload the extension." },
-  "statusReady": { "message": "Model ready" },
-  "statusUnavailableLocal": { "message": "Unavailable locally" },
-  "statusUnknown": { "message": "Unknown" },
-  "labelAvailable": { "message": "Ready" },
-  "labelDownloadable": { "message": "Downloadable" },
-  "labelDownloading": { "message": "Downloading" },
-  "labelUnsupported": { "message": "Unsupported" },
-  "labelUnavailable": { "message": "Unavailable" },
-  "copied": { "message": "Copied ✓" },
-  "copyFailed": { "message": "Copy failed" },
-  "copiedShort": { "message": "Copied" },
-  "load": { "message": "Load" },
-  "delete": { "message": "Delete" },
-  "copyTranslation": { "message": "Copy translation" },
-  "translating": { "message": "Translating locally…" },
-  "translateFailed": { "message": "Translation failed" },
-  "explaining": { "message": "Explaining with Gemini Nano…" },
-  "explainFailed": { "message": "Explanation failed" },
-  "resetDone": { "message": "Reset ✓" },
-  "resetSessionLabel": { "message": "Reset local session" },
-  "sitePrefsUnsupported": { "message": "Site preferences are not available for this tab." },
-  "siteAutoOn": { "message": "Auto-translate for this site: On" },
-  "siteAutoOffBtn": { "message": "Auto-translate for this site: Off" },
-  "siteNeverRemove": { "message": "Remove from never translate" },
-  "siteNeverAddBtn": { "message": "Add to never translate" },
-  "sitePrefTarget": { "message": "Target" },
-  "sitePrefSource": { "message": "Source" },
-  "sitePrefMode": { "message": "Mode" },
-  "sitePrefAuto": { "message": "Auto-translate" },
-  "sitePrefNever": { "message": "Never translate" },
-  "modeReplace": { "message": "Replace" },
-  "modeDual": { "message": "Bilingual" },
-  "modeHover": { "message": "Hover" },
-  "on": { "message": "On" },
-  "off": { "message": "Off" },
-  "autoDetect": { "message": "Auto" },
-  "globalRulesLabel": { "message": "Global rules" },
-  "globalNeverList": { "message": "In global “Never translate” list" },
-  "globalAutoList": { "message": "In global “Auto-translate” list" },
-  "globalAutoAll": { "message": "Global auto-translate is enabled (all sites)" },
-  "historyLoading": { "message": "Loading…" },
-  "historyEmpty": { "message": "No history yet. Translations and explanations will appear here (stored locally only)." },
-  "historyLoadFailed": { "message": "Failed to load" },
-  "historyExplain": { "message": "Explain" },
-  "historyTranslate": { "message": "Translate" },
-  "pageStatusReadFailed": { "message": "Failed to read page status" },
-  "pageStatusWorking": { "message": "Translating" },
-  "pageStatusDone": { "message": "Translated" },
-  "pageStatusFailed": { "message": "Failed" },
-  "pageStatusIdleText": { "message": "Not translated" },
-  "segments": { "message": "segments" },
-  "failed": { "message": "failed" },
-  "guideWorking": { "message": "Translating this page locally. You can monitor progress; if it stalls, try resetting the local session in Settings > Performance & display." },
-  "guideDoneHover": { "message": "Hover translation is enabled: move the cursor over a paragraph to see its translation. Use “Translate page” or “Bilingual view” for fixed translations." },
-  "guideDone": { "message": "Translation complete. You can restore the original page or save site preferences below for next time." },
-  "guideError": { "message": "Translation failed: check whether this page allows script injection (chrome:// pages are not supported), whether language packs/models are ready, or try Refresh/Re-check." },
-  "guideIdle": { "message": "Not translated yet. Use “Translate page”, “Bilingual view”, or “Hover view”. Save site preferences below to apply automatically next time." },
-  "skippedSameLanguage": { "message": "Page is already in the target language" },
-  "skippedNoText": { "message": "No translatable text found" },
-  "restoreFailed": { "message": "Restore failed" },
-  "readingSelection": { "message": "Reading selected text…" },
-  "noSelection": { "message": "No text is selected on this page" },
-  "nanoExplanation": { "message": "Gemini Nano explanation:" },
-  "popupErrContext": { "message": "Connection to the extension background was lost (the extension was reloaded or updated). Please close and reopen the popup." },
-  "popupErrNoReceivingEnd": { "message": "Cannot reach the extension background right now (it may be starting). Please try again in a moment." },
-  "popupReadSettingsFailed": { "message": "Failed to read settings. Please reload the extension." },
-  "popupAutoDetect": { "message": "Auto-detect" },
-  "popupBuiltinModel": { "message": "Built-in model" },
-  "popupTranslating": { "message": "Translating…" },
-  "popupStarted": { "message": "Started ✓" },
-  "popupHint": { "message": "On-device inference · No API key · No text uploaded" },
-  "popupOutputPlaceholder": { "message": "Local model output" }
+  "tabText": {
+    "message": "Text"
+  },
+  "tabPage": {
+    "message": "Page"
+  },
+  "tabHistory": {
+    "message": "History"
+  },
+  "tabSettings": {
+    "message": "Settings"
+  },
+  "statusDetecting": {
+    "message": "Detecting…"
+  },
+  "swapLangs": {
+    "message": "Swap languages"
+  },
+  "translate": {
+    "message": "Translate"
+  },
+  "explain": {
+    "message": "Explain"
+  },
+  "paste": {
+    "message": "Paste"
+  },
+  "clear": {
+    "message": "Clear"
+  },
+  "copy": {
+    "message": "Copy"
+  },
+  "speak": {
+    "message": "Speak"
+  },
+  "backTranslate": {
+    "message": "Back-translate"
+  },
+  "translationOutput": {
+    "message": "Translation"
+  },
+  "openSidePanel": {
+    "message": "Open side panel"
+  },
+  "translatePage": {
+    "message": "Translate page"
+  },
+  "bilingualView": {
+    "message": "Bilingual view"
+  },
+  "restoreOriginal": {
+    "message": "Restore original"
+  },
+  "refreshStatus": {
+    "message": "Refresh status"
+  },
+  "settingsAutoSave": {
+    "message": "Settings are saved automatically"
+  },
+  "inputAutoTranslate": {
+    "message": "Translate as you type"
+  },
+  "countChars": {
+    "message": "0 chars"
+  },
+  "inputPlaceholder": {
+    "message": "Paste or type text…\nCtrl/Cmd + Enter to translate (fully on-device)"
+  },
+  "outputPlaceholder": {
+    "message": "Translation will appear here"
+  },
+  "textPrivacyHint": {
+    "message": "Inference runs locally (Chrome built-in translation model or Gemini Nano). Your text never leaves this device."
+  },
+  "pageNoTitle": {
+    "message": "—"
+  },
+  "pageTranslate": {
+    "message": "Translate page"
+  },
+  "pageDual": {
+    "message": "Bilingual view"
+  },
+  "pageHover": {
+    "message": "Hover view"
+  },
+  "pageRestore": {
+    "message": "Restore original"
+  },
+  "pageRefresh": {
+    "message": "Refresh status"
+  },
+  "pageStatusIdle": {
+    "message": "Not translated"
+  },
+  "sitePrefsTitle": {
+    "message": "Site preferences"
+  },
+  "sitePrefsNone": {
+    "message": "No preferences saved for this site yet."
+  },
+  "siteSavePref": {
+    "message": "Remember current language/mode"
+  },
+  "siteClearPref": {
+    "message": "Clear site preferences"
+  },
+  "siteAutoOff": {
+    "message": "Auto-translate for this site: Off"
+  },
+  "siteNeverAdd": {
+    "message": "Add to never translate"
+  },
+  "sitePrefsHint": {
+    "message": "Site preferences are stored locally and override global site rules in Settings."
+  },
+  "selectionTitle": {
+    "message": "Selected text"
+  },
+  "selTranslate": {
+    "message": "Translate selection"
+  },
+  "selExplain": {
+    "message": "Explain"
+  },
+  "modelsTitle": {
+    "message": "Local models & status"
+  },
+  "downloadPair": {
+    "message": "Download language pair pack"
+  },
+  "dlStatusDefault": {
+    "message": "Language packs are downloaded on demand and can be used offline after download."
+  },
+  "useNanoEngine": {
+    "message": "Use Gemini Nano engine"
+  },
+  "advancedTroubleshoot": {
+    "message": "Advanced & troubleshooting"
+  },
+  "downloadNano": {
+    "message": "Download/enable Gemini Nano"
+  },
+  "selftest": {
+    "message": "Run self-test"
+  },
+  "openComponents": {
+    "message": "Open chrome://components"
+  },
+  "openOnDevice": {
+    "message": "Open on-device-internals"
+  },
+  "modelsTroubleshootHint": {
+    "message": "If language packs or Nano are unavailable, check component status, diagnostics pages, or compare runtime environments here."
+  },
+  "historyTitle": {
+    "message": "Translation history"
+  },
+  "historyLocalOnly": {
+    "message": "(stored locally only)"
+  },
+  "historyEnabled": {
+    "message": "Save translation and explanation history"
+  },
+  "historyRefresh": {
+    "message": "Refresh"
+  },
+  "historyClear": {
+    "message": "Clear history"
+  },
+  "historyHint": {
+    "message": "Recent records appear below. Click “Load” to put an item back into the Text tab."
+  },
+  "engineTitle": {
+    "message": "Translation engine"
+  },
+  "toneTitle": {
+    "message": "Tone / style"
+  },
+  "toneNanoNote": {
+    "message": "(Gemini Nano)"
+  },
+  "advancedNano": {
+    "message": "Advanced (Gemini Nano): glossary & context"
+  },
+  "glossaryTitle": {
+    "message": "Glossary"
+  },
+  "glossaryNote": {
+    "message": "(one per line: source=target)"
+  },
+  "contextTitle": {
+    "message": "Translation context"
+  },
+  "contextNote": {
+    "message": "(helps understand context; not translated)"
+  },
+  "selectionBubbleTitle": {
+    "message": "Selection translation"
+  },
+  "showBubble": {
+    "message": "Show translation bubble for selected text"
+  },
+  "dblclickTranslate": {
+    "message": "Translate on double-click"
+  },
+  "inlineRewriteTitle": {
+    "message": "Input rewrite"
+  },
+  "inlineRewriteHint": {
+    "message": "Rewrite input content into the target language in web fields (processed locally)."
+  },
+  "inlineEnabled": {
+    "message": "Enable input rewrite"
+  },
+  "inlineTargetLabel": {
+    "message": "Target language"
+  },
+  "inlineAdvanced": {
+    "message": "Advanced & troubleshooting"
+  },
+  "inlineLive": {
+    "message": "Update translation automatically while typing when panel is open"
+  },
+  "inlineMinChars": {
+    "message": "Minimum characters"
+  },
+  "inlineNeverTitle": {
+    "message": "Sites where popup should not auto-open"
+  },
+  "inlineNeverNote": {
+    "message": "(one domain per line, normalized on blur; also manageable in global site rules)"
+  },
+  "inlineShortcutHint": {
+    "message": "Page shortcut: Alt+Shift+Enter. You can change it in chrome://extensions/shortcuts."
+  },
+  "inlineProbe": {
+    "message": "Check current input field"
+  },
+  "inlineProbeHint": {
+    "message": "Checks frames (including iframes) in the current tab to see whether an input target and text can be detected."
+  },
+  "pageTranslationTitle": {
+    "message": "Page translation"
+  },
+  "pageAutoTranslate": {
+    "message": "Auto-translate pages on open"
+  },
+  "globalSiteRulesAdvanced": {
+    "message": "Global site rules & advanced"
+  },
+  "siteRulesManagerHint": {
+    "message": "Priority: per-site preferences in Page tab > global site rules here > defaults."
+  },
+  "addHostPlaceholder": {
+    "message": "Enter domain (e.g. example.com), press Enter to add"
+  },
+  "add": {
+    "message": "Add"
+  },
+  "searchHostPlaceholder": {
+    "message": "Search domains…"
+  },
+  "exportJson": {
+    "message": "Export JSON"
+  },
+  "importJson": {
+    "message": "Import JSON"
+  },
+  "clearAllRules": {
+    "message": "Clear all rules"
+  },
+  "bulkEdit": {
+    "message": "Bulk text edit (advanced)"
+  },
+  "autoTranslateSitesTitle": {
+    "message": "Auto-translate sites"
+  },
+  "autoTranslateSitesNote": {
+    "message": "(one domain per line; empty = all sites)"
+  },
+  "neverTranslateSitesTitle": {
+    "message": "Never translate sites"
+  },
+  "neverTranslateSitesNote": {
+    "message": "(one domain per line)"
+  },
+  "inlineNeverMirrorTitle": {
+    "message": "Sites where input rewrite popup should not auto-open"
+  },
+  "inlineNeverMirrorNote": {
+    "message": "(shared with Input rewrite)"
+  },
+  "minAutoChars": {
+    "message": "Minimum page text length for auto-translate"
+  },
+  "maxNodes": {
+    "message": "Maximum translated segments per page"
+  },
+  "skipSameLang": {
+    "message": "Skip segments already in target language"
+  },
+  "performanceTitle": {
+    "message": "Performance & display"
+  },
+  "cacheEnabled": {
+    "message": "Enable translation cache (translate once)"
+  },
+  "cacheClear": {
+    "message": "Clear cache"
+  },
+  "themeLabel": {
+    "message": "Theme"
+  },
+  "advanced": {
+    "message": "Advanced"
+  },
+  "concurrencyLabel": {
+    "message": "Concurrency"
+  },
+  "resetSession": {
+    "message": "Reset local session (use if translation fails)"
+  },
+  "diagnosticsTitle": {
+    "message": "Status & diagnostics"
+  },
+  "recheck": {
+    "message": "Re-check"
+  },
+  "copyDiagnostics": {
+    "message": "Copy diagnostics"
+  },
+  "troubleshootAdvanced": {
+    "message": "Troubleshooting (advanced)"
+  },
+  "troubleshootHint": {
+    "message": "For compatibility issues; language pack/Nano download and Chrome diagnostic pages are in Page > Local models & status."
+  },
+  "shortcutsHint": {
+    "message": "Shortcuts: Alt+Shift+T translate page · Alt+Shift+S translate selection · Alt+Shift+Y open side panel (change in chrome://extensions/shortcuts)"
+  },
+  "charsUnit": {
+    "message": "chars"
+  },
+  "saving": {
+    "message": "Saving…"
+  },
+  "saveFailed": {
+    "message": "Save failed"
+  },
+  "exportedSiteRules": {
+    "message": "Site rules exported"
+  },
+  "importedSiteRules": {
+    "message": "Site rules imported"
+  },
+  "importInvalid": {
+    "message": "Import failed: invalid file format"
+  },
+  "pageSelectionHint": {
+    "message": "Explain with Gemini Nano"
+  },
+  "historySaveHint": {
+    "message": "Recent records appear below. Click “Load” to put an item back into the Text tab."
+  },
+  "engineAuto": {
+    "message": "Auto (recommended: prefer built-in translation, fall back to Gemini Nano)"
+  },
+  "engineTranslator": {
+    "message": "Built-in translation model (fast, for general translation)"
+  },
+  "engineNano": {
+    "message": "Gemini Nano (supports tone, glossary, explanation, etc.)"
+  },
+  "inlineModeButton": {
+    "message": "Show button; click or press Alt+Shift+Enter to rewrite"
+  },
+  "inlineModeAuto": {
+    "message": "Auto-open and update while typing"
+  },
+  "inlineModeOff": {
+    "message": "Off"
+  },
+  "inlineInsertReplace": {
+    "message": "Shortcut action: replace input content"
+  },
+  "inlineInsertAppend": {
+    "message": "Shortcut action: append translation"
+  },
+  "inlineInsertCopy": {
+    "message": "Shortcut action: copy translation only"
+  },
+  "displayReplace": {
+    "message": "Replace original (can restore)"
+  },
+  "displayDual": {
+    "message": "Bilingual (keep original)"
+  },
+  "displayHover": {
+    "message": "Hover translation"
+  },
+  "themeAuto": {
+    "message": "Follow system"
+  },
+  "themeLight": {
+    "message": "Light"
+  },
+  "themeDark": {
+    "message": "Dark"
+  },
+  "concurrency1": {
+    "message": "1 (lowest power)"
+  },
+  "concurrency2": {
+    "message": "2 (recommended)"
+  },
+  "concurrency3": {
+    "message": "3"
+  },
+  "concurrency4": {
+    "message": "4 (fastest)"
+  },
+  "siteRuleAuto": {
+    "message": "Auto-translate"
+  },
+  "siteRuleNever": {
+    "message": "Never translate"
+  },
+  "siteRuleInline": {
+    "message": "No input popup"
+  },
+  "remove": {
+    "message": "Remove"
+  },
+  "siteRulesEmpty": {
+    "message": "No global site rules yet. Add a domain above or paste in bulk text edit below."
+  },
+  "siteRulesNoMatch": {
+    "message": "No matching site rules."
+  },
+  "engineLabel": {
+    "message": "Translation engine"
+  },
+  "toneLabel": {
+    "message": "Tone / style"
+  },
+  "toneNanoHint": {
+    "message": "(Gemini Nano)"
+  },
+  "advancedNanoSummary": {
+    "message": "Advanced (Gemini Nano): glossary & context"
+  },
+  "glossaryLabel": {
+    "message": "Glossary"
+  },
+  "glossaryHint": {
+    "message": "(one per line: source=target)"
+  },
+  "glossaryPlaceholder": {
+    "message": "Gemini Nano=Gemini Nano\nprompt=prompt"
+  },
+  "contextLabel": {
+    "message": "Translation context"
+  },
+  "contextHint": {
+    "message": "(helps understand context; not translated)"
+  },
+  "contextPlaceholder": {
+    "message": "e.g. Release notes for React official docs"
+  },
+  "selectionTranslationLabel": {
+    "message": "Selection translation"
+  },
+  "inlineTargetLanguage": {
+    "message": "Target language"
+  },
+  "inlineNeverSitesLabel": {
+    "message": "Sites where popup should not auto-open"
+  },
+  "inlineNeverSitesHint": {
+    "message": "(one domain per line, normalized on blur; also manageable in global site rules)"
+  },
+  "inlineProbeBtn": {
+    "message": "Check current input field"
+  },
+  "inlineProbeDesc": {
+    "message": "Checks frames (including iframes) in the current tab to see whether an input target and text can be detected."
+  },
+  "siteRulesPriorityHint": {
+    "message": "Priority: per-site preferences in Page tab > global site rules here > defaults."
+  },
+  "siteRuleFlagAuto": {
+    "message": "Auto-translate"
+  },
+  "siteRuleFlagNever": {
+    "message": "Never translate"
+  },
+  "siteRuleFlagInline": {
+    "message": "No input popup"
+  },
+  "bulkTextEdit": {
+    "message": "Bulk text edit (advanced)"
+  },
+  "autoSitesLabel": {
+    "message": "Auto-translate sites"
+  },
+  "autoSitesHint": {
+    "message": "(one domain per line; empty = all sites)"
+  },
+  "neverSitesLabel": {
+    "message": "Never translate sites"
+  },
+  "neverSitesHint": {
+    "message": "(one domain per line)"
+  },
+  "inlineNeverMirrorLabel": {
+    "message": "Sites where input rewrite popup should not auto-open"
+  },
+  "inlineNeverMirrorHint": {
+    "message": "(shared with Input rewrite)"
+  },
+  "minAutoCharsLabel": {
+    "message": "Minimum page text length for auto-translate"
+  },
+  "maxNodesLabel": {
+    "message": "Maximum translated segments per page"
+  },
+  "performanceDisplayLabel": {
+    "message": "Performance & display"
+  },
+  "cacheLabel": {
+    "message": "Enable translation cache (translate once)"
+  },
+  "cacheClearBtn": {
+    "message": "Clear cache"
+  },
+  "theme": {
+    "message": "Theme"
+  },
+  "advancedLabel": {
+    "message": "Advanced"
+  },
+  "concurrency": {
+    "message": "Concurrency"
+  },
+  "resetLocalSession": {
+    "message": "Reset local session (use if translation fails)"
+  },
+  "statusDiagnostics": {
+    "message": "Status & diagnostics"
+  },
+  "recheckBtn": {
+    "message": "Re-check"
+  },
+  "copyDiagBtn": {
+    "message": "Copy diagnostics"
+  },
+  "troubleshootLabel": {
+    "message": "Troubleshooting (advanced)"
+  },
+  "troubleshootDesc": {
+    "message": "For compatibility issues; language pack/Nano download and Chrome diagnostic pages are in Page > Local models & status."
+  },
+  "shortcutsLabel": {
+    "message": "Shortcuts: Alt+Shift+T translate page · Alt+Shift+S translate selection · Alt+Shift+Y open side panel (change in chrome://extensions/shortcuts)"
+  },
+  "errExtensionContextInvalidated": {
+    "message": "Connection to the extension background was lost (the extension was reloaded or updated). Please close and reopen the side panel."
+  },
+  "errNoReceivingEnd": {
+    "message": "Cannot reach the extension background right now (it may be starting). Please try again in a moment."
+  },
+  "errReadSettings": {
+    "message": "Failed to read settings. Please reload the extension."
+  },
+  "statusReady": {
+    "message": "Model ready"
+  },
+  "statusUnavailableLocal": {
+    "message": "Unavailable locally"
+  },
+  "statusUnknown": {
+    "message": "Unknown"
+  },
+  "labelAvailable": {
+    "message": "Ready"
+  },
+  "labelDownloadable": {
+    "message": "Downloadable"
+  },
+  "labelDownloading": {
+    "message": "Downloading"
+  },
+  "labelUnsupported": {
+    "message": "Unsupported"
+  },
+  "labelUnavailable": {
+    "message": "Unavailable"
+  },
+  "copied": {
+    "message": "Copied ✓"
+  },
+  "copyFailed": {
+    "message": "Copy failed"
+  },
+  "copiedShort": {
+    "message": "Copied"
+  },
+  "load": {
+    "message": "Load"
+  },
+  "delete": {
+    "message": "Delete"
+  },
+  "copyTranslation": {
+    "message": "Copy translation"
+  },
+  "translating": {
+    "message": "Translating locally…"
+  },
+  "translateFailed": {
+    "message": "Translation failed"
+  },
+  "explaining": {
+    "message": "Explaining with Gemini Nano…"
+  },
+  "explainFailed": {
+    "message": "Explanation failed"
+  },
+  "resetDone": {
+    "message": "Reset ✓"
+  },
+  "resetSessionLabel": {
+    "message": "Reset local session"
+  },
+  "sitePrefsUnsupported": {
+    "message": "Site preferences are not available for this tab."
+  },
+  "siteAutoOn": {
+    "message": "Auto-translate for this site: On"
+  },
+  "siteAutoOffBtn": {
+    "message": "Auto-translate for this site: Off"
+  },
+  "siteNeverRemove": {
+    "message": "Remove from never translate"
+  },
+  "siteNeverAddBtn": {
+    "message": "Add to never translate"
+  },
+  "sitePrefTarget": {
+    "message": "Target"
+  },
+  "sitePrefSource": {
+    "message": "Source"
+  },
+  "sitePrefMode": {
+    "message": "Mode"
+  },
+  "sitePrefAuto": {
+    "message": "Auto-translate"
+  },
+  "sitePrefNever": {
+    "message": "Never translate"
+  },
+  "modeReplace": {
+    "message": "Replace"
+  },
+  "modeDual": {
+    "message": "Bilingual"
+  },
+  "modeHover": {
+    "message": "Hover"
+  },
+  "on": {
+    "message": "On"
+  },
+  "off": {
+    "message": "Off"
+  },
+  "autoDetect": {
+    "message": "Auto"
+  },
+  "globalRulesLabel": {
+    "message": "Global rules"
+  },
+  "globalNeverList": {
+    "message": "In global “Never translate” list"
+  },
+  "globalAutoList": {
+    "message": "In global “Auto-translate” list"
+  },
+  "globalAutoAll": {
+    "message": "Global auto-translate is enabled (all sites)"
+  },
+  "historyLoading": {
+    "message": "Loading…"
+  },
+  "historyEmpty": {
+    "message": "No history yet. Translations and explanations will appear here (stored locally only)."
+  },
+  "historyLoadFailed": {
+    "message": "Failed to load"
+  },
+  "historyExplain": {
+    "message": "Explain"
+  },
+  "historyTranslate": {
+    "message": "Translate"
+  },
+  "pageStatusReadFailed": {
+    "message": "Failed to read page status"
+  },
+  "pageStatusWorking": {
+    "message": "Translating"
+  },
+  "pageStatusDone": {
+    "message": "Translated"
+  },
+  "pageStatusFailed": {
+    "message": "Failed"
+  },
+  "pageStatusIdleText": {
+    "message": "Not translated"
+  },
+  "segments": {
+    "message": "segments"
+  },
+  "failed": {
+    "message": "failed"
+  },
+  "guideWorking": {
+    "message": "Translating this page locally. You can monitor progress; if it stalls, try resetting the local session in Settings > Performance & display."
+  },
+  "guideDoneHover": {
+    "message": "Hover translation is enabled: move the cursor over a paragraph to see its translation. Use “Translate page” or “Bilingual view” for fixed translations."
+  },
+  "guideDone": {
+    "message": "Translation complete. You can restore the original page or save site preferences below for next time."
+  },
+  "guideError": {
+    "message": "Translation failed: check whether this page allows script injection (chrome:// pages are not supported), whether language packs/models are ready, or try Refresh/Re-check."
+  },
+  "guideIdle": {
+    "message": "Not translated yet. Use “Translate page”, “Bilingual view”, or “Hover view”. Save site preferences below to apply automatically next time."
+  },
+  "skippedSameLanguage": {
+    "message": "Page is already in the target language"
+  },
+  "skippedNoText": {
+    "message": "No translatable text found"
+  },
+  "restoreFailed": {
+    "message": "Restore failed"
+  },
+  "readingSelection": {
+    "message": "Reading selected text…"
+  },
+  "noSelection": {
+    "message": "No text is selected on this page"
+  },
+  "nanoExplanation": {
+    "message": "Gemini Nano explanation:"
+  },
+  "popupErrContext": {
+    "message": "Connection to the extension background was lost (the extension was reloaded or updated). Please close and reopen the popup."
+  },
+  "popupErrNoReceivingEnd": {
+    "message": "Cannot reach the extension background right now (it may be starting). Please try again in a moment."
+  },
+  "popupReadSettingsFailed": {
+    "message": "Failed to read settings. Please reload the extension."
+  },
+  "popupAutoDetect": {
+    "message": "Auto-detect"
+  },
+  "popupBuiltinModel": {
+    "message": "Built-in model"
+  },
+  "popupTranslating": {
+    "message": "Translating…"
+  },
+  "popupStarted": {
+    "message": "Started ✓"
+  },
+  "popupHint": {
+    "message": "On-device inference · No API key · No text uploaded"
+  },
+  "popupOutputPlaceholder": {
+    "message": "Local model output"
+  },
+  "builtinTranslatorModel": {
+    "message": "Built-in translation model"
+  },
+  "detecting": {
+    "message": "Detecting…"
+  },
+  "detectFailed": {
+    "message": "Detection failed"
+  },
+  "envUnavailable": {
+    "message": "Unavailable in this environment"
+  },
+  "nanoEnvUnavailable": {
+    "message": "Unavailable in this environment (no Prompt API; hardware unsupported or Chrome version too old)"
+  },
+  "backendHost": {
+    "message": "Inference host"
+  },
+  "hostOffscreen": {
+    "message": "Offscreen document (fallback when unavailable in Service Worker)"
+  },
+  "hostSw": {
+    "message": "Service Worker"
+  },
+  "hostAuto": {
+    "message": "Auto"
+  },
+  "downloadingPair": {
+    "message": "Downloading language pack… {n}%"
+  },
+  "downloadPreparing": {
+    "message": "Preparing download (first time may be slow, keep network available)…"
+  },
+  "pairReady": {
+    "message": "Language pack ready: {pair}, available offline."
+  },
+  "downloadFailed": {
+    "message": "Download failed"
+  },
+  "downloadingNano": {
+    "message": "Downloading Gemini Nano… {n}%"
+  },
+  "nanoDownloadPreparing": {
+    "message": "Triggering Gemini Nano download (~2–4GB, keep network available and non-metered)…"
+  },
+  "nanoReady": {
+    "message": "Gemini Nano is ready."
+  },
+  "nanoReadyBg": {
+    "message": "Gemini Nano is ready (confirmed in background context)."
+  },
+  "nanoHintDownloadable": {
+    "message": "{status}: click “Download Gemini Nano” below to enable it"
+  },
+  "nanoHintUnavailable": {
+    "message": "{status}: usually the model is not downloaded or hardware is insufficient — try “Download Gemini Nano” first. If it still fails, open chrome://components and find “Optimization Guide Manifest Component: nano_v3_gpu_component” (the one with nano in the name), click “Check for update” until status becomes Up-to-date. If it stays unchanged, hardware may be insufficient (>4GB VRAM, or 16GB RAM + 4 cores) or less than 22GB disk space is available."
+  },
+  "supported": {
+    "message": "Supported"
+  },
+  "notSupported": {
+    "message": "Not supported"
+  },
+  "unknown": {
+    "message": "Unknown"
+  },
+  "detectFailedShort": {
+    "message": "Detection failed"
+  },
+  "selftestRunning": {
+    "message": "Running self-test (creating models in both contexts, may take a few seconds)…"
+  },
+  "selftestLangPair": {
+    "message": "Language pair"
+  },
+  "selftestSidepanel": {
+    "message": "[Side panel (document + user gesture)]"
+  },
+  "selftestBackground": {
+    "message": "[Extension background (Service Worker)]"
+  },
+  "selftestAvailability": {
+    "message": "availability"
+  },
+  "selftestCreate": {
+    "message": "create"
+  },
+  "selftestSample": {
+    "message": "Sample translation"
+  },
+  "selftestNano": {
+    "message": "Gemini Nano"
+  },
+  "selftestHost": {
+    "message": "Background host"
+  },
+  "selftestFailed": {
+    "message": "Self-test failed"
+  },
+  "selftestNoResult": {
+    "message": "No self-test result. See raw output below."
+  },
+  "selftestOkLocal": {
+    "message": "✅ This language pair can be created in the side panel."
+  },
+  "selftestOkBgFailed": {
+    "message": " but creation failed in background (Chrome only allows creation in a document with user gesture) — the extension will automatically use offscreen document / Gemini Nano and should work normally."
+  },
+  "selftestLocalFailed": {
+    "message": "⚠️ Creation also failed in the side panel: "
+  },
+  "selftestLocalFailedExplain": {
+    "message": "This means the language pack for this pair is unavailable on the Chrome side (availability is only a capability query and Chrome intentionally obscures language pack status)."
+  },
+  "selftestNanoOkSuggest": {
+    "message": "Gemini Nano works on this device → consider switching to the Gemini Nano engine above; translation/explanation will still work."
+  },
+  "selftestNanoBadSuggest": {
+    "message": "Gemini Nano is also unavailable. Check chrome://on-device-internals and hardware requirements."
+  },
+  "selftestExtraSuggest": {
+    "message": "Also try: chrome://components → Chrome TranslateKit “Check for update”, and chrome://flags/#translation-api set to “Enabled without language pack limit”."
+  },
+  "dlPairRejected": {
+    "message": "<b>Chrome refused to create a translator instance for this language pair.</b>"
+  },
+  "dlCreateFailed": {
+    "message": "<b>Language pack creation failed.</b>"
+  },
+  "dlHint1": {
+    "message": "① Use now: switch to Gemini Nano (ready on this device), translation is unaffected."
+  },
+  "dlHint2": {
+    "message": "② Check language pack: open <code>chrome://components</code> in a new tab → find <b>Chrome TranslateKit</b> → click “Check for update”."
+  },
+  "dlHint3": {
+    "message": "③ Remove pair limit: <code>chrome://flags/#translation-api</code> → choose <b>Enabled without language pack limit</b> → restart Chrome (ignore if flag is unavailable)."
+  },
+  "dlHint4": {
+    "message": "④ Try another pair (e.g. English → Japanese): if only this pair fails, it’s a language pack issue, not an extension issue."
+  },
+  "dlHint5": {
+    "message": "⑤ Background context result: "
+  },
+  "dlBgOk": {
+    "message": "created successfully"
+  },
+  "nanoNotReadyTitle": {
+    "message": "<b>Gemini Nano is not ready.</b> Check in order:"
+  },
+  "nanoHintStep1": {
+    "message": "① Click “Open chrome://components” below → find <b>Optimization Guide Manifest Component: nano_v3_gpu_component</b> (name contains nano) → click “Check for update” until status changes from <b>New</b> to <b>Up-to-date</b> (~2GB)."
+  },
+  "nanoHintStep2": {
+    "message": "② Ensure <code>chrome://flags/#prompt-api-for-gemini-nano</code> (if present) is <b>Enabled</b> and restart browser."
+  },
+  "nanoHintStep3": {
+    "message": "③ Hardware requirements: &gt;4GB VRAM, or 16GB RAM + 4+ cores; at least 22GB free disk space."
+  },
+  "nanoHintStep4": {
+    "message": "④ Click “Open on-device-internals” below → check Model Status for specific errors."
+  },
+  "nanoHintStep5": {
+    "message": "⑤ Background context result: "
+  },
+  "openInternalFail": {
+    "message": "Cannot open directly ({err}). Please copy the URL to the address bar and open manually: {url}"
+  },
+  "openInternalFailShort": {
+    "message": "Cannot open directly ({err}). Please enter manually in the address bar: {url}"
+  },
+  "hwCpuMem": {
+    "message": "CPU {cores} cores · Memory ~{mem}"
+  },
+  "hwCpuMemUnknown": {
+    "message": "unknown (not exposed by Chrome)"
+  },
+  "hwQuota": {
+    "message": "Storage quota ~{gb}GB (not total free disk space, for reference only)"
+  },
+  "hwWarn": {
+    "message": "⚠️ {reasons}"
+  },
+  "hwOkGpuUnknown": {
+    "message": "CPU/memory meet requirements; VRAM cannot be detected in browser — confirm in chrome://components whether model is fully downloaded."
+  },
+  "probeRunning": {
+    "message": "Querying each frame…"
+  },
+  "probeNoActiveTab": {
+    "message": "No active tab"
+  },
+  "probeActiveTab": {
+    "message": "Active tab:"
+  },
+  "probeClaimedFrame": {
+    "message": "Claimed frame:"
+  },
+  "probeNoClaimYet": {
+    "message": "(none yet: type a few characters in an input field first)"
+  },
+  "probeNoFrames": {
+    "message": "No frames responded — content script not injected (chrome:// and other special pages are not supported)."
+  },
+  "probeTopFrame": {
+    "message": "Top page"
+  },
+  "probeIframe": {
+    "message": "iframe"
+  },
+  "probeTranscription": {
+    "message": "Transcription"
+  },
+  "probeEnabled": {
+    "message": "enabled"
+  },
+  "probeDisabled": {
+    "message": "disabled"
+  },
+  "probeMode": {
+    "message": "mode"
+  },
+  "probeFocus": {
+    "message": "focus"
+  },
+  "probeHas": {
+    "message": "yes"
+  },
+  "probeNone": {
+    "message": "no"
+  },
+  "probeTarget": {
+    "message": "target"
+  },
+  "probeTargetAgent": {
+    "message": "closed Shadow DOM, via main-world helper"
+  },
+  "probeTargetNormal": {
+    "message": "normal element"
+  },
+  "probeCharsRead": {
+    "message": "characters read"
+  },
+  "probeHowToRead": {
+    "message": "How to read this report:"
+  },
+  "probeHint1": {
+    "message": "· An iframe row shows “target: yes” and “characters read > 0” → extension can see that input; transcription should work."
+  },
+  "probeHint2": {
+    "message": "· All frames show “target: no” → extension did not detect that input (please copy/screenshot this for support)."
+  },
+  "probeHint3": {
+    "message": "· “characters read = 0” but has target → element detected but text unreadable (often a special rich-text editor)."
+  },
+  "probeFailed": {
+    "message": "Probe failed"
+  },
+  "clipboardReadFailed": {
+    "message": "Cannot read clipboard. Please paste manually (Ctrl/Cmd + V)."
+  },
+  "switchedToNano": {
+    "message": "Switched to Gemini Nano: translation and explanation will use the on-device Gemini Nano model."
+  },
+  "switchFailed": {
+    "message": "Switch failed"
+  },
+  "historyRecordExplain": {
+    "message": "History (explanation)"
+  },
+  "historyRecord": {
+    "message": "History"
+  },
+  "outputWillShowHere": {
+    "message": "Translation will appear here"
+  },
+  "translationLabel": {
+    "message": "Translation"
+  },
+  "nanoExplanationLabel": {
+    "message": "Gemini Nano explanation"
+  },
+  "downloadingLangPack": {
+    "message": "Downloading language pack {n}%"
+  },
+  "downloadingLangPackShort": {
+    "message": "Downloading language pack… {n}%"
+  },
+  "diagDetecting": {
+    "message": " Detecting…"
+  },
+  "siteInlineExceptions": {
+    "message": "· {n} site exceptions"
+  },
+  "siteAutoNeverSummary": {
+    "message": "· Auto {a} / Never {n}"
+  },
+  "followTargetLang": {
+    "message": "Follow target language above"
+  },
+  "autoDetectOption": {
+    "message": "Auto-detect"
+  }
 }

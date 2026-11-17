@@ -129,13 +129,13 @@ function fillLanguageSelects() {
   for (const [id, withAuto] of [['src-lang', true], ['tgt-lang', false]]) {
     const sel = $(id);
     sel.innerHTML = '';
-    if (withAuto) sel.appendChild(new Option('自动检测', 'auto'));
+    if (withAuto) sel.appendChild(new Option(msg('autoDetectOption','自动检测'), 'auto'));
     for (const l of LANGUAGES) sel.appendChild(new Option(l.zh, l.code));
   }
   // 转写目标语言：第一项 = 跟随主目标语言
   const inlineSel = $('inline-target');
   inlineSel.innerHTML = '';
-  inlineSel.appendChild(new Option('跟随上面的目标语言', ''));
+  inlineSel.appendChild(new Option(msg('followTargetLang','跟随上面的目标语言'), ''));
   for (const l of LANGUAGES) inlineSel.appendChild(new Option(l.zh, l.code));
 
   const toneSel = $('tone');
@@ -150,8 +150,8 @@ function updateRuleCounts() {
   const neverCount = (settings.neverSites || []).filter(Boolean).length;
   const inlineEl = $('inline-rules-count');
   const pageEl = $('page-rules-count');
-  if (inlineEl) inlineEl.textContent = inlineCount ? `· ${inlineCount} 个站点例外` : '';
-  if (pageEl) pageEl.textContent = (autoCount || neverCount) ? `· 自动 ${autoCount} / 永不 ${neverCount}` : '';
+  if (inlineEl) inlineEl.textContent = inlineCount ? msg('siteInlineExceptions','· {n} 个站点例外').replace('{n}', String(inlineCount)) : '';
+  if (pageEl) pageEl.textContent = (autoCount || neverCount) ? msg('siteAutoNeverSummary','· 自动 {a} / 永不 {n}').replace('{a}', String(autoCount)).replace('{n}', String(neverCount)) : '';
 }
 
 function showSaveStatus(text = msg('settingsAutoSave', '已自动保存'), ms = 1400) {
@@ -270,7 +270,7 @@ async function refreshEnginePill() {
       }
     }
     const parts = [];
-    if (support.translator) parts.push(`内置翻译模型：${statusLabel(res.translator)}`);
+    if (support.translator) parts.push(`${msg('builtinTranslatorModel','内置翻译模型')}：${statusLabel(res.translator)}`);
     if (support.nano) parts.push(`Nano：${statusLabel(res.nano)}`);
     if (!support.translator && !support.nano) {
       pill.textContent = msg('statusUnavailableLocal', '本机不可用');
@@ -310,42 +310,42 @@ function statusLabel(status) {
  */
 function nanoHint(status) {
   if (status === 'downloadable' || status === 'downloading') {
-    return `${statusLabel(status)}：点下方「让 Chrome 下载 Gemini Nano」即可启用`;
+    return msg('nanoHintDownloadable', '{status}：点下方「让 Chrome 下载 Gemini Nano」即可启用').replace('{status}', statusLabel(status));
   }
-  return `${statusLabel(status)}：多为模型未下载或硬件不满足 —— 先点「让 Chrome 下载 Gemini Nano」试一次；仍失败则点失败提示里的「打开 chrome://components」，找 "Optimization Guide Manifest Component: nano_v3_gpu_component"（名字含 nano 的那个）点「检查更新」，状态由 New 变 Up-to-date 即模型已装好；若状态不变，多为硬件不满足（>4GB 显存，或 16GB 内存 + 4 核）或磁盘剩余不足 22GB（下方会显示本机能检测到的部分）`;
+  return msg('nanoHintUnavailable', '{status}：多为模型未下载或硬件不满足 —— 先点「让 Chrome 下载 Gemini Nano」试一次；仍失败则点失败提示里的「打开 chrome://components」，找 "Optimization Guide Manifest Component: nano_v3_gpu_component"（名字含 nano 的那个）点「检查更新」，状态由 New 变 Up-to-date 即模型已装好；若状态不变，多为硬件不满足（>4GB 显存，或 16GB 内存 + 4 核）或磁盘剩余不足 22GB。').replace('{status}', statusLabel(status));
 }
 
 async function refreshModelList() {
   const box = $('model-list');
   const target = $('tgt-lang').value;
   const source = $('src-lang').value === 'auto' ? 'en' : $('src-lang').value;
-  box.innerHTML = '<div class="model-row"><span class="spinner"></span>检测中…</div>';
+  box.innerHTML = `<div class="model-row"><span class="spinner"></span>${msg('detecting','检测中…')}</div>`;
   try {
     const { support, res } = (await refreshEnginePill()) || {};
     const rows = [];
     const dot = (s) => (s === 'available' ? 'ok' : s === 'downloadable' || s === 'downloading' ? 'warn' : 'err');
     if (support && support.translator) {
       rows.push(
-        `<div class="model-row"><span class="dot ${dot(res.translator)}"></span><b>内置翻译模型</b><span class="muted small">${langLabel(source)} → ${langLabel(target)}：${statusLabel(res.translator)}</span></div>`,
+        `<div class="model-row"><span class="dot ${dot(res.translator)}"></span><b>${msg('builtinTranslatorModel','内置翻译模型')}</b><span class="muted small">${langLabel(source)} → ${langLabel(target)}：${statusLabel(res.translator)}</span></div>`,
       );
     } else {
-      rows.push('<div class="model-row"><span class="dot err"></span><b>内置翻译模型</b><span class="muted small">当前环境不可用</span></div>');
+      rows.push(`<div class="model-row"><span class="dot err"></span><b>${msg('builtinTranslatorModel','内置翻译模型')}</b><span class="muted small">${msg('envUnavailable','当前环境不可用')}</span></div>`);
     }
     if (support && support.nano) {
       rows.push(
         `<div class="model-row"><span class="dot ${dot(res.nano)}"></span><b>Gemini Nano</b><span class="muted small">${nanoHint(res.nano)}</span></div>`,
       );
     } else {
-      rows.push('<div class="model-row"><span class="dot err"></span><b>Gemini Nano</b><span class="muted small">当前环境不可用（浏览器没有 Prompt API；硬件不满足或 Chrome 版本过旧）</span></div>');
+      rows.push(`<div class="model-row"><span class="dot err"></span><b>Gemini Nano</b><span class="muted small">${msg('nanoEnvUnavailable','当前环境不可用（浏览器没有 Prompt API；硬件不满足或 Chrome 版本过旧）')}</span></div>`);
     }
     const host = res && res.host;
     rows.push(
-      `<div class="model-row"><span class="dot"></span><span class="muted small">后台推理宿主：${escapeHtml(
+      `<div class="model-row"><span class="dot"></span><span class="muted small">${msg('backendHost','后台推理宿主')}：${escapeHtml(
         host === 'offscreen'
-          ? '离屏文档（Service Worker 里不可用时自动切换）'
+          ? msg('hostOffscreen','离屏文档（Service Worker 里不可用时自动切换）')
           : host === 'sw'
-            ? 'Service Worker'
-            : '自动选择',
+            ? msg('hostSw','Service Worker')
+            : msg('hostAuto','自动选择'),
       )}</span></div>`,
     );
     box.innerHTML = rows.join('');
@@ -357,13 +357,13 @@ async function refreshModelList() {
       $('hw-check').hidden = true;
     }
   } catch (err) {
-    box.innerHTML = `<div class="muted small">检测失败：${escapeHtml(err.message)}</div>`;
+    box.innerHTML = `<div class="muted small">${msg('detectFailed','检测失败')}：${escapeHtml(err.message)}</div>`;
   }
 }
 
 async function refreshDiag() {
   const box = $('diag');
-  box.innerHTML = '<span class="spinner"></span> 检测中…';
+  box.innerHTML = `<span class="spinner"></span>${msg('diagDetecting', ' 检测中…')}`;
   try {
     const res = await send({ type: 'lt:probe', payload: {} });
     const support = res.support || {};
@@ -377,29 +377,29 @@ async function refreshDiag() {
         const one = await send({ type: 'lt:probe', payload: { source: src, target: t } });
         pairLines.push(`${langLabel(src)} → ${langLabel(t)}：${statusLabel(one.translator)}`);
       } catch (err) {
-        pairLines.push(`${langLabel(src)} → ${langLabel(t)}：检测失败`);
+        pairLines.push(`${langLabel(src)} → ${langLabel(t)}：${msg('detectFailedShort','检测失败')}`);
       }
     }
     const cache = await send({ type: 'lt:cache:size' });
     box.innerHTML = [
-      `Chrome：${ua ? ua[1] : '未知'}`,
-      `Translator API：${support.translator ? '支持' : '不支持'}`,
-      `LanguageDetector API：${support.detector ? '支持' : '不支持'}`,
-      `Prompt API (Gemini Nano)：${support.nano ? '支持' : '不支持'}`,
-      `CPU 逻辑核心：${navigator.hardwareConcurrency || '未知'}`,
-      `内存（近似）：${navigator.deviceMemory ? `${navigator.deviceMemory} GB` : '未知'}`,
-      `缓存条目：${cache.size}`,
-      `当前引擎：${settings ? settings.engine : '-'}`,
-      `后台推理宿主：${res.host || '自动选择'}`,
-      '提示：availability 只代表「能力支持」，create 还取决于上下文（文档 / 用户手势）',
-      '点「分环境自检」可以对比侧边栏与后台两边的真实创建结果',
-      '— 语言对可用性 —',
+      `${msg('diagChrome','Chrome')}：${ua ? ua[1] : msg('unknown','未知')}`,
+      `${msg('diagTranslatorApi','Translator API')}：${support.translator ? msg('supported','支持') : msg('notSupported','不支持')}`,
+      `${msg('diagDetectorApi','LanguageDetector API')}：${support.detector ? msg('supported','支持') : msg('notSupported','不支持')}`,
+      `${msg('diagPromptApi','Prompt API (Gemini Nano)')}：${support.nano ? msg('supported','支持') : msg('notSupported','不支持')}`,
+      `${msg('diagCpuCores','CPU 逻辑核心')}：${navigator.hardwareConcurrency || msg('unknown','未知')}`,
+      `${msg('diagMemoryApprox','内存（近似）')}：${navigator.deviceMemory ? `${navigator.deviceMemory} GB` : msg('unknown','未知')}`,
+      `${msg('diagCacheEntries','缓存条目')}：${cache.size}`,
+      `${msg('diagCurrentEngine','当前引擎')}：${settings ? settings.engine : '-'}`,
+      `${msg('backendHost','后台推理宿主')}：${res.host || msg('hostAuto','自动选择')}`,
+      msg('diagHintAvailability','提示：availability 只代表「能力支持」，create 还取决于上下文（文档 / 用户手势）'),
+      msg('diagHintSelftest','点「分环境自检」可以对比侧边栏与后台两边的真实创建结果'),
+      msg('diagPairAvailability','— 语言对可用性 —'),
       ...pairLines,
     ]
       .map((line) => `<div>${escapeHtml(line)}</div>`)
       .join('');
   } catch (err) {
-    box.textContent = `检测失败：${err.message}`;
+    box.textContent = `${msg('detectFailed','检测失败')}：${err.message}`;
   }
 }
 
@@ -421,7 +421,7 @@ function setOutMeta(text) {
 
 function setOutput(html, isPlaceholder = false) {
   const out = $('output');
-  out.innerHTML = html ? html : '<span class="placeholder">译文会显示在这里</span>';
+  out.innerHTML = html ? html : `<span class="placeholder">${msg('outputWillShowHere','译文会显示在这里')}</span>`;
   out.dataset.placeholder = isPlaceholder ? '1' : '';
 }
 
@@ -480,7 +480,7 @@ async function translateCurrent() {
           currentTranslation = msg.text;
           setOutput(renderText(msg.text));
         } else if (msg.type === 'download') {
-          setOutMeta(`正在下载语言包 ${(msg.progress * 100).toFixed(0)}%`);
+          setOutMeta(msg('downloadingLangPack','正在下载语言包 {n}%').replace('{n}', (msg.progress * 100).toFixed(0)));
         } else if (msg.type === 'done') {
           if (!got && !currentTranslation) {
             reject(new Error('empty'));
@@ -555,7 +555,7 @@ async function explainCurrent() {
   try {
     const res = await send({ type: 'lt:explain', payload: { text, lang: (settings && settings.uiLang) || 'zh' } });
     setOutput(renderText(res.text));
-    setOutMeta('Gemini Nano 解释');
+    setOutMeta(msg('nanoExplanationLabel','Gemini Nano 解释'));
   } catch (err) {
     showError($('text-error'), err.message);
     setOutput('');
@@ -832,7 +832,7 @@ async function downloadPair() {
   showDlHint('');
   bar.parentElement.classList.add('indeterminate');
   bar.style.width = '0%';
-  $('dl-status').textContent = '正在准备下载（首次可能较慢，请保持网络畅通）…';
+  $('dl-status').textContent = msg('downloadPreparing','正在准备下载（首次可能较慢，请保持网络畅通）…');
 
   // 关键点：在这里（侧边栏文档 + 真实点击手势）直接调用 Translator.create()。
   // 规范要求创建 Translator 需要「最近有用户交互的文档」，Service Worker 里没有文档也没有手势，
@@ -843,29 +843,29 @@ async function downloadPair() {
         const percent = Math.round((p || 0) * 100);
         bar.parentElement.classList.remove('indeterminate');
         bar.style.width = `${percent}%`;
-        $('dl-status').textContent = `正在下载语言包… ${percent}%`;
+        $('dl-status').textContent = msg('downloadingPair','正在下载语言包… {n}%').replace('{n}', String(percent));
       },
     });
     bar.parentElement.classList.remove('indeterminate');
     bar.style.width = '100%';
-    $('dl-status').textContent = `✅ 语言包已就绪：${langLabel(source)} → ${langLabel(target)}，之后完全离线可用。`;
+    $('dl-status').textContent = msg('pairReady','语言包已就绪：{pair}，之后完全离线可用。').replace('{pair}', `${langLabel(source)} → ${langLabel(target)}`);
     await refreshModelList();
     return { ok: true };
   } catch (err) {
     // 侧边栏里也失败 → 再问一次后台，把两个环境的结果都摆出来，方便定位
     const bg = await send({ type: 'lt:warmup', payload: { source, target } }).catch((e) => ({ ok: false, error: e.message }));
     const code = err && err.code;
-    $('dl-status').textContent = `下载失败：${err && err.message ? err.message : String(err)}`;
+    $('dl-status').textContent = `${msg('downloadFailed','下载失败')}：${err && err.message ? err.message : String(err)}`;
     showDlHint(
       [
         code === 'pair-create-failed' || code === 'unsupported-pair'
-          ? '<b>Chrome 拒绝为这个语言对创建翻译实例。</b>'
-          : '<b>语言包创建失败。</b>',
-        '① 立刻能用：切到 Gemini Nano（这台机器上已就绪），翻译不受影响。',
-        '② 检查语言包：新标签打开 <code>chrome://components</code> → 找 <b>Chrome TranslateKit</b> → 点「检查更新」。',
-        '③ 解除语言对限制：<code>chrome://flags/#translation-api</code> → 选 <b>Enabled without language pack limit</b> → 重启 Chrome（若无此开关请忽略）。',
-        '④ 换个语言对验证（例如 英语 → 日语）：若只有当前这个对失败，说明是语言包问题而不是扩展问题。',
-        `⑤ 后台上下文结果：${bg && bg.ok ? '创建成功' : (bg && bg.error) || '失败'}`,
+          ? msg('dlPairRejected','<b>Chrome 拒绝为这个语言对创建翻译实例。</b>')
+          : msg('dlCreateFailed','<b>语言包创建失败。</b>'),
+        msg('dlHint1','① 立刻能用：切到 Gemini Nano（这台机器上已就绪），翻译不受影响。'),
+        msg('dlHint2','② 检查语言包：新标签打开 <code>chrome://components</code> → 找 <b>Chrome TranslateKit</b> → 点「检查更新」。'),
+        msg('dlHint3','③ 解除语言对限制：<code>chrome://flags/#translation-api</code> → 选 <b>Enabled without language pack limit</b> → 重启 Chrome（若无此开关请忽略）。'),
+        msg('dlHint4','④ 换个语言对验证（例如 英语 → 日语）：若只有当前这个对失败，说明是语言包问题而不是扩展问题。'),
+        `${msg('dlHint5','⑤ 后台上下文结果：')}${bg && bg.ok ? msg('dlBgOk','创建成功') : (bg && bg.error) || msg('failed','失败')}`,
       ].join('<br>'),
     );
     return { ok: false, error: (err && err.message) || String(err) };
@@ -887,19 +887,19 @@ async function downloadNano() {
   showDlHint('');
   bar.parentElement.classList.add('indeterminate');
   bar.style.width = '0%';
-  $('dl-status').textContent = '正在触发 Gemini Nano 下载（约 2~4GB，请保持网络与非计费连接）…';
+  $('dl-status').textContent = msg('nanoDownloadPreparing','正在触发 Gemini Nano 下载（约 2~4GB，请保持网络与非计费连接）…');
   try {
     const local = await ensureNanoModelLocal({
       onDownload: (p) => {
         const percent = Math.round((p || 0) * 100);
         bar.parentElement.classList.remove('indeterminate');
         bar.style.width = `${percent}%`;
-        $('dl-status').textContent = `正在下载 Gemini Nano… ${percent}%`;
+        $('dl-status').textContent = msg('downloadingNano','正在下载 Gemini Nano… {n}%').replace('{n}', String(percent));
       },
     });
     bar.parentElement.classList.remove('indeterminate');
     bar.style.width = '100%';
-    $('dl-status').textContent = `✅ Gemini Nano 已就绪（${statusLabel(local.status)}），术语表 / 语气 / 解释现在都能用了。`;
+    $('dl-status').textContent = `${msg('nanoReady','Gemini Nano 已就绪。')} (${statusLabel(local.status)})`;
     await refreshModelList();
     return { ok: true };
   } catch (err) {
@@ -907,22 +907,22 @@ async function downloadNano() {
     const bg = await send({ type: 'lt:nano:ensure', payload: {} }).catch((e) => ({ ok: false, error: e.message }));
     if (bg && bg.ok) {
       bar.style.width = '100%';
-      $('dl-status').textContent = '✅ Gemini Nano 已就绪（后台上下文确认可用）。';
+      $('dl-status').textContent = msg('nanoReadyBg','Gemini Nano 已就绪（后台上下文确认可用）。');
       await refreshModelList();
       return { ok: true };
     }
     bar.parentElement.classList.remove('indeterminate');
     bar.style.width = '0%';
-    $('dl-status').textContent = `下载失败：${(err && err.message) || String(err)}`;
+    $('dl-status').textContent = `${msg('downloadFailed','下载失败')}：${(err && err.message) || String(err)}`;
     const hw = await checkNanoHardware().catch(() => null);
     showDlHint(
       [
-        '<b>Gemini Nano 没能就绪。</b>按顺序检查：',
-        '① 点下面的「打开 chrome://components」→ 找 <b>Optimization Guide Manifest Component: nano_v3_gpu_component</b>（名字里含 nano 的那个）→ 点「检查更新」，等状态从 <b>New</b> 变成 <b>Up-to-date</b>（约 2GB）；',
-        '② 确认 <code>chrome://flags/#prompt-api-for-gemini-nano</code>（若存在）为 <b>Enabled</b> 并重启浏览器；',
-        '③ 硬件要求：&gt;4GB 显存，或 16GB 内存 + 4 核以上；磁盘至少 22GB 可用；',
-        '④ 点下面的「打开 on-device-internals」→ Model Status 看具体错误。',
-        `⑤ 后台上下文结果：${bg && bg.error ? escapeHtml(bg.error) : '失败'}`,
+        msg('nanoNotReadyTitle','<b>Gemini Nano 没能就绪。</b>按顺序检查：'),
+        msg('nanoHintStep1','① 点下面的「打开 chrome://components」→ 找 <b>Optimization Guide Manifest Component: nano_v3_gpu_component</b>（名字里含 nano 的那个）→ 点「检查更新」，等状态从 <b>New</b> 变成 <b>Up-to-date</b>（约 2GB）；'),
+        msg('nanoHintStep2','② 确认 <code>chrome://flags/#prompt-api-for-gemini-nano</code>（若存在）为 <b>Enabled</b> 并重启浏览器；'),
+        msg('nanoHintStep3','③ 硬件要求：&gt;4GB 显存，或 16GB 内存 + 4 核以上；磁盘至少 22GB 可用；'),
+        msg('nanoHintStep4','④ 点下面的「打开 on-device-internals」→ Model Status 看具体错误。'),
+        `${msg('nanoHintStep5','⑤ 后台上下文结果：')}${bg && bg.error ? escapeHtml(bg.error) : msg('failed','失败')}`,
       ].join('<br>'),
     );
     renderHwCheck(hw);
@@ -946,9 +946,9 @@ async function openChromeInternalPage(url) {
   } catch (err) {
     try {
       await navigator.clipboard.writeText(url);
-      $('dl-status').textContent = `无法直接跳转（${err.message}），已把地址复制到剪贴板，请手动粘贴到地址栏：${url}`;
+      $('dl-status').textContent = msg('openInternalFail','无法直接跳转（{err}），请把地址复制到新标签，手动粘贴后打开：{url}').replace('{err}', err.message).replace('{url}', url);
     } catch {
-      $('dl-status').textContent = `无法直接跳转（${err.message}），请手动在地址栏输入：${url}`;
+      $('dl-status').textContent = msg('openInternalFailShort','无法直接跳转（{err}），请手动在地址栏输入：{url}').replace('{err}', err.message).replace('{url}', url);
     }
   }
 }
@@ -964,14 +964,15 @@ function renderHwCheck(hw) {
     return;
   }
   const parts = [];
-  parts.push(`本机检测：CPU ${hw.cores || '未知'} 核 · 内存约 ${hw.memoryGB ? `${hw.memoryGB}GB` : '未知（Chrome 未暴露）'}`);
+  const mem = hw.memoryGB ? `${hw.memoryGB}GB` : msg('hwCpuMemUnknown','未知（Chrome 未暴露）');
+  parts.push(msg('hwCpuMem','CPU {cores} 核 · 内存约 {mem}').replace('{cores}', String(hw.cores || msg('unknown','未知'))).replace('{mem}', mem));
   if (hw.quotaGB != null) {
-    parts.push(`存储配额约 ${hw.quotaGB.toFixed(1)}GB（不等于磁盘总剩余空间，仅供参考）`);
+    parts.push(msg('hwQuota','存储配额约 {gb}GB（不等于磁盘总剩余空间，仅供参考）').replace('{gb}', hw.quotaGB.toFixed(1)));
   }
   if (hw.reasons.length) {
-    parts.push(`⚠️ ${hw.reasons.join('；')}`);
+    parts.push(msg('hwWarn','⚠️ {reasons}').replace('{reasons}', hw.reasons.join('；')));
   } else if (hw.cpuMemOk === true) {
-    parts.push('CPU/内存达标；显存无法在浏览器里检测，仍需 chrome://components 确认模型是否真的下完');
+    parts.push(msg('hwOkGpuUnknown','CPU/内存达标；显存无法在浏览器里检测，仍需 chrome://components 确认模型是否真的下完'));
   }
   box.innerHTML = parts.map((p) => escapeHtml(p)).join('<br>');
   box.hidden = false;
@@ -982,38 +983,38 @@ async function runSelftest() {
   const { source } = pairFromUI();
   const target = $('tgt-lang').value;
   const box = $('diag');
-  box.innerHTML = '<span class="spinner"></span> 正在自检（会在两个上下文里各创建一次模型，可能需要几秒）…';
+  box.innerHTML = `<span class="spinner"></span> ${msg('selftestRunning','正在自检（会在两个上下文里各创建一次模型，可能需要几秒）…')}`;
   const lines = [
-    `语言对：${langLabel(source)} → ${langLabel(target)}`,
-    `Chrome：${(navigator.userAgent.match(/Chrom(?:e|ium)\/([\d.]+)/) || [])[1] || '未知'}`,
+    `${msg('selftestLangPair','语言对')}：${langLabel(source)} → ${langLabel(target)}`,
+    `${msg('diagChrome','Chrome')}：${(navigator.userAgent.match(/Chrom(?:e|ium)\/([\d.]+)/) || [])[1] || msg('unknown','未知')}`,
   ];
   let local = null;
   let bg = null;
 
-  lines.push('', '【侧边栏（文档 + 用户手势）】');
+  lines.push('', msg('selftestSidepanel','【侧边栏（文档 + 用户手势）】'));
   try {
     local = await selftestLocal({ source, target });
-    lines.push(`availability：${local.availability}`);
-    lines.push(`create：${local.create}${local.createError ? ` — ${local.createError}` : ''}`);
-    if (local.sample) lines.push(`试译：${String(local.sample).slice(0, 60)}`);
+    lines.push(`${msg('selftestAvailability','availability')}：${local.availability}`);
+    lines.push(`${msg('selftestCreate','create')}：${local.create}${local.createError ? ` — ${local.createError}` : ''}`);
+    if (local.sample) lines.push(`${msg('selftestSample','试译')}：${String(local.sample).slice(0, 60)}`);
     lines.push(
-      `Gemini Nano：availability=${local.nanoAvailability} / create=${local.nanoCreate}${local.nanoCreateError ? ` — ${local.nanoCreateError}` : ''}`,
+      `${msg('selftestNano','Gemini Nano')}：availability=${local.nanoAvailability} / create=${local.nanoCreate}${local.nanoCreateError ? ` — ${local.nanoCreateError}` : ''}`,
     );
   } catch (err) {
-    lines.push(`自检失败：${err.message}`);
+    lines.push(`${msg('selftestFailed','自检失败')}：${err.message}`);
   }
 
-  lines.push('', '【扩展后台（Service Worker）】');
+  lines.push('', msg('selftestBackground','【扩展后台（Service Worker）】'));
   try {
     bg = await send({ type: 'lt:selftest', payload: { source, target } });
-    lines.push(`availability：${bg.availability}`);
-    lines.push(`create：${bg.create}${bg.createError ? ` — ${bg.createError}` : ''}`);
+    lines.push(`${msg('selftestAvailability','availability')}：${bg.availability}`);
+    lines.push(`${msg('selftestCreate','create')}：${bg.create}${bg.createError ? ` — ${bg.createError}` : ''}`);
     lines.push(
-      `Gemini Nano：availability=${bg.nanoAvailability} / create=${bg.nanoCreate}${bg.nanoCreateError ? ` — ${bg.nanoCreateError}` : ''}`,
+      `${msg('selftestNano','Gemini Nano')}：availability=${bg.nanoAvailability} / create=${bg.nanoCreate}${bg.nanoCreateError ? ` — ${bg.nanoCreateError}` : ''}`,
     );
-    lines.push(`后台宿主：${bg.host || '-'}`);
+    lines.push(`${msg('selftestHost','后台宿主')}：${bg.host || '-'}`);
   } catch (err) {
-    lines.push(`自检失败：${err.message}`);
+    lines.push(`${msg('selftestFailed','自检失败')}：${err.message}`);
   }
 
   box.innerHTML = lines.map((line) => `<div>${escapeHtml(line)}</div>`).join('');
@@ -1023,23 +1024,21 @@ async function runSelftest() {
   const nanoOk = (local && local.nanoCreate === 'ok') || (bg && bg.nanoCreate === 'ok');
   if (local && local.create === 'ok') {
     showDlHint(
-      `✅ 侧边栏里可以创建该语言对的翻译实例${
-        bg && bg.create === 'failed' ? '，但后台不能（Chrome 只允许「有用户手势的文档」创建）——扩展会自动改用离屏文档 / Gemini Nano，正常可用。' : '。'
+      `${msg('selftestOkLocal','✅ 侧边栏里可以创建该语言对的翻译实例')}${
+        bg && bg.create === 'failed' ? msg('selftestOkBgFailed','，但后台不能（Chrome 只允许「有用户手势的文档」创建）——扩展会自动改用离屏文档 / Gemini Nano，正常可用。') : '。'
       }`,
     );
   } else if (local && local.create === 'failed') {
     showDlHint(
       [
-        `⚠️ 侧边栏里也创建失败：<code>${escapeHtml(local.createError || '')}</code>`,
-        `说明这个语言对的语言包在 Chrome 侧不可用（availability 只是能力查询，Chrome 会刻意模糊语言包状态）。`,
-        nanoOk
-          ? '这台机器的 Gemini Nano 正常 → 建议直接点上面的「改用 Gemini Nano 引擎」，翻译/解释都不受影响。'
-          : 'Gemini Nano 也不可用，请检查 chrome://on-device-internals 与硬件要求。',
-        '另外建议：chrome://components → Chrome TranslateKit 点「检查更新」，以及 chrome://flags/#translation-api 选 “Enabled without language pack limit」。',
+        `${msg('selftestLocalFailed','⚠️ 侧边栏里也创建失败：')}<code>${escapeHtml(local.createError || '')}</code>`,
+        msg('selftestLocalFailedExplain','说明这个语言对的语言包在 Chrome 侧不可用（availability 只是能力查询，Chrome 会刻意模糊语言包状态）。'),
+        nanoOk ? msg('selftestNanoOkSuggest','这台机器的 Gemini Nano 正常 → 建议直接点上面的「改用 Gemini Nano 引擎」，翻译/解释都不受影响。') : msg('selftestNanoBadSuggest','Gemini Nano 也不可用，请检查 chrome://on-device-internals 与硬件要求。'),
+        msg('selftestExtraSuggest','另外建议：chrome://components → Chrome TranslateKit 点「检查更新」，以及 chrome://flags/#translation-api 选 “Enabled without language pack limit”。'),
       ].join('<br>'),
     );
   } else {
-    showDlHint('自检未拿到结果，请查看下面的原始输出。');
+    showDlHint(msg('selftestNoResult','自检未拿到结果，请查看下面的原始输出。'));
   }
 }
 
@@ -1359,7 +1358,7 @@ function bindEvents() {
     setCount(0);
     currentTranslation = '';
     setOutput('');
-    setOutMeta('译文');
+    setOutMeta(msg('translationLabel','译文'));
     showError($('text-error'), '');
   });
   $('do-paste').addEventListener('click', async () => {
@@ -1370,7 +1369,7 @@ function bindEvents() {
       setCount(text.length);
       translateCurrent();
     } catch (err) {
-      showError($('text-error'), '无法读取剪贴板，请手动粘贴（Ctrl/Cmd + V）');
+      showError($('text-error'), msg('clipboardReadFailed','无法读取剪贴板，请手动粘贴（Ctrl/Cmd + V）'));
     }
   });
   $('out-copy').addEventListener('click', async () => {
@@ -1470,7 +1469,7 @@ function bindEvents() {
         setCount(($('input').value || '').length);
         currentTranslation = item.translation || '';
         setOutput(renderText(currentTranslation));
-        setOutMeta(item.kind === 'explain' ? '历史记录（解释）' : '历史记录');
+        setOutMeta(item.kind === 'explain' ? msg('historyRecordExplain','历史记录（解释）') : msg('historyRecord','历史记录'));
         showError($('text-error'), '');
       }
     });
@@ -1484,11 +1483,11 @@ function bindEvents() {
     try {
       settings = (await send({ type: 'lt:settings:set', payload: { patch: { engine: 'nano' } } })).settings;
       syncForm();
-      $('dl-status').textContent = '已切换到 Gemini Nano：翻译、解释都会使用本机的 Gemini Nano 模型。';
+      $('dl-status').textContent = msg('switchedToNano','已切换到 Gemini Nano：翻译、解释都会使用本机的 Gemini Nano 模型。');
       showDlHint('');
       await refreshModelList();
     } catch (err) {
-      $('dl-status').textContent = `切换失败：${err.message}`;
+      $('dl-status').textContent = `${msg('switchFailed','切换失败')}：${err.message}`;
     }
   });
   // chrome:// 页面扩展没法用脚本直接读状态，只能帮用户开好页面、告诉 ta 该看哪一行
@@ -1500,38 +1499,38 @@ function bindEvents() {
     const btn = $('inline-probe');
     out.hidden = false;
     btn.disabled = true;
-    out.textContent = '正在问每一层框架…';
+    out.textContent = msg('probeRunning','正在问每一层框架…');
     try {
       await refreshActiveTab();
-      if (!activeTab) throw new Error('没有活动标签页');
+      if (!activeTab) throw new Error(msg('probeNoActiveTab','没有活动标签页'));
       const res = await send({ type: 'lt:inline-status-all', payload: { tabId: activeTab.id } });
       const frames = (res && res.frames) || [];
       const lines = [];
-      lines.push(`活动标签页：${activeTab.url || ''}`);
-      lines.push(`认领的框架：${res && res.claimFrame != null ? `#${res.claimFrame}` : '（还没有：先在输入框里打几个字）'}`);
+      lines.push(`${msg('probeActiveTab','活动标签页：')}${activeTab.url || ''}`);
+      lines.push(`${msg('probeClaimedFrame','认领的框架：')}${res && res.claimFrame != null ? `#${res.claimFrame}` : msg('probeNoClaimYet','（还没有：先在输入框里打几个字）')}`);
       lines.push('');
       if (!frames.length) {
-        lines.push('没有任何框架回答 —— 内容脚本没注入（chrome:// 等特殊页面不支持）。');
+        lines.push(msg('probeNoFrames','没有任何框架回答 —— 内容脚本没注入（chrome:// 等特殊页面不支持）。'));
       }
       for (const f of frames) {
-        const where = f.top ? '顶层页面' : `iframe #${f.frameId}`;
+        const where = f.top ? msg('probeTopFrame','顶层页面') : `${msg('probeIframe','iframe')} #${f.frameId}`;
         lines.push(`【${where}】 ${f.url}`);
         lines.push(
-          `  转写：${f.enabled ? '已启用' : '已关闭'}（模式 ${f.mode || '-'}）  焦点：${
-            f.hasFocus ? '有' : '无'
-          }  目标：${f.hasTarget ? `有（${f.kind === 'agent' ? '封闭 Shadow DOM，靠主世界助手' : '普通元素'} ${f.tag}）` : '无'}`,
+          `  ${msg('probeTranscription','转写')}：${f.enabled ? msg('probeEnabled','已启用') : msg('probeDisabled','已关闭')}（${msg('probeMode','模式')} ${f.mode || '-'}）  ${msg('probeFocus','焦点')}：${
+            f.hasFocus ? msg('probeHas','有') : msg('probeNone','无')
+          }  ${msg('probeTarget','目标')}：${f.hasTarget ? `${msg('probeHas','有')}（${f.kind === 'agent' ? msg('probeTargetAgent','封闭 Shadow DOM，靠主世界助手') : msg('probeTargetNormal','普通元素')} ${f.tag}）` : msg('probeNone','无')}`,
         );
-        lines.push(`  读到字符数：${f.chars == null ? '—' : f.chars}`);
+        lines.push(`  ${msg('probeCharsRead','读到字符数')}：${f.chars == null ? '—' : f.chars}`);
         lines.push('');
       }
-      lines.push('怎么读这份报告：');
-      lines.push('· 某个 iframe 那行「目标：有」「读到字符数 > 0」→ 扩展看得见那个输入框，转写应该正常。');
-      lines.push('· 所有框架都「目标：无」→ 扩展没抓到那个输入框（请把这行截图/复制给我）。');
-      lines.push('· 「读到字符数 = 0」但有目标 → 抓到了元素却没读到文字（多半是特殊的富文本编辑器）。');
+      lines.push(msg('probeHowToRead','怎么读这份报告：'));
+      lines.push(msg('probeHint1','· 某个 iframe 那行「目标：有」「读到字符数 > 0」→ 扩展看得见那个输入框，转写应该正常。'));
+      lines.push(msg('probeHint2','· 所有框架都「目标：无」→ 扩展没抓到那个输入框（请把这行截图/复制给我）。'));
+      lines.push(msg('probeHint3','· 「读到字符数 = 0」但有目标 → 抓到了元素却没读到文字（多半是特殊的富文本编辑器）。'));
       out.dataset.raw = lines.join('\n');
       out.textContent = lines.join('\n');
     } catch (err) {
-      out.textContent = `自检失败：${err.message}`;
+      out.textContent = `${msg('probeFailed','自检失败')}：${err.message}`;
     } finally {
       btn.disabled = false;
     }
@@ -1571,7 +1570,7 @@ function bindEvents() {
       }
     } else if (msg.type === 'lt:model-progress' && msg.payload) {
       const p = Math.round((msg.payload.progress || 0) * 100);
-      $('dl-status').textContent = `正在下载语言包… ${p}%`;
+      $('dl-status').textContent = msg('downloadingLangPackShort','正在下载语言包… {n}%').replace('{n}', String(p));
       $('dl-bar').style.width = `${p}%`;
     } else if (msg.type === 'lt:settings' && msg.payload) {
       settings = msg.payload;

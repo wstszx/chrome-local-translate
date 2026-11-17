@@ -138,7 +138,7 @@ async function explain() {
   try {
     const res = await send({ type: 'lt:explain', payload: { text, lang: settings ? settings.uiLang : 'zh' } });
     setOutput(renderText(res.text));
-    $('out-meta').textContent = 'Gemini Nano 解释';
+    $('out-meta').textContent = msg('nanoExplanationLabel','Gemini Nano 解释');
   } catch (err) {
     setError(err.message);
     setOutput('');
@@ -246,8 +246,8 @@ async function explain() {
       }
     });
   }
-  wirePageButton('translate-page', '翻译整页', 'replace');
-  wirePageButton('translate-dual', '双语对照', 'dual');
+  wirePageButton('translate-page', msg('translatePage','翻译整页'), 'replace');
+  wirePageButton('translate-dual', msg('bilingualView','双语对照'), 'dual');
 
   // 打开弹窗时若剪贴板里是长文本，自动填入并翻译（失败则忽略）
   try {
