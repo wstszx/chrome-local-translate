@@ -110,6 +110,27 @@ function fillLanguageSelects() {
   for (const t of TONES) toneSel.appendChild(new Option(`${t.zh} — ${t.hint}`, t.value));
 }
 
+function updateRuleCounts() {
+  if (!settings) return;
+  const inlineCount = (settings.inlineNeverSites || []).filter(Boolean).length;
+  const autoCount = (settings.autoTranslateSites || []).filter(Boolean).length;
+  const neverCount = (settings.neverSites || []).filter(Boolean).length;
+  const inlineEl = $('inline-rules-count');
+  const pageEl = $('page-rules-count');
+  if (inlineEl) inlineEl.textContent = inlineCount ? `· ${inlineCount} 个站点例外` : '';
+  if (pageEl) pageEl.textContent = (autoCount || neverCount) ? `· 自动 ${autoCount} / 永不 ${neverCount}` : '';
+}
+
+function showSaveStatus(text = '已自动保存', ms = 1400) {
+  const el = $('save-status');
+  if (!el) return;
+  el.textContent = text;
+  clearTimeout(el._timer);
+  el._timer = setTimeout(() => {
+    if ($('save-status')) $('save-status').textContent = '设置会自动保存';
+  }, ms);
+}
+
 function syncForm() {
   if (!settings) return;
   $('src-lang').value = settings.sourceLang;
@@ -142,11 +163,15 @@ function syncForm() {
   $('theme').value = settings.theme;
   document.documentElement.dataset.theme = settings.theme || 'auto';
   document.documentElement.lang = settings.uiLang === 'en' ? 'en' : 'zh-CN';
+  updateRuleCounts();
 }
 
 async function patchSettings(patch) {
   const res = await send({ type: 'lt:settings:set', payload: { patch } });
   settings = res.settings;
+  updateRuleCounts();
+  renderSitePrefUI();
+  showSaveStatus();
   return settings;
 }
 
@@ -164,13 +189,18 @@ const saveDebounced = (() => {
   let pending = {};
   return (patch) => {
     pending = { ...pending, ...patch };
+    showSaveStatus('保存中…', 1200);
     if (timer) clearTimeout(timer);
     timer = setTimeout(async () => {
       const p = pending;
       pending = {};
       try {
         settings = (await send({ type: 'lt:settings:set', payload: { patch: p } })).settings;
+        updateRuleCounts();
+        renderSitePrefUI();
+        showSaveStatus();
       } catch (err) {
+        showSaveStatus('保存失败', 2200);
         showError($('text-error'), err.message);
       }
     }, 400);
@@ -518,12 +548,14 @@ function renderSitePrefUI() {
   const host = activeHost();
   const hostEl = $('site-host');
   const summary = $('site-pref-summary');
+  const globalHint = $('site-global-hint');
   const btnAuto = $('site-toggle-auto');
   const btnNever = $('site-toggle-never');
   if (hostEl) hostEl.textContent = host || '—';
   const pref = getSitePref(host);
   if (!host) {
     if (summary) summary.textContent = '当前标签页不支持站点偏好。';
+    if (globalHint) globalHint.textContent = '';
     if (btnAuto) { btnAuto.disabled = true; btnAuto.textContent = '此站点自动翻译：—'; }
     if (btnNever) { btnNever.disabled = true; btnNever.textContent = '加入永不翻译'; }
     return;
@@ -540,6 +572,15 @@ function renderSitePrefUI() {
     if (pref.neverTranslate) parts.push('永不翻译：开');
   }
   if (summary) summary.textContent = parts.length ? parts.join(' · ') : '尚未为此站点保存偏好。';
+  const globalNotes = [];
+  const autoSites = (settings && settings.autoTranslateSites) || [];
+  const neverSites = (settings && settings.neverSites) || [];
+  const inAuto = autoSites.some((s) => String(s || '').toLowerCase() === host);
+  const inNever = neverSites.some((s) => String(s || '').toLowerCase() === host);
+  if (inNever) globalNotes.push('在全局“永不翻译”列表中');
+  if (inAuto) globalNotes.push('在全局“自动翻译”列表中');
+  if (!inAuto && !inNever && autoSites.length === 0 && settings && settings.autoTranslate) globalNotes.push('全局自动翻译已开启（所有网站）');
+  if (globalHint) globalHint.textContent = globalNotes.length ? `全局规则：${globalNotes.join('；')}` : '';
   const autoOn = !!(pref && pref.autoTranslate);
   const neverOn = !!(pref && pref.neverTranslate);
   if (btnAuto) btnAuto.textContent = `此站点自动翻译：${autoOn ? '开' : '关'}`;
@@ -1029,17 +1070,35 @@ function bindEvents() {
   $('inline-min').addEventListener('change', () =>
     patchSettings({ inlineMinChars: Math.max(1, Number($('inline-min').value) || 2) }),
   );
-  $('inline-never').addEventListener('input', () =>
-    saveDebounced({ inlineNeverSites: $('inline-never').value.split('\n').map((s) => s.trim()).filter(Boolean) }),
-  );
+  const normalizeHostLines = (text) => {
+    const seen = new Set();
+    const out = [];
+    for (const raw of String(text || '').split(/\n|,/)) {
+      let v = raw.trim().toLowerCase();
+      if (!v) continue;
+      v = v.replace(/^https?:\/\//, '').replace(/\/.*$/, '').replace(/:\d+$/, '');
+      if (!v || seen.has(v)) continue;
+      seen.add(v);
+      out.push(v);
+    }
+    return out;
+  };
+  const bindHostListEditor = (id, key) => {
+    const el = $(id);
+    if (!el) return;
+    el.addEventListener('input', () => saveDebounced({ [key]: normalizeHostLines(el.value) }));
+    el.addEventListener('blur', () => {
+      const list = normalizeHostLines(el.value);
+      el.value = list.join('\n');
+      saveDebounced({ [key]: list });
+      updateRuleCounts();
+    });
+  };
+  bindHostListEditor('inline-never', 'inlineNeverSites');
   $('display-mode').addEventListener('change', () => patchSettings({ displayMode: $('display-mode').value }));
   $('auto-translate').addEventListener('change', () => patchSettings({ autoTranslate: $('auto-translate').checked }));
-  $('auto-sites').addEventListener('input', () =>
-    saveDebounced({ autoTranslateSites: $('auto-sites').value.split('\n').map((s) => s.trim()).filter(Boolean) }),
-  );
-  $('never-sites').addEventListener('input', () =>
-    saveDebounced({ neverSites: $('never-sites').value.split('\n').map((s) => s.trim()).filter(Boolean) }),
-  );
+  bindHostListEditor('auto-sites', 'autoTranslateSites');
+  bindHostListEditor('never-sites', 'neverSites');
   $('min-chars').addEventListener('change', () => patchSettings({ minAutoChars: Number($('min-chars').value) || 0 }));
   $('max-nodes').addEventListener('change', () => patchSettings({ maxNodes: Number($('max-nodes').value) || 3000 }));
   $('skip-same-lang').addEventListener('change', () => patchSettings({ skipSameLang: $('skip-same-lang').checked }));

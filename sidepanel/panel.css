@@ -334,6 +334,48 @@ button.mini {
   font-size: 11.5px;
   margin: 2px 0 6px;
 }
+.hint.compact {
+  margin: 0;
+  line-height: 1.45;
+}
+
+.disclosure {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-soft);
+  padding: 0 8px;
+}
+.disclosure[open] {
+  padding-bottom: 8px;
+}
+.disclosure > summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 8px 2px;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 600;
+  user-select: none;
+}
+.disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+.disclosure > summary::before {
+  content: '▸';
+  display: inline-block;
+  margin-right: 6px;
+  color: var(--fg-muted);
+  transition: transform 0.15s ease;
+}
+.disclosure[open] > summary::before {
+  transform: rotate(90deg);
+}
+.disclosure-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 2px;
+}
 
 .error {
   color: var(--err);
