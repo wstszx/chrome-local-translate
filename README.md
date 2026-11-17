@@ -440,8 +440,8 @@ jsdom 可能因小文件 I/O 抖动而加载卡住 —— 把仓库（或 node_m
 如果这个扩展对你有帮助，欢迎自愿支持后续开发与维护（**完全自愿，不影响任何功能**）：
 
 - 爱发电（国内）：<https://ifdian.net/a/fbread>
-- Ko-fi（海外，支持 PayPal/卡等）：<https://ko-fi.com/>（请将你的个人主页链接填入 `lib/links.js` 的 `SPONSOR_LINKS`）
-- GitHub Sponsors（海外/开源）：<https://github.com/sponsors/>（开通后将链接填入 `lib/links.js` 与 `.github/FUNDING.yml`）
+- Ko-fi（海外，支持 PayPal/卡等）：<https://ko-fi.com/fbread>
+- GitHub Sponsors（海外/开源）：开通后将链接填入 `lib/links.js` 与 `.github/FUNDING.yml`
 - 也可以在 GitHub 提 Issue / Star 支持项目：<https://github.com/wstszx/chrome-local-translate>
 
 ## 12. 想继续改？几个自然的扩展点
