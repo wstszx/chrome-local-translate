@@ -34,5 +34,13 @@
   "sponsorLabel": {
     "message": "赞助作者",
     "description": "页脚可选支持链接文案（自愿）"
+  },
+  "footerTagline": {
+    "message": "免费 · 无广告 · 无追踪",
+    "description": "页脚标语"
+  },
+  "projectHome": {
+    "message": "项目主页",
+    "description": "页脚项目链接文案"
   }
 }

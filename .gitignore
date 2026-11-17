@@ -19,6 +19,12 @@ Thumbs.db
 # 打包产物（每次重打都是新二进制，不入库）
 dist-store/*.zip
 
+# 商店/隐私页部署与本地素材（按需归档，不入库）
+dist-privacy/
+dist-store/make_screenshot.py
+dist-store/real-shot-*.png
+dist-store/store-screenshot-*.png
+
 # wrangler files
 .wrangler
 .dev.vars*

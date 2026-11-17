@@ -204,7 +204,10 @@
               </select>
               <label class="chk"><input type="checkbox" id="inline-live" /> 面板打开时随输入自动更新译文</label>
               <label class="grow small">最少字数 <input type="number" id="inline-min" min="1" step="1" /></label>
-              <div class="label">不自动弹出的网站 <span class="muted small">（每行一个域名，失焦时自动整理）</span></div>
+              <div class="row between">
+                <div class="label">不自动弹出的网站 <span class="muted small">（每行一个域名，失焦自动整理）</span></div>
+                <button type="button" class="mini" id="inline-never-clear">清空</button>
+              </div>
               <textarea id="inline-never" rows="2" placeholder="mail.google.com"></textarea>
               <p class="hint compact">页内快捷键：<b>Alt+Shift+Enter</b>。如需修改默认键位，可在 <code>chrome://extensions/shortcuts</code> 中设置。</p>
               <div class="row">
@@ -229,9 +232,15 @@
           <details class="disclosure">
             <summary>全局站点规则与高级 <span class="muted small" id="page-rules-count"></span></summary>
             <div class="disclosure-body">
-              <div class="label">自动翻译的网站 <span class="muted small">（每行一个域名；留空=所有网站；失焦自动整理）</span></div>
+              <div class="row between">
+                <div class="label">自动翻译的网站 <span class="muted small">（每行一个域名；留空=所有网站；失焦自动整理）</span></div>
+                <button type="button" class="mini" id="auto-sites-clear">清空</button>
+              </div>
               <textarea id="auto-sites" rows="2" placeholder="news.ycombinator.com"></textarea>
-              <div class="label">永不翻译的网站 <span class="muted small">（每行一个域名；失焦自动整理）</span></div>
+              <div class="row between">
+                <div class="label">永不翻译的网站 <span class="muted small">（每行一个域名；失焦自动整理）</span></div>
+                <button type="button" class="mini" id="never-sites-clear">清空</button>
+              </div>
               <textarea id="never-sites" rows="2" placeholder="mail.google.com"></textarea>
               <label class="grow small">自动翻译的最少正文字数 <input type="number" id="min-chars" min="0" step="50" /></label>
               <label class="grow small">单页最多翻译段落数 <input type="number" id="max-nodes" min="50" step="100" /></label>
@@ -299,10 +308,10 @@
 
     <!-- 页脚：纯静态，不加载任何第三方脚本、不发网络请求 -->
     <footer class="footer">
-      <span>免费 · 无广告 · 无追踪</span>
+      <span id="footer-tagline">免费 · 无广告 · 无追踪</span>
       <span class="footer-links">
         <span id="footer-sponsors"></span>
-        <a class="footer-link" href="https://github.com/wstszx/chrome-local-translate" target="_blank" rel="noopener noreferrer">项目主页</a>
+        <a id="footer-project" class="footer-link" href="https://github.com/wstszx/chrome-local-translate" target="_blank" rel="noopener noreferrer">项目主页</a>
       </span>
     </footer>
 

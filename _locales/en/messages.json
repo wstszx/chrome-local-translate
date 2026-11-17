@@ -34,5 +34,13 @@
   "sponsorLabel": {
     "message": "Support this project",
     "description": "Footer link label for optional voluntary support"
+  },
+  "footerTagline": {
+    "message": "Free · No ads · No tracking",
+    "description": "Footer tagline"
+  },
+  "projectHome": {
+    "message": "Project home",
+    "description": "Footer project link label"
   }
 }

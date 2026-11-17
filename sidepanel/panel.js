@@ -1099,6 +1099,19 @@ function bindEvents() {
   $('auto-translate').addEventListener('change', () => patchSettings({ autoTranslate: $('auto-translate').checked }));
   bindHostListEditor('auto-sites', 'autoTranslateSites');
   bindHostListEditor('never-sites', 'neverSites');
+  const bindClear = (btnId, inputId, key) => {
+    const btn = $(btnId);
+    if (!btn) return;
+    btn.addEventListener('click', () => {
+      const el = $(inputId);
+      if (el) el.value = '';
+      saveDebounced({ [key]: [] });
+      updateRuleCounts();
+    });
+  };
+  bindClear('inline-never-clear', 'inline-never', 'inlineNeverSites');
+  bindClear('auto-sites-clear', 'auto-sites', 'autoTranslateSites');
+  bindClear('never-sites-clear', 'never-sites', 'neverSites');
   $('min-chars').addEventListener('change', () => patchSettings({ minAutoChars: Number($('min-chars').value) || 0 }));
   $('max-nodes').addEventListener('change', () => patchSettings({ maxNodes: Number($('max-nodes').value) || 3000 }));
   $('skip-same-lang').addEventListener('change', () => patchSettings({ skipSameLang: $('skip-same-lang').checked }));
@@ -1392,6 +1405,10 @@ function bindEvents() {
     showError($('text-error'), '无法读取设置，请重新加载扩展');
   }
   syncForm();
+  const footerTagline = $('footer-tagline');
+  if (footerTagline) footerTagline.textContent = chrome.i18n.getMessage('footerTagline') || footerTagline.textContent;
+  const footerProject = $('footer-project');
+  if (footerProject) footerProject.textContent = chrome.i18n.getMessage('projectHome') || footerProject.textContent;
   const sponsorBox = $('footer-sponsors');
   if (sponsorBox && Array.isArray(SPONSOR_LINKS)) {
     for (const item of SPONSOR_LINKS) {
