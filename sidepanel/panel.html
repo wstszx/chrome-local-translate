@@ -70,70 +70,70 @@
           <div class="page-title" id="page-title">—</div>
           <div class="muted small ellipsis" id="page-url"></div>
           <div class="row">
-            <button type="button" class="primary grow" id="page-translate">翻译整页</button>
-            <button type="button" id="page-dual">双语对照</button>
-            <button type="button" id="page-hover">悬停对照</button>
+            <button type="button" class="primary grow" id="page-translate" data-i18n="pageTranslate">翻译整页</button>
+            <button type="button" id="page-dual" data-i18n="pageDual">双语对照</button>
+            <button type="button" id="page-hover" data-i18n="pageHover">悬停对照</button>
           </div>
           <div class="row">
-            <button type="button" class="grow" id="page-restore">还原原文</button>
-            <button type="button" id="page-refresh">刷新状态</button>
+            <button type="button" class="grow" id="page-restore" data-i18n="pageRestore">还原原文</button>
+            <button type="button" id="page-refresh" data-i18n="pageRefresh">刷新状态</button>
           </div>
           <div class="progress"><i id="page-bar"></i></div>
-          <div class="muted small" id="page-status">未翻译</div>
+          <div class="muted small" id="page-status" data-i18n="pageStatusIdle">未翻译</div>
           <div class="muted small" id="page-guide" hidden></div>
         </div>
 
         <div class="card">
-          <div class="label">此站点偏好 <span class="muted small" id="site-host">—</span></div>
-          <div class="muted small" id="site-pref-summary">尚未为此站点保存偏好。</div>
+          <div class="label"><span data-i18n="sitePrefsTitle">此站点偏好</span> <span class="muted small" id="site-host">—</span></div>
+          <div class="muted small" id="site-pref-summary" data-i18n="sitePrefsNone">尚未为此站点保存偏好。</div>
           <div class="muted small" id="site-global-hint"></div>
           <div class="row">
-            <button type="button" class="grow" id="site-save-pref">记住当前语言/模式</button>
-            <button type="button" id="site-clear-pref">清除此站点偏好</button>
+            <button type="button" class="grow" id="site-save-pref" data-i18n="siteSavePref">记住当前语言/模式</button>
+            <button type="button" id="site-clear-pref" data-i18n="siteClearPref">清除此站点偏好</button>
           </div>
           <div class="row">
-            <button type="button" class="grow" id="site-toggle-auto">此站点自动翻译：关</button>
-            <button type="button" id="site-toggle-never">加入永不翻译</button>
+            <button type="button" class="grow" id="site-toggle-auto" data-i18n="siteAutoOff">此站点自动翻译：关</button>
+            <button type="button" id="site-toggle-never" data-i18n="siteNeverAdd">加入永不翻译</button>
           </div>
-          <p class="hint compact">站点偏好仅保存在本机，并优先于“设置”中的全局站点规则。</p>
+          <p class="hint compact" data-i18n="sitePrefsHint">站点偏好仅保存在本机，并优先于“设置”中的全局站点规则。</p>
         </div>
 
         <div class="card">
-          <div class="label">选中文本</div>
+          <div class="label" data-i18n="selectionTitle">选中文本</div>
           <div class="row">
-            <button type="button" class="grow" id="sel-translate">翻译选中内容</button>
-            <button type="button" id="sel-explain" title="用 Gemini Nano 讲清楚">解释</button>
+            <button type="button" class="grow" id="sel-translate" data-i18n="selTranslate">翻译选中内容</button>
+            <button type="button" id="sel-explain" data-i18n="selExplain" data-i18n-title="pageSelectionHint" title="用 Gemini Nano 讲清楚">解释</button>
           </div>
           <div id="sel-result" class="output small" hidden></div>
         </div>
 
         <div class="card">
-          <div class="label">本地模型与状态</div>
+          <div class="label" data-i18n="modelsTitle">本地模型与状态</div>
           <div id="model-list" class="model-list"></div>
           <div class="row">
-            <button type="button" class="grow" id="download-models">下载当前语言对的语言包</button>
+            <button type="button" class="grow" id="download-models" data-i18n="downloadPair">下载当前语言对的语言包</button>
           </div>
           <div class="progress"><i id="dl-bar"></i></div>
-          <div class="muted small" id="dl-status">语言包按需下载，下载后可离线使用。</div>
+          <div class="muted small" id="dl-status" data-i18n="dlStatusDefault">语言包按需下载，下载后可离线使用。</div>
           <div id="hw-check" class="muted small" hidden></div>
           <div id="dl-hint" class="hint-box" hidden>
             <div class="small" id="dl-hint-text"></div>
             <div class="row">
-              <button type="button" class="grow" id="use-nano">改用 Gemini Nano 引擎</button>
+              <button type="button" class="grow" id="use-nano" data-i18n="useNanoEngine">改用 Gemini Nano 引擎</button>
             </div>
           </div>
           <details class="disclosure">
-            <summary>高级与故障排除</summary>
+            <summary data-i18n="advancedTroubleshoot">高级与故障排除</summary>
             <div class="disclosure-body">
               <div class="row">
-                <button type="button" class="grow" id="nano-download">下载/启用 Gemini Nano</button>
-                <button type="button" id="selftest">分环境自检</button>
+                <button type="button" class="grow" id="nano-download" data-i18n="downloadNano">下载/启用 Gemini Nano</button>
+                <button type="button" id="selftest" data-i18n="selftest">分环境自检</button>
               </div>
               <div class="row">
-                <button type="button" class="grow" id="open-components">打开 chrome://components</button>
-                <button type="button" class="grow" id="open-on-device">打开 on-device-internals</button>
+                <button type="button" class="grow" id="open-components" data-i18n="openComponents">打开 chrome://components</button>
+                <button type="button" class="grow" id="open-on-device" data-i18n="openOnDevice">打开 on-device-internals</button>
               </div>
-              <p class="hint compact">若语言包或 Nano 不可用，可在此检查组件状态、查看诊断页或对比运行环境结果。</p>
+              <p class="hint compact" data-i18n="modelsTroubleshootHint">若语言包或 Nano 不可用，可在此检查组件状态、查看诊断页或对比运行环境结果。</p>
             </div>
           </details>
         </div>
@@ -142,13 +142,13 @@
       <!-- ============================ 历史 ============================ -->
       <section class="tab-panel" id="tab-history">
         <div class="card">
-          <div class="label">翻译历史 <span class="muted small">（仅保存在本机）</span></div>
-          <label class="chk"><input type="checkbox" id="history-enabled" /> 保存翻译与解释记录</label>
+          <div class="label"><span data-i18n="historyTitle">翻译历史</span> <span class="muted small" data-i18n="historyLocalOnly">（仅保存在本机）</span></div>
+          <label class="chk"><input type="checkbox" id="history-enabled" /> <span data-i18n="historyEnabled">保存翻译与解释记录</span></label>
           <div class="row">
-            <button type="button" class="grow" id="history-refresh">刷新</button>
-            <button type="button" id="history-clear">清空历史</button>
+            <button type="button" class="grow" id="history-refresh" data-i18n="historyRefresh">刷新</button>
+            <button type="button" id="history-clear" data-i18n="historyClear">清空历史</button>
           </div>
-          <p class="hint">最近记录会显示在下方，点击“载入”可放回文本页继续编辑或回译。</p>
+          <p class="hint" data-i18n="historyHint">最近记录会显示在下方，点击“载入”可放回文本页继续编辑或回译。</p>
         </div>
         <div id="history-list" class="history-list"></div>
       </section>
@@ -159,9 +159,9 @@
         <div class="card">
           <div class="label">翻译引擎</div>
           <select id="engine" title="选择翻译使用的本地引擎">
-            <option value="auto">自动（推荐：优先内置翻译，不支持时用 Gemini Nano）</option>
-            <option value="translator">内置翻译模型（速度快、适合常规翻译）</option>
-            <option value="nano">Gemini Nano（支持语气、术语表、解释等高级能力）</option>
+            <option value="auto" data-i18n="engineAuto">自动（推荐：优先内置翻译，不支持时用 Gemini Nano）</option>
+            <option value="translator" data-i18n="engineTranslator">内置翻译模型（速度快、适合常规翻译）</option>
+            <option value="nano" data-i18n="engineNano">Gemini Nano（支持语气、术语表、解释等高级能力）</option>
           </select>
           <div class="label">语气 / 风格 <span class="muted small">（Gemini Nano 生效）</span></div>
           <select id="tone"></select>
@@ -223,9 +223,9 @@
         <div class="card">
           <div class="label">整页翻译</div>
           <select id="display-mode">
-            <option value="replace">替换原文（可还原）</option>
-            <option value="dual">双语对照（保留原文）</option>
-            <option value="hover">悬停对照</option>
+            <option value="replace" data-i18n="displayReplace">替换原文（可还原）</option>
+            <option value="dual" data-i18n="displayDual">双语对照（保留原文）</option>
+            <option value="hover" data-i18n="displayHover">悬停对照</option>
           </select>
           <label class="chk"><input type="checkbox" id="auto-translate" /> 打开网页时自动翻译</label>
           <p class="hint compact">优先级：页面标签中的“此站点偏好” &gt; 此处全局站点规则 &gt; 默认设置。</p>
@@ -289,9 +289,9 @@
           </div>
           <label class="grow small">主题
             <select id="theme">
-              <option value="auto">跟随系统</option>
-              <option value="light">浅色</option>
-              <option value="dark">深色</option>
+              <option value="auto" data-i18n="themeAuto">跟随系统</option>
+              <option value="light" data-i18n="themeLight">浅色</option>
+              <option value="dark" data-i18n="themeDark">深色</option>
             </select>
           </label>
           <details class="disclosure">
@@ -299,10 +299,10 @@
             <div class="disclosure-body">
               <label class="grow small">并发请求
                 <select id="concurrency">
-                  <option value="1">1（最省电）</option>
-                  <option value="2">2（推荐）</option>
-                  <option value="3">3</option>
-                  <option value="4">4（最快）</option>
+                  <option value="1" data-i18n="concurrency1">1（最省电）</option>
+                  <option value="2" data-i18n="concurrency2">2（推荐）</option>
+                  <option value="3" data-i18n="concurrency3">3</option>
+                  <option value="4" data-i18n="concurrency4">4（最快）</option>
                 </select>
               </label>
               <div class="row">

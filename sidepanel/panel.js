@@ -1173,17 +1173,17 @@ function bindEvents() {
     const hosts = Array.from(new Set([...lists.auto, ...lists.never, ...lists.inline])).sort();
     const filtered = q ? hosts.filter((h) => h.includes(q)) : hosts;
     if (!filtered.length) {
-      box.innerHTML = `<div class="site-rule-empty">${hosts.length ? '没有匹配的站点规则。' : '暂无全局站点规则。可在上方添加域名，或在下方批量文本编辑中粘贴。'}</div>`;
+      box.innerHTML = `<div class="site-rule-empty">${hosts.length ? msg('siteRulesNoMatch','没有匹配的站点规则。') : msg('siteRulesEmpty','暂无全局站点规则。可在上方添加域名，或在下方批量文本编辑中粘贴。')}</div>`;
       return;
     }
     box.innerHTML = filtered.map((host) => `
       <div class="site-rule-item" data-host="${escapeHtml(host)}">
         <div class="site-rule-host">${escapeHtml(host)}</div>
-        <button type="button" class="mini" data-site-rule-action="remove" data-host="${escapeHtml(host)}">移除</button>
+        <button type="button" class="mini" data-site-rule-action="remove" data-host="${escapeHtml(host)}">${msg('remove','移除')}</button>
         <div class="site-rule-toggles">
-          <label class="chk small"><input type="checkbox" data-site-rule-toggle="auto" data-host="${escapeHtml(host)}" ${lists.auto.has(host) ? 'checked' : ''}/> 自动翻译</label>
-          <label class="chk small"><input type="checkbox" data-site-rule-toggle="never" data-host="${escapeHtml(host)}" ${lists.never.has(host) ? 'checked' : ''}/> 永不翻译</label>
-          <label class="chk small"><input type="checkbox" data-site-rule-toggle="inline" data-host="${escapeHtml(host)}" ${lists.inline.has(host) ? 'checked' : ''}/> 输入框不弹出</label>
+          <label class="chk small"><input type="checkbox" data-site-rule-toggle="auto" data-host="${escapeHtml(host)}" ${lists.auto.has(host) ? 'checked' : ''}/> ${msg('siteRuleAuto','自动翻译')}</label>
+          <label class="chk small"><input type="checkbox" data-site-rule-toggle="never" data-host="${escapeHtml(host)}" ${lists.never.has(host) ? 'checked' : ''}/> ${msg('siteRuleNever','永不翻译')}</label>
+          <label class="chk small"><input type="checkbox" data-site-rule-toggle="inline" data-host="${escapeHtml(host)}" ${lists.inline.has(host) ? 'checked' : ''}/> ${msg('siteRuleInline','输入框不弹出')}</label>
         </div>
       </div>`).join('');
   };
