@@ -271,7 +271,7 @@
     if (bubble) bubble.classList.remove('lt-dragging');
     if (moved) {
       persistPosition();
-      flashBadge(msg('csPinnedPosition', '已固定位置'));
+      flashBadge(msg('csPinnedPosition', 'Position pinned'));
     }
   }
 
@@ -280,7 +280,7 @@
     clearPosition();
     if (bubble && !bubble.hidden) {
       place();
-      flashBadge(msg('csFollowSelection', '已跟随选区'));
+      flashBadge(msg('csFollowSelection', 'Following selection'));
     }
   }
 
@@ -371,7 +371,7 @@
       const textEl = bubble.querySelector('.lt-text');
       const ok = await U.copyText(textEl.textContent || '');
       emit('copied', ok);
-      flashBadge(ok ? msg('csCopied', '已复制') : msg('csCopyFailed', '复制失败'));
+      flashBadge(ok ? msg('csCopied', 'Copied') : msg('csCopyFailed', 'Copy failed'));
     });
     bubble.querySelector('.lt-speak').addEventListener('click', (e) => {
       e.stopPropagation();
@@ -415,7 +415,7 @@
     pair.textContent = `${U.langLabel(state.sourceLang)} → ${U.langLabel(state.targetLang)}`;
 
     const engine = q('.lt-engine');
-    engine.textContent = data.engineLabel || (state.engine === 'nano' ? 'Gemini Nano' : state.engine === 'translator' ? msg('csEngineBuiltin', '本地翻译模型') : msg('csEngineLocal', '本地'));
+    engine.textContent = data.engineLabel || (state.engine === 'nano' ? 'Gemini Nano' : state.engine === 'translator' ? msg('csEngineBuiltin', 'Built-in translation model') : msg('csEngineLocal', 'Local'));
 
     const src = q('.lt-src');
     if (data.showSource === false || !state.text) {
@@ -435,7 +435,7 @@
     if (data.error) {
       st.hidden = false;
       st.classList.add('lt-error');
-      st.innerHTML = `<span>${escapeHtml(data.error)}</span><button class="lt-link lt-retry">${msg('csRetry','重试')}</button>`;
+      st.innerHTML = `<span>${escapeHtml(data.error)}</span><button class="lt-link lt-retry">${msg('csRetry','Retry')}</button>`;
       const retry = st.querySelector('.lt-retry');
       if (retry) retry.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -444,7 +444,7 @@
     } else if (data.loading) {
       st.hidden = false;
       st.classList.remove('lt-error');
-      st.innerHTML = `<span class="lt-spin"></span><span>${msg('csLocalModelTranslating','本地模型翻译中…')}</span>`;
+      st.innerHTML = `<span class="lt-spin"></span><span>${msg('csLocalModelTranslating','Translating with local model…')}</span>`;
     } else if (data.hint) {
       st.hidden = false;
       st.classList.remove('lt-error');
@@ -578,7 +578,7 @@
 
   /* -------------------- 「扩展已失效」提示 -------------------- */
 
-  function notice(text, { title = msg('csStaleTitle','扩展已被重新加载'), actionText = msg('csRefreshPage','刷新页面'), onAction = null } = {}) {
+  function notice(text, { title = msg('csStaleTitle','Extension was reloaded'), actionText = msg('csRefreshPage','Refresh page'), onAction = null } = {}) {
     ensure();
     const box = root.querySelector('.lt-stale');
     box.hidden = false;
@@ -599,7 +599,7 @@
     if (box) box.hidden = true;
   }
 
-  function showProgress({ title = msg('csTranslatingLocal','正在使用本地模型翻译…'), text = msg('csOfflineNote','全程离线，内容不会离开你的电脑') } = {}) {
+  function showProgress({ title = msg('csTranslatingLocal','Translating with local model…'), text = msg('csOfflineNote','Fully on-device. Your text never leaves this computer.') } = {}) {
     ensure();
     toast.hidden = false;
     toast.querySelector('.lt-toast-title-text').textContent = title;

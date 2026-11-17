@@ -24,7 +24,7 @@ function send(message) {
     chrome.runtime.sendMessage(message, (res) => {
       const err = chrome.runtime.lastError;
       if (err) reject(new Error(friendlyError(err.message)));
-      else if (res && res.ok === false) reject(new Error(friendlyError(res.error || msg('operationFailed','操作失败'))));
+      else if (res && res.ok === false) reject(new Error(friendlyError(res.error || msg('operationFailed','Operation failed'))));
       else resolve(res);
     });
   });
@@ -34,10 +34,10 @@ function send(message) {
 function friendlyError(msg) {
   const text = String(msg || '');
   if (/extension context invalidated/i.test(text)) {
-    return msg('popupErrContext', '与扩展后台的连接已断开（扩展刚被重新加载或更新）。请关闭弹窗后重新打开。');
+    return msg('popupErrContext', 'Connection to the extension background was lost (the extension was reloaded or updated). Please close and reopen the popup.');
   }
   if (/receiving end does not exist|message port closed/i.test(text)) {
-    return msg('popupErrNoReceivingEnd', '暂时联系不上扩展后台（可能正在启动）。请稍等一两秒后重试。');
+    return msg('popupErrNoReceivingEnd', 'Cannot reach the extension background right now (it may be starting). Please try again in a moment.');
   }
   return text;
 }
@@ -56,7 +56,7 @@ let currentTranslation = '';
 let busy = false;
 
 function setOutput(html) {
-  $('output').innerHTML = html || `<span class="placeholder">${msg('popupOutputPlaceholder','本地模型输出')}</span>`;
+  $('output').innerHTML = html || `<span class="placeholder">${msg('popupOutputPlaceholder','Local model output')}</span>`;
 }
 
 function setError(message) {
@@ -74,7 +74,7 @@ function fillLanguageSelects() {
   for (const [id, withAuto] of [['src-lang', true], ['tgt-lang', false]]) {
     const sel = $(id);
     sel.innerHTML = '';
-    if (withAuto) sel.appendChild(new Option(msg('popupAutoDetect','自动检测'), 'auto'));
+    if (withAuto) sel.appendChild(new Option(msg('popupAutoDetect','Auto-detect'), 'auto'));
     for (const l of LANGUAGES) sel.appendChild(new Option(l.zh, l.code));
   }
 }
@@ -84,19 +84,19 @@ async function refreshPill() {
   try {
     const res = await send({ type: 'lt:probe', payload: {} });
     const label = (s) =>
-      ({ available: msg('labelAvailable','已就绪'), downloadable: msg('labelDownloadable','待下载'), downloading: msg('labelDownloading','下载中'), unavailable: msg('labelUnavailable','不可用'), unsupported: msg('labelUnsupported','不支持') })[s] || s;
+      ({ available: msg('labelAvailable','Ready'), downloadable: msg('labelDownloadable','Downloadable'), downloading: msg('labelDownloading','Downloading'), unavailable: msg('labelUnavailable','Unavailable'), unsupported: msg('labelUnsupported','Unsupported') })[s] || s;
     if (res.support && res.support.translator) {
-      pill.textContent = `${msg('popupBuiltinModel','内置翻译模型')}：${label(res.translator)}`;
+      pill.textContent = `${msg('popupBuiltinModel','Built-in model')}：${label(res.translator)}`;
       pill.className = `pill ${res.translator === 'available' ? 'ok' : 'warn'}`;
     } else if (res.support && res.support.nano) {
       pill.textContent = `Nano：${label(res.nano)}`;
       pill.className = `pill ${res.nano === 'available' ? 'ok' : 'warn'}`;
     } else {
-      pill.textContent = msg('statusUnavailableLocal','本机不可用');
+      pill.textContent = msg('statusUnavailableLocal','Unavailable locally');
       pill.className = 'pill err';
     }
   } catch (err) {
-    pill.textContent = msg('statusUnknown','未知');
+    pill.textContent = msg('statusUnknown','Unknown');
     pill.className = 'pill err';
   }
 }
@@ -107,7 +107,7 @@ async function translate() {
   busy = true;
   setError('');
   $('do-translate').disabled = true;
-  $('out-meta').textContent = msg('translating','本地推理中…');
+  $('out-meta').textContent = msg('translating','Translating locally…');
   setOutput('<span class="spinner"></span>');
   const started = performance.now();
   try {
@@ -118,12 +118,12 @@ async function translate() {
     currentTranslation = res.text || '';
     setOutput(renderText(currentTranslation));
     $('out-meta').textContent = `${langLabel(res.sourceLang)} → ${langLabel(res.targetLang)} · ${
-      res.engine === 'nano' ? 'Gemini Nano' : msg('popupBuiltinModel','内置翻译模型')
+      res.engine === 'nano' ? 'Gemini Nano' : msg('popupBuiltinModel','Built-in model')
     } · ${Math.round(performance.now() - started)} ms`;
   } catch (err) {
     setError(err.message);
     setOutput('');
-    $('out-meta').textContent = msg('translateFailed','翻译失败');
+    $('out-meta').textContent = msg('translateFailed','Translation failed');
   } finally {
     busy = false;
     $('do-translate').disabled = false;
@@ -135,16 +135,16 @@ async function explain() {
   if (!text || busy) return;
   busy = true;
   setError('');
-  $('out-meta').textContent = msg('explaining','Gemini Nano 解释中…');
+  $('out-meta').textContent = msg('explaining','Explaining with Gemini Nano…');
   setOutput('<span class="spinner"></span>');
   try {
     const res = await send({ type: 'lt:explain', payload: { text, lang: settings ? settings.uiLang : 'zh' } });
     setOutput(renderText(res.text));
-    $('out-meta').textContent = msg('nanoExplanationLabel','Gemini Nano 解释');
+    $('out-meta').textContent = msg('nanoExplanationLabel','Gemini Nano explanation');
   } catch (err) {
     setError(err.message);
     setOutput('');
-    $('out-meta').textContent = msg('explainFailed','解释失败');
+    $('out-meta').textContent = msg('explainFailed','Explanation failed');
   } finally {
     busy = false;
   }
@@ -157,7 +157,7 @@ async function explain() {
     const res = await send({ type: 'lt:settings:get' });
     settings = res.settings;
   } catch (err) {
-    setError(msg('popupReadSettingsFailed','无法读取设置，请重新加载扩展'));
+    setError(msg('popupReadSettingsFailed','Failed to read settings. Please reload the extension.'));
   }
   if (settings) {
     $('src-lang').value = settings.sourceLang;
@@ -187,7 +187,7 @@ async function explain() {
     currentTranslation = '';
     setOutput('');
     setError('');
-    $('out-meta').textContent = msg('translationOutput','译文');
+    $('out-meta').textContent = msg('translationOutput','Translation');
     $('input').focus();
   });
   $('swap').addEventListener('click', () => {
@@ -212,8 +212,8 @@ async function explain() {
   $('out-copy').addEventListener('click', async () => {
     if (!currentTranslation) return;
     await navigator.clipboard.writeText(currentTranslation).catch(() => {});
-    $('out-copy').textContent = msg('copied','已复制 ✓');
-    setTimeout(() => ($('out-copy').textContent = msg('copy','复制')), 1200);
+    $('out-copy').textContent = msg('copied','Copied ✓');
+    setTimeout(() => ($('out-copy').textContent = msg('copy','Copy')), 1200);
   });
   $('out-speak').addEventListener('click', () => {
     if (!currentTranslation || !window.speechSynthesis) return;
@@ -238,18 +238,18 @@ async function explain() {
     if (!btn) return;
     btn.addEventListener('click', async () => {
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-      btn.textContent = msg('popupTranslating','翻译中…');
+      btn.textContent = msg('popupTranslating','Translating…');
       try {
         await send({ type: 'lt:page:translate', payload: { tabId: tab.id, mode } });
-        btn.textContent = msg('popupStarted','已开始 ✓');
+        btn.textContent = msg('popupStarted','Started ✓');
       } catch (err) {
         setError(err.message);
         btn.textContent = label;
       }
     });
   }
-  wirePageButton('translate-page', msg('translatePage','翻译整页'), 'replace');
-  wirePageButton('translate-dual', msg('bilingualView','双语对照'), 'dual');
+  wirePageButton('translate-page', msg('translatePage','Translate page'), 'replace');
+  wirePageButton('translate-dual', msg('bilingualView','Bilingual view'), 'dual');
 
   // 打开弹窗时若剪贴板里是长文本，自动填入并翻译（失败则忽略）
   try {

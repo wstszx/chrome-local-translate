@@ -1584,5 +1584,14 @@
   },
   "toneAcademicHint": {
     "message": "Papers and reports with standardized terminology"
+  },
+  "engineHwCpuMemLow": {
+    "message": "CPU/memory may be insufficient ({cores} cores · {memory}GB). If this machine also lacks >4GB dedicated VRAM, Nano may not install."
+  },
+  "engineHwQuotaLow": {
+    "message": "Browser storage quota for this origin is only about {quota}GB, which may be insufficient for the ~2–4GB model and cache."
+  },
+  "engineSelftestTranslateFailed": {
+    "message": "translate failed: {error}"
   }
 }

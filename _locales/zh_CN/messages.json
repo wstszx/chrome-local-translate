@@ -1584,5 +1584,14 @@
   },
   "toneAcademicHint": {
     "message": "论文、报告，术语规范"
+  },
+  "engineHwCpuMemLow": {
+    "message": "CPU/内存偏低（{cores} 核 · {memory}GB），如果这台机器也没有 >4GB 独立显存，Nano 大概率装不上"
+  },
+  "engineHwQuotaLow": {
+    "message": "浏览器给这个来源的存储配额只有约 {quota}GB，装不下约 2~4GB 的模型 + 缓存所需空间"
+  },
+  "engineSelftestTranslateFailed": {
+    "message": "translate 失败：{error}"
   }
 }
