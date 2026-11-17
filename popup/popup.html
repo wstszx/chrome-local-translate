@@ -23,32 +23,32 @@
     <div class="body">
       <div class="row">
         <select id="src-lang" class="grow" title="源语言"></select>
-        <button type="button" class="icon" id="swap" title="交换语言">⇄</button>
+        <button type="button" class="icon" id="swap" data-i18n-title="swapLangs" title="交换语言">⇄</button>
         <select id="tgt-lang" class="grow" title="目标语言"></select>
       </div>
 
       <textarea id="input" rows="4" placeholder="输入或粘贴文本，Ctrl / Cmd + Enter 翻译"></textarea>
       <div class="row">
-        <button type="button" class="primary grow" id="do-translate">翻译</button>
-        <button type="button" id="do-explain" title="用 Gemini Nano 解释">解释</button>
-        <button type="button" class="icon" id="do-clear" title="清空">清空</button>
+        <button type="button" class="primary grow" id="do-translate" data-i18n="translate">翻译</button>
+        <button type="button" id="do-explain" data-i18n="explain" title="用 Gemini Nano 解释">解释</button>
+        <button type="button" class="icon" id="do-clear" data-i18n-title="clear" title="清空">清空</button>
       </div>
 
       <div class="out-wrap">
         <div class="out-head">
-          <span class="muted small" id="out-meta">译文</span>
+          <span class="muted small" id="out-meta" data-i18n="translationOutput">译文</span>
           <span class="grow"></span>
-          <button type="button" class="mini" id="out-copy">复制</button>
-          <button type="button" class="mini" id="out-speak">朗读</button>
+          <button type="button" class="mini" id="out-copy" data-i18n="copy">复制</button>
+          <button type="button" class="mini" id="out-speak" data-i18n="speak">朗读</button>
         </div>
         <div id="output" class="output small" dir="auto"><span class="placeholder">本地模型输出</span></div>
       </div>
       <div id="error" class="error" hidden></div>
 
       <div class="row">
-        <button type="button" class="grow" id="open-panel">打开侧边栏</button>
-        <button type="button" class="grow" id="translate-page">翻译整页</button>
-        <button type="button" class="grow" id="translate-dual">双语对照</button>
+        <button type="button" class="grow" id="open-panel" data-i18n="openSidePanel">打开侧边栏</button>
+        <button type="button" class="grow" id="translate-page" data-i18n="translatePage">翻译整页</button>
+        <button type="button" class="grow" id="translate-dual" data-i18n="bilingualView">双语对照</button>
       </div>
       <p class="hint">离线推理 · 无需 API Key · 不上传任何文本</p>
       <p class="hint popup-links" id="popup-sponsors"></p>

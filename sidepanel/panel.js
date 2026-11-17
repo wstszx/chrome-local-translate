@@ -17,6 +17,39 @@ import {
 
 const $ = (id) => document.getElementById(id);
 
+function msg(key, fallback = '') {
+  try { return chrome.i18n.getMessage(key) || fallback; } catch (err) { return fallback; }
+}
+
+function applyI18n(root = document) {
+  const get = (el, attr) => el.getAttribute(attr);
+  root.querySelectorAll('[data-i18n]').forEach((el) => {
+    const key = get(el, 'data-i18n');
+    const text = msg(key);
+    if (text) el.textContent = text;
+  });
+  root.querySelectorAll('[data-i18n-html]').forEach((el) => {
+    const key = get(el, 'data-i18n-html');
+    const text = msg(key);
+    if (text) el.innerHTML = text;
+  });
+  root.querySelectorAll('[data-i18n-title]').forEach((el) => {
+    const key = get(el, 'data-i18n-title');
+    const text = msg(key);
+    if (text) el.title = text;
+  });
+  root.querySelectorAll('[data-i18n-placeholder]').forEach((el) => {
+    const key = get(el, 'data-i18n-placeholder');
+    const text = msg(key);
+    if (text) el.placeholder = text;
+  });
+  root.querySelectorAll('[data-i18n-aria]').forEach((el) => {
+    const key = get(el, 'data-i18n-aria');
+    const text = msg(key);
+    if (text) el.setAttribute('aria-label', text);
+  });
+}
+
 /* ------------------------------ 通用 ------------------------------ */
 
 function send(message) {
@@ -121,13 +154,13 @@ function updateRuleCounts() {
   if (pageEl) pageEl.textContent = (autoCount || neverCount) ? `· 自动 ${autoCount} / 永不 ${neverCount}` : '';
 }
 
-function showSaveStatus(text = '已自动保存', ms = 1400) {
+function showSaveStatus(text = msg('settingsAutoSave', '已自动保存'), ms = 1400) {
   const el = $('save-status');
   if (!el) return;
   el.textContent = text;
   clearTimeout(el._timer);
   el._timer = setTimeout(() => {
-    if ($('save-status')) $('save-status').textContent = '设置会自动保存';
+    if ($('save-status')) $('save-status').textContent = msg('settingsAutoSave', '设置会自动保存');
   }, ms);
 }
 
@@ -148,6 +181,8 @@ function syncForm() {
   $('inline-live').checked = settings.inlineLive !== false;
   $('inline-min').value = settings.inlineMinChars == null ? 2 : settings.inlineMinChars;
   $('inline-never').value = (settings.inlineNeverSites || []).join('\n');
+  const inlineMirror = $('inline-never-mirror');
+  if (inlineMirror) inlineMirror.value = (settings.inlineNeverSites || []).join('\n');
   syncInlineAvailability();
 
   $('display-mode').value = settings.displayMode;
@@ -164,6 +199,7 @@ function syncForm() {
   document.documentElement.dataset.theme = settings.theme || 'auto';
   document.documentElement.lang = settings.uiLang === 'en' ? 'en' : 'zh-CN';
   updateRuleCounts();
+  if (typeof renderSiteRuleManager === 'function') renderSiteRuleManager();
 }
 
 async function patchSettings(patch) {
@@ -1094,24 +1130,181 @@ function bindEvents() {
       updateRuleCounts();
     });
   };
+  const siteListFromUI = () => ({
+    autoTranslateSites: normalizeHostLines($('auto-sites') ? $('auto-sites').value : ((settings && settings.autoTranslateSites) || []).join('\n')),
+    neverSites: normalizeHostLines($('never-sites') ? $('never-sites').value : ((settings && settings.neverSites) || []).join('\n')),
+    inlineNeverSites: normalizeHostLines($('inline-never') ? $('inline-never').value : ((settings && settings.inlineNeverSites) || []).join('\n')),
+  });
+  const syncSiteRuleTextareas = () => {
+    const lists = siteListFromUI();
+    if ($('auto-sites')) $('auto-sites').value = lists.autoTranslateSites.join('\n');
+    if ($('never-sites')) $('never-sites').value = lists.neverSites.join('\n');
+    if ($('inline-never')) $('inline-never').value = lists.inlineNeverSites.join('\n');
+    const mirror = $('inline-never-mirror');
+    if (mirror) mirror.value = lists.inlineNeverSites.join('\n');
+    updateRuleCounts();
+  };
+  const setSiteRuleLists = async (patchLists, opts = {}) => {
+    const lists = {
+      autoTranslateSites: normalizeHostLines((patchLists.autoTranslateSites || []).join('\n')),
+      neverSites: normalizeHostLines((patchLists.neverSites || []).join('\n')),
+      inlineNeverSites: normalizeHostLines((patchLists.inlineNeverSites || []).join('\n')),
+    };
+    settings = { ...(settings || {}), ...lists };
+    if ($('auto-sites')) $('auto-sites').value = lists.autoTranslateSites.join('\n');
+    if ($('never-sites')) $('never-sites').value = lists.neverSites.join('\n');
+    if ($('inline-never')) $('inline-never').value = lists.inlineNeverSites.join('\n');
+    const mirror = $('inline-never-mirror');
+    if (mirror) mirror.value = lists.inlineNeverSites.join('\n');
+    updateRuleCounts();
+    renderSitePrefUI();
+    renderSiteRuleManager();
+    if (opts.save !== false) await patchSettings(lists);
+  };
+  const renderSiteRuleManager = () => {
+    const box = $('site-rule-list');
+    if (!box) return;
+    const lists = settings ? {
+      auto: new Set(settings.autoTranslateSites || []),
+      never: new Set(settings.neverSites || []),
+      inline: new Set(settings.inlineNeverSites || []),
+    } : { auto: new Set(), never: new Set(), inline: new Set() };
+    const q = String(($('site-rule-search') && $('site-rule-search').value) || '').trim().toLowerCase();
+    const hosts = Array.from(new Set([...lists.auto, ...lists.never, ...lists.inline])).sort();
+    const filtered = q ? hosts.filter((h) => h.includes(q)) : hosts;
+    if (!filtered.length) {
+      box.innerHTML = `<div class="site-rule-empty">${hosts.length ? '没有匹配的站点规则。' : '暂无全局站点规则。可在上方添加域名，或在下方批量文本编辑中粘贴。'}</div>`;
+      return;
+    }
+    box.innerHTML = filtered.map((host) => `
+      <div class="site-rule-item" data-host="${escapeHtml(host)}">
+        <div class="site-rule-host">${escapeHtml(host)}</div>
+        <button type="button" class="mini" data-site-rule-action="remove" data-host="${escapeHtml(host)}">移除</button>
+        <div class="site-rule-toggles">
+          <label class="chk small"><input type="checkbox" data-site-rule-toggle="auto" data-host="${escapeHtml(host)}" ${lists.auto.has(host) ? 'checked' : ''}/> 自动翻译</label>
+          <label class="chk small"><input type="checkbox" data-site-rule-toggle="never" data-host="${escapeHtml(host)}" ${lists.never.has(host) ? 'checked' : ''}/> 永不翻译</label>
+          <label class="chk small"><input type="checkbox" data-site-rule-toggle="inline" data-host="${escapeHtml(host)}" ${lists.inline.has(host) ? 'checked' : ''}/> 输入框不弹出</label>
+        </div>
+      </div>`).join('');
+  };
+  const addSiteRuleFromManager = async () => {
+    const input = $('site-rule-input');
+    if (!input) return;
+    const host = normalizeHostLines(input.value)[0];
+    if (!host) return;
+    const lists = siteListFromUI();
+    const flags = {
+      auto: !!($('site-rule-flag-auto') && $('site-rule-flag-auto').checked),
+      never: !!($('site-rule-flag-never') && $('site-rule-flag-never').checked),
+      inline: !!($('site-rule-flag-inline') && $('site-rule-flag-inline').checked),
+    };
+    if (!flags.auto && !flags.never && !flags.inline) flags.auto = true; // 默认添加为自动翻译规则（可再调整）
+    if (flags.auto && !lists.autoTranslateSites.includes(host)) lists.autoTranslateSites.push(host);
+    if (flags.never && !lists.neverSites.includes(host)) lists.neverSites.push(host);
+    if (flags.inline && !lists.inlineNeverSites.includes(host)) lists.inlineNeverSites.push(host);
+    input.value = '';
+    await setSiteRuleLists(lists);
+  };
+
   bindHostListEditor('inline-never', 'inlineNeverSites');
+  const bindMirror = (id) => {
+    const el = $(id);
+    if (!el) return;
+    el.addEventListener('input', () => saveDebounced({ inlineNeverSites: normalizeHostLines(el.value) }));
+    el.addEventListener('blur', () => {
+      const list = normalizeHostLines(el.value);
+      el.value = list.join('\n');
+      if ($('inline-never')) $('inline-never').value = list.join('\n');
+      saveDebounced({ inlineNeverSites: list });
+      updateRuleCounts();
+      renderSiteRuleManager();
+    });
+  };
+  bindMirror('inline-never-mirror');
   $('display-mode').addEventListener('change', () => patchSettings({ displayMode: $('display-mode').value }));
   $('auto-translate').addEventListener('change', () => patchSettings({ autoTranslate: $('auto-translate').checked }));
   bindHostListEditor('auto-sites', 'autoTranslateSites');
   bindHostListEditor('never-sites', 'neverSites');
+  // 文本编辑变化时同步管理器视图
+  ['inline-never','inline-never-mirror','auto-sites','never-sites'].forEach((id) => {
+    const el = $(id);
+    if (el) el.addEventListener('input', () => { updateRuleCounts(); renderSitePrefUI(); });
+    if (el) el.addEventListener('blur', () => { syncSiteRuleTextareas(); renderSiteRuleManager(); });
+  });
   const bindClear = (btnId, inputId, key) => {
     const btn = $(btnId);
     if (!btn) return;
-    btn.addEventListener('click', () => {
-      const el = $(inputId);
-      if (el) el.value = '';
-      saveDebounced({ [key]: [] });
-      updateRuleCounts();
+    btn.addEventListener('click', async () => {
+      const lists = siteListFromUI();
+      lists[key] = [];
+      await setSiteRuleLists(lists);
     });
   };
   bindClear('inline-never-clear', 'inline-never', 'inlineNeverSites');
+  bindClear('inline-never-clear-inline', 'inline-never-mirror', 'inlineNeverSites');
   bindClear('auto-sites-clear', 'auto-sites', 'autoTranslateSites');
   bindClear('never-sites-clear', 'never-sites', 'neverSites');
+
+  if ($('site-rule-add')) $('site-rule-add').addEventListener('click', addSiteRuleFromManager);
+  if ($('site-rule-input')) $('site-rule-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); addSiteRuleFromManager(); }
+  });
+  if ($('site-rule-search')) $('site-rule-search').addEventListener('input', renderSiteRuleManager);
+  if ($('site-rule-list')) $('site-rule-list').addEventListener('change', async (e) => {
+    const t = e.target;
+    if (!t || !t.dataset || !t.dataset.siteRuleToggle) return;
+    const host = t.dataset.host;
+    const kind = t.dataset.siteRuleToggle; // auto|never|inline
+    const lists = siteListFromUI();
+    const key = kind === 'auto' ? 'autoTranslateSites' : kind === 'never' ? 'neverSites' : 'inlineNeverSites';
+    const has = lists[key].includes(host);
+    if (t.checked && !has) lists[key].push(host);
+    if (!t.checked && has) lists[key] = lists[key].filter((h) => h !== host);
+    await setSiteRuleLists(lists);
+  });
+  if ($('site-rule-list')) $('site-rule-list').addEventListener('click', async (e) => {
+    const btn = e.target.closest('button[data-site-rule-action="remove"]');
+    if (!btn) return;
+    const host = btn.dataset.host;
+    const lists = siteListFromUI();
+    lists.autoTranslateSites = lists.autoTranslateSites.filter((h) => h !== host);
+    lists.neverSites = lists.neverSites.filter((h) => h !== host);
+    lists.inlineNeverSites = lists.inlineNeverSites.filter((h) => h !== host);
+    await setSiteRuleLists(lists);
+  });
+  if ($('site-rules-clear-all')) $('site-rules-clear-all').addEventListener('click', async () => {
+    await setSiteRuleLists({ autoTranslateSites: [], neverSites: [], inlineNeverSites: [] });
+  });
+  if ($('site-rules-export')) $('site-rules-export').addEventListener('click', async () => {
+    const lists = siteListFromUI();
+    const payload = { version: 1, ...lists, exportedAt: new Date().toISOString() };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'chrome-local-translate-site-rules.json';
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    showSaveStatus('已导出站点规则', 1600);
+  });
+  if ($('site-rules-import')) $('site-rules-import').addEventListener('click', () => $('site-rules-import-file') && $('site-rules-import-file').click());
+  if ($('site-rules-import-file')) $('site-rules-import-file').addEventListener('change', async (e) => {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const data = JSON.parse(text);
+      const lists = siteListFromUI();
+      if (Array.isArray(data.autoTranslateSites)) lists.autoTranslateSites = normalizeHostLines(data.autoTranslateSites.join('\n'));
+      if (Array.isArray(data.neverSites)) lists.neverSites = normalizeHostLines(data.neverSites.join('\n'));
+      if (Array.isArray(data.inlineNeverSites)) lists.inlineNeverSites = normalizeHostLines(data.inlineNeverSites.join('\n'));
+      await setSiteRuleLists(lists);
+      showSaveStatus('已导入站点规则', 1600);
+    } catch (err) {
+      showSaveStatus('导入失败：文件格式无效', 2200);
+    }
+  });
   $('min-chars').addEventListener('change', () => patchSettings({ minAutoChars: Number($('min-chars').value) || 0 }));
   $('max-nodes').addEventListener('change', () => patchSettings({ maxNodes: Number($('max-nodes').value) || 3000 }));
   $('skip-same-lang').addEventListener('change', () => patchSettings({ skipSameLang: $('skip-same-lang').checked }));
@@ -1238,6 +1431,9 @@ function bindEvents() {
     $('history-enabled').addEventListener('change', () => patchSettings({ historyEnabled: $('history-enabled').checked }));
   }
   if ($('history-refresh')) $('history-refresh').addEventListener('click', loadHistory);
+  // render after all bindings are ready
+  renderSiteRuleManager();
+
   if ($('history-clear')) $('history-clear').addEventListener('click', async () => {
     await send({ type: 'lt:history:clear' });
     loadHistory();
@@ -1396,6 +1592,7 @@ function bindEvents() {
 /* ------------------------------ 启动 ------------------------------ */
 
 (async function main() {
+  applyI18n();
   fillLanguageSelects();
   bindEvents();
   try {

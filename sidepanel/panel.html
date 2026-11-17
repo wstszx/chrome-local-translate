@@ -17,14 +17,14 @@
         </svg>
         <span>本地翻译</span>
       </div>
-      <span class="pill" id="engine-pill">检测中…</span>
+      <span class="pill" id="engine-pill" data-i18n="statusDetecting">检测中…</span>
     </header>
 
     <nav class="tabs">
-      <button type="button" class="tab-btn active" data-tab="text">文本</button>
-      <button type="button" class="tab-btn" data-tab="page">页面</button>
-      <button type="button" class="tab-btn" data-tab="history">历史</button>
-      <button type="button" class="tab-btn" data-tab="settings">设置</button>
+      <button type="button" class="tab-btn active" data-tab="text" data-i18n="tabText">文本</button>
+      <button type="button" class="tab-btn" data-tab="page" data-i18n="tabPage">页面</button>
+      <button type="button" class="tab-btn" data-tab="history" data-i18n="tabHistory">历史</button>
+      <button type="button" class="tab-btn" data-tab="settings" data-i18n="tabSettings">设置</button>
     </nav>
 
     <main>
@@ -155,7 +155,7 @@
 
       <!-- ============================ 设置 ============================ -->
       <section class="tab-panel" id="tab-settings">
-        <div class="muted small" id="save-status">设置会自动保存</div>
+        <div class="muted small" id="save-status" data-i18n="settingsAutoSave">设置会自动保存</div>
         <div class="card">
           <div class="label">翻译引擎</div>
           <select id="engine" title="选择翻译使用的本地引擎">
@@ -205,7 +205,7 @@
               <label class="chk"><input type="checkbox" id="inline-live" /> 面板打开时随输入自动更新译文</label>
               <label class="grow small">最少字数 <input type="number" id="inline-min" min="1" step="1" /></label>
               <div class="row between">
-                <div class="label">不自动弹出的网站 <span class="muted small">（每行一个域名，失焦自动整理）</span></div>
+                <div class="label">不自动弹出的网站 <span class="muted small">（每行一个域名，失焦自动整理；可在“整页翻译 &gt; 全局站点规则与高级”统一管理）</span></div>
                 <button type="button" class="mini" id="inline-never-clear">清空</button>
               </div>
               <textarea id="inline-never" rows="2" placeholder="mail.google.com"></textarea>
@@ -229,19 +229,50 @@
           </select>
           <label class="chk"><input type="checkbox" id="auto-translate" /> 打开网页时自动翻译</label>
           <p class="hint compact">优先级：页面标签中的“此站点偏好” &gt; 此处全局站点规则 &gt; 默认设置。</p>
-          <details class="disclosure">
+          <details class="disclosure" id="site-rules-disclosure">
             <summary>全局站点规则与高级 <span class="muted small" id="page-rules-count"></span></summary>
             <div class="disclosure-body">
-              <div class="row between">
-                <div class="label">自动翻译的网站 <span class="muted small">（每行一个域名；留空=所有网站；失焦自动整理）</span></div>
-                <button type="button" class="mini" id="auto-sites-clear">清空</button>
+              <div class="site-rules-manager" id="site-rules-manager">
+                <div class="row">
+                  <input id="site-rule-input" class="grow" type="text" placeholder="输入域名（如 example.com），回车添加" />
+                  <button type="button" id="site-rule-add" class="primary">添加</button>
+                </div>
+                <div class="row site-rule-flags">
+                  <label class="chk small"><input type="checkbox" id="site-rule-flag-auto" /> 自动翻译</label>
+                  <label class="chk small"><input type="checkbox" id="site-rule-flag-never" /> 永不翻译</label>
+                  <label class="chk small"><input type="checkbox" id="site-rule-flag-inline" /> 输入框不自动弹出</label>
+                </div>
+                <div class="row">
+                  <input id="site-rule-search" class="grow" type="text" placeholder="搜索域名…" />
+                </div>
+                <div id="site-rule-list" class="site-rule-list"></div>
+                <div class="row">
+                  <button type="button" class="mini" id="site-rules-export">导出 JSON</button>
+                  <button type="button" class="mini" id="site-rules-import">导入 JSON</button>
+                  <button type="button" class="mini" id="site-rules-clear-all">清空全部规则</button>
+                </div>
+                <input id="site-rules-import-file" type="file" accept="application/json,.json" hidden />
               </div>
-              <textarea id="auto-sites" rows="2" placeholder="news.ycombinator.com"></textarea>
-              <div class="row between">
-                <div class="label">永不翻译的网站 <span class="muted small">（每行一个域名；失焦自动整理）</span></div>
-                <button type="button" class="mini" id="never-sites-clear">清空</button>
-              </div>
-              <textarea id="never-sites" rows="2" placeholder="mail.google.com"></textarea>
+              <details class="disclosure inner">
+                <summary>批量文本编辑（高级）</summary>
+                <div class="disclosure-body">
+                  <div class="row between">
+                    <div class="label">自动翻译的网站 <span class="muted small">（每行一个域名；留空=所有网站）</span></div>
+                    <button type="button" class="mini" id="auto-sites-clear">清空</button>
+                  </div>
+                  <textarea id="auto-sites" rows="2" placeholder="news.ycombinator.com"></textarea>
+                  <div class="row between">
+                    <div class="label">永不翻译的网站 <span class="muted small">（每行一个域名）</span></div>
+                    <button type="button" class="mini" id="never-sites-clear">清空</button>
+                  </div>
+                  <textarea id="never-sites" rows="2" placeholder="mail.google.com"></textarea>
+                  <div class="row between">
+                    <div class="label">输入框不自动弹出的网站 <span class="muted small">（与“输入框转写”共享）</span></div>
+                    <button type="button" class="mini" id="inline-never-clear-inline">清空</button>
+                  </div>
+                  <textarea id="inline-never-mirror" rows="2" placeholder="mail.google.com"></textarea>
+                </div>
+              </details>
               <label class="grow small">自动翻译的最少正文字数 <input type="number" id="min-chars" min="0" step="50" /></label>
               <label class="grow small">单页最多翻译段落数 <input type="number" id="max-nodes" min="50" step="100" /></label>
               <label class="chk"><input type="checkbox" id="skip-same-lang" /> 跳过已是目标语言的段落</label>

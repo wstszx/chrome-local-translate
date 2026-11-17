@@ -42,5 +42,25 @@
   "projectHome": {
     "message": "Project home",
     "description": "Footer project link label"
-  }
+  },
+  "tabText": { "message": "Text" },
+  "tabPage": { "message": "Page" },
+  "tabHistory": { "message": "History" },
+  "tabSettings": { "message": "Settings" },
+  "statusDetecting": { "message": "Detecting…" },
+  "swapLangs": { "message": "Swap languages" },
+  "translate": { "message": "Translate" },
+  "explain": { "message": "Explain" },
+  "paste": { "message": "Paste" },
+  "clear": { "message": "Clear" },
+  "copy": { "message": "Copy" },
+  "speak": { "message": "Speak" },
+  "backTranslate": { "message": "Back-translate" },
+  "translationOutput": { "message": "Translation" },
+  "openSidePanel": { "message": "Open side panel" },
+  "translatePage": { "message": "Translate page" },
+  "bilingualView": { "message": "Bilingual view" },
+  "restoreOriginal": { "message": "Restore original" },
+  "refreshStatus": { "message": "Refresh status" },
+  "settingsAutoSave": { "message": "Settings are saved automatically" }
 }

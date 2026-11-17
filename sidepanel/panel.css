@@ -376,6 +376,55 @@ button.mini {
   gap: 8px;
   padding-top: 2px;
 }
+.disclosure.inner {
+  background: var(--bg);
+}
+.site-rules-manager {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.site-rule-flags {
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.site-rule-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 220px;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px;
+  background: var(--bg);
+}
+.site-rule-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px 8px;
+  align-items: start;
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-soft);
+}
+.site-rule-host {
+  font-weight: 600;
+  font-size: 12.5px;
+  word-break: break-all;
+}
+.site-rule-toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  grid-column: 1 / -1;
+}
+.site-rule-empty {
+  color: var(--fg-muted);
+  font-size: 12px;
+  padding: 8px 4px;
+}
 
 .error {
   color: var(--err);

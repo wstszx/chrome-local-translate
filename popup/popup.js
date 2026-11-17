@@ -7,6 +7,16 @@ import { SPONSOR_LINKS } from '../lib/links.js';
 
 const $ = (id) => document.getElementById(id);
 
+function msg(key, fallback = '') {
+  try { return chrome.i18n.getMessage(key) || fallback; } catch (err) { return fallback; }
+}
+
+function applyI18n(root = document) {
+  root.querySelectorAll('[data-i18n]').forEach((el) => { const t = msg(el.getAttribute('data-i18n')); if (t) el.textContent = t; });
+  root.querySelectorAll('[data-i18n-title]').forEach((el) => { const t = msg(el.getAttribute('data-i18n-title')); if (t) el.title = t; });
+  root.querySelectorAll('[data-i18n-placeholder]').forEach((el) => { const t = msg(el.getAttribute('data-i18n-placeholder')); if (t) el.placeholder = t; });
+}
+
 function send(message) {
   return new Promise((resolve, reject) => {
     chrome.runtime.sendMessage(message, (res) => {
@@ -138,6 +148,7 @@ async function explain() {
 }
 
 (async function main() {
+  applyI18n();
   fillLanguageSelects();
   try {
     const res = await send({ type: 'lt:settings:get' });

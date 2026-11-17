@@ -42,5 +42,25 @@
   "projectHome": {
     "message": "项目主页",
     "description": "页脚项目链接文案"
-  }
+  },
+  "tabText": { "message": "文本" },
+  "tabPage": { "message": "页面" },
+  "tabHistory": { "message": "历史" },
+  "tabSettings": { "message": "设置" },
+  "statusDetecting": { "message": "检测中…" },
+  "swapLangs": { "message": "交换语言" },
+  "translate": { "message": "翻译" },
+  "explain": { "message": "解释" },
+  "paste": { "message": "粘贴" },
+  "clear": { "message": "清空" },
+  "copy": { "message": "复制" },
+  "speak": { "message": "朗读" },
+  "backTranslate": { "message": "回译" },
+  "translationOutput": { "message": "译文" },
+  "openSidePanel": { "message": "打开侧边栏" },
+  "translatePage": { "message": "翻译整页" },
+  "bilingualView": { "message": "双语对照" },
+  "restoreOriginal": { "message": "还原原文" },
+  "refreshStatus": { "message": "刷新状态" },
+  "settingsAutoSave": { "message": "设置会自动保存" }
 }
