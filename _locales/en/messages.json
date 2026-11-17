@@ -1434,5 +1434,11 @@
   },
   "inlineTranscribingAuto": {
     "message": "Transcribing… (will insert automatically when done)"
+  },
+  "inlineNoFocusedInput": {
+    "message": "No focused input field"
+  },
+  "inlineTranslateContext": {
+    "message": "Content the user is typing in a web input field ({from}→{to})"
   }
 }

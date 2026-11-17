@@ -1368,7 +1368,7 @@
       engine: s.engine,
       tone: s.tone,
       glossary: s.glossary,
-      context: `用户在网页输入框里正在写的内容（${U.langLabel('auto')}→${U.langLabel(targetLang())}）`,
+      context: msg('inlineTranslateContext','用户在网页输入框里正在写的内容（{from}→{to}）').replace('{from}', U.langLabel('auto')).replace('{to}', U.langLabel(targetLang())),
     };
 
     try {
@@ -1730,7 +1730,7 @@
           ok: false,
           handled: false,
           canWrite: false,
-          error: '当前没有聚焦的输入框',
+          error: msg('inlineNoFocusedInput','当前没有聚焦的输入框'),
           info: statusInfoSync(),
         });
         return false;
@@ -1742,7 +1742,7 @@
             ok: false,
             handled: true,
             canWrite: false,
-            error: '当前没有聚焦的输入框',
+            error: msg('inlineNoFocusedInput','当前没有聚焦的输入框'),
             info: statusInfoSync(),
           });
           return;
@@ -1877,7 +1877,7 @@
       if (token !== state.requestId) return;
       state.loading = false;
       if (!res || res.ok === false) {
-        setStateLine((res && res.error) || '转写失败', 'error');
+        setStateLine((res && res.error) || msg('inlineTranscribeFailed','转写失败'), 'error');
         return;
       }
       applyTranslation(res.text || '');

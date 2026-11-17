@@ -1434,5 +1434,11 @@
   },
   "inlineTranscribingAuto": {
     "message": "转写中…（完成后自动写入）"
+  },
+  "inlineNoFocusedInput": {
+    "message": "当前没有聚焦的输入框"
+  },
+  "inlineTranslateContext": {
+    "message": "用户在网页输入框里正在写的内容（{from}→{to}）"
   }
 }
