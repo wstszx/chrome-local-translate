@@ -1,57 +1,90 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>隐私政策 - 本地翻译</title>
+  <title>Privacy Policy / 隐私政策 - Local Translate</title>
   <style>
-    body { font-family: system-ui, sans-serif; max-width: 800px; margin: 40px auto; line-height: 1.6; color: #333; }
-    h1, h2, h3 { color: #2c3e50; }
-    code { background: #f5f5f5; padding: 2px 6px; border-radius: 3px; }
-    .container { padding: 0 20px; }
-    .last-updated { color: #666; font-size: 0.9em; margin-top: 40px; }
+    :root { color-scheme: light dark; }
+    body { font-family: system-ui, -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; max-width: 860px; margin: 40px auto; line-height: 1.65; color: #1f2937; }
+    h1, h2, h3 { color: #111827; }
+    code { background: #f3f4f6; padding: 2px 6px; border-radius: 4px; }
+    .container { padding: 0 20px 32px; }
+    .muted { color: #4b5563; font-size: 0.95em; }
+    .section { margin-top: 28px; }
+    .lang { margin-top: 40px; padding-top: 24px; border-top: 1px solid #e5e7eb; }
+    ul { padding-left: 1.25rem; }
+    a { color: #4f46e5; }
+    @media (prefers-color-scheme: dark) {
+      body { color: #e5e7eb; background: #111827; }
+      h1, h2, h3 { color: #f9fafb; }
+      code { background: #374151; }
+      .muted { color: #9ca3af; }
+      .lang { border-top-color: #374151; }
+      a { color: #a5b4fc; }
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>本地翻译 · 隐私政策</h1>
-    
-    <p>最后更新：2026年11月</p>
+    <h1>Local Translate · Privacy Policy / 隐私政策</h1>
+    <p class="muted">Last updated / 最后更新：2026-11-18</p>
+    <p class="muted">Applies to the Chrome extension “Local Translate – On-Device AI” (also distributed in some locales as “本地翻译”). This page is provided for users and for Chrome Web Store disclosure; the hosted copy used in the store listing may be published at <a href="https://chrome-local-translate-privacy.wstszx.workers.dev/privacy.html" target="_blank" rel="noopener noreferrer">https://chrome-local-translate-privacy.wstszx.workers.dev/privacy.html</a>.</p>
 
-    <h2>1. 我们收集什么信息</h2>
-    <p>本浏览器扩展程序（"扩展"）致力于保护您的隐私。我们不收集、存储或传输任何可识别个人身份的信息。</p>
+    <div class="section" lang="en">
+      <h2>English</h2>
 
-    <h2>2. 使用数据（不收集）</h2>
-    <p>本扩展<span>不收集、不传输、不存储任何可识别个人身份的信息</span>，也不做任何遥测或统计上报。代码中没有向外部服务器发送数据的机制（无 fetch / WebSocket / Beacon 等网络调用）。扩展版本号、引擎类型、语言对配置等仅为本地运行状态，存储在您本机的浏览器内，不上传。</p>
+      <h3>1. Data collection and transmission</h3>
+      <p><strong>We do not collect, sell, or transmit your personal information to the developer or to third parties.</strong> The extension does not include analytics, telemetry, advertising SDKs, or network requests from extension code to external servers (no <code>fetch</code>, XHR, WebSocket, or beacon APIs for data upload).</p>
 
-    <h2>3. 翻译处理</h2>
-    <p>所有翻译文本都在您的设备本地处理，绝不发送到外部服务器。Chrome 内置的 Translator API 和 Gemini Nano 模型均在本地运行，文本不出本机。</p>
+      <h3>2. On-device processing</h3>
+      <p>Translation, rewriting, and related language features run locally on your device using Chrome’s built-in on-device AI capabilities (such as the Translator API and Prompt API / Gemini Nano, when available). Page content, selected text, and input text are processed locally for these features and are not uploaded by this extension to external servers.</p>
 
-    <h2>4. 第三方服务</h2>
-    <p>扩展程序使用以下本地服务，所有处理均在您的设备上完成：</p>
-    <ul>
-      <li>Chrome Translator API（内置模型）</li>
-      <li>Gemini Nano（Chrome 设备内置模型，需 ≥ Chrome 138）</li>
-    </ul>
-    <p>这些服务不收集或存储您的翻译内容。</p>
+      <h3>3. Local storage on your device</h3>
+      <p>To provide its functionality, the extension stores data locally in your browser (for example via <code>chrome.storage.local</code> and/or <code>chrome.storage.sync</code>, depending on the feature and your settings). This may include settings, site-specific preferences/rules, translation cache, and translation history. This data stays on your device/browser profile unless your browser syncs Chrome storage according to your Google/Chrome settings. You can clear extension data from the extension UI where available or remove it by uninstalling the extension.</p>
 
-    <h2>5. Cookie & 存储</h2>
-    <p>扩展程序使用 Chrome storage.local 存储用户设置（语言偏好、术语表、配置等）。这些数据仅在您的浏览器中本地存储，不会共享给第三方。</p>
+      <h3>4. Permissions and purpose</h3>
+      <ul>
+        <li><strong>storage:</strong> save settings, preferences, cache, and history locally.</li>
+        <li><strong>contextMenus:</strong> provide right-click translation actions.</li>
+        <li><strong>sidePanel:</strong> open the extension side panel UI.</li>
+        <li><strong>offscreen:</strong> host local inference/processing required by Chrome extension architecture.</li>
+        <li><strong>activeTab / scripting / host permissions (<code>&lt;all_urls&gt;</code>):</strong> inject translation UI and scripts into pages you visit (including frames such as iframes/about:blank where needed) to enable selection translation, full-page translation, and input rewriting. This access is used to provide the extension’s single purpose and not to exfiltrate page content.</li>
+      </ul>
 
-    <h2>6. 您的权利</h2>
-    <p>您可以随时：</p>
-    <ul>
-      <li>在扩展设置中清除所有缓存和配置</li>
-      <li>禁用或卸载扩展程序</li>
-      <li>在 chrome://extensions 中管理权限</li>
-    </ul>
+      <h3>5. Third parties</h3>
+      <p>The extension does not share your data with third parties. It relies on on-device capabilities provided by the Chrome browser/runtime.</p>
 
-    <h2>7. 联系我们</h2>
-    <p>如果您对本隐私政策有疑问，或想要行使您的权利，请通过以下方式联系：</p>
-    <p>电子邮件：<a href="mailto:mywstszx@gmail.com">mywstszx@gmail.com</a></p>
+      <h3>6. Contact</h3>
+      <p>For privacy questions, contact: <a href="mailto:mywstszx@gmail.com">mywstszx@gmail.com</a> or open an issue at <a href="https://github.com/wstszx/chrome-local-translate/issues" target="_blank" rel="noopener noreferrer">GitHub Issues</a>.</p>
+    </div>
 
-    <div class="last-updated">
-      <p>本隐私政策是基于对本扩展代码库的审查而编写的。代码中不包含任何发送用户数据的机制。</p>
+    <div class="lang" lang="zh-CN">
+      <h2>中文</h2>
+
+      <h3>1. 数据收集与传输</h3>
+      <p><strong>我们不会向开发者或任何第三方收集、出售或传输您的个人信息。</strong>扩展不包含分析/遥测/广告 SDK，扩展代码也不会向外部服务器发起用于上传数据的网络请求（无 <code>fetch</code>、XHR、WebSocket、Beacon 等）。</p>
+
+      <h3>2. 设备端本地处理</h3>
+      <p>翻译、转写及相关语言功能在您的设备本地运行，使用 Chrome 内置的设备端 AI 能力（如可用的 Translator API、Prompt API / Gemini Nano）。为实现这些功能所处理的页面内容、选中文本和输入文本均在本地处理，本扩展不会将其上传到外部服务器。</p>
+
+      <h3>3. 本机本地存储</h3>
+      <p>为提供功能，扩展会在您的浏览器中本地存储数据（例如通过 <code>chrome.storage.local</code> 和/或 <code>chrome.storage.sync</code>，具体取决于功能与设置）。这些数据可能包括设置、站点偏好/规则、译文缓存和翻译历史。除非您的浏览器根据自身设置同步 Chrome 存储，否则数据仅保留在本机/浏览器配置文件中。您可以在扩展界面中清理相关数据（如可用），或通过卸载扩展移除本地数据。</p>
+
+      <h3>4. 权限与用途</h3>
+      <ul>
+        <li><strong>storage：</strong>在本地保存设置、偏好、缓存和历史记录。</li>
+        <li><strong>contextMenus：</strong>提供右键翻译菜单。</li>
+        <li><strong>sidePanel：</strong>打开扩展侧边栏界面。</li>
+        <li><strong>offscreen：</strong>承载 Chrome 扩展架构所需的本地推理/处理宿主。</li>
+        <li><strong>activeTab / scripting / host 权限（<code>&lt;all_urls&gt;</code>）：</strong>在您访问的网页中注入翻译 UI 与脚本（在需要时包括 iframe / about:blank 等框架），以实现划词翻译、整页翻译和输入框转写。此访问仅用于提供扩展的单一用途，不用于外传页面内容。</li>
+      </ul>
+
+      <h3>5. 第三方</h3>
+      <p>扩展不会与第三方共享您的数据。扩展依赖 Chrome 浏览器/运行时提供的设备端能力。</p>
+
+      <h3>6. 联系方式</h3>
+      <p>如有隐私相关问题，请联系：<a href="mailto:mywstszx@gmail.com">mywstszx@gmail.com</a>，或在 <a href="https://github.com/wstszx/chrome-local-translate/issues" target="_blank" rel="noopener noreferrer">GitHub Issues</a> 提交问题。</p>
     </div>
   </div>
 </body>

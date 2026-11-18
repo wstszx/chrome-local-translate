@@ -345,10 +345,10 @@ Nano 是通用模型，翻译质量略逊于专用翻译模型，但在你的机
 
 ## 8. 隐私
 
-- 没有任何网络请求，扩展没有声明任何 `host_permissions` 之外的对外访问（只读页面文本）。
-- 文本只在「页面 → 扩展后台 → 本地模型」这条进程内链路上流动，**不经过任何服务器**。
-- 译文缓存保存在你本机的 `chrome.storage.local`（可随时清空）。
-- 唯一的权限：`storage`（设置/缓存）、`contextMenus`（右键菜单）、`scripting`+`activeTab`+`<all_urls>`（注入翻译脚本）、`sidePanel`、`offscreen`（推理宿主）。
+- 扩展代码**不发起任何网络请求**（无 `fetch` / XHR / WebSocket / Beacon 等），也**不会将页面内容、选中文本或输入内容上传到任何服务器**。
+- 翻译与改写在本机通过 Chrome 内置设备端模型完成；文本仅在「页面 ↔ 扩展内容脚本 ↔ 后台/离屏推理宿主」的本地链路中处理，**不经过开发者或第三方服务器**。
+- 设置、站点偏好、译文缓存与翻译历史等数据仅保存在本机浏览器存储（`chrome.storage.local` / `chrome.storage.sync`，视功能与设置而定），可在侧边栏清空或通过卸载扩展移除。
+- 权限说明：`storage`（设置/缓存/历史）、`contextMenus`（右键菜单）、`sidePanel`（侧边栏）、`offscreen`（本地推理宿主）、`scripting` + `activeTab` + `host_permissions: ["<all_urls>"]`（在用户访问的网页中注入翻译 UI 与内容脚本，包括 iframe / about:blank 等场景，以提供划词翻译、整页翻译和输入框转写功能；仅用于本地翻译，不用于读取并外传数据）。
 
 ---
 
