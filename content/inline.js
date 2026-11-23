@@ -1698,21 +1698,21 @@
     return info;
   }
 
-  function onMessage(msg, sender, sendResponse) {
+  function onMessage(request, sender, sendResponse) {
     if (state.dead) return false; // 脚本已失效，别再假装能干活
-    if (!msg || typeof msg.type !== 'string') return false;
+    if (!request || typeof request.type !== 'string') return false;
 
-    if (msg.type === 'lt:rewrite-input') {
+    if (request.type === 'lt:rewrite-input') {
       // 同一个标签页里可能有很多 frame（弹窗、客服挂件…）。后台会优先点对点发给
       // 「刚刚在打字」的那个 frame（directive === 'claim'），只有拿不准时才广播。
       //
       // 注意：Chrome 里 document.hasFocus() 对焦点所在 frame 的**所有祖先**也是 true，
       // 所以顶层 frame 也会以为自己有焦点；绝对不能只听第一个应答的 frame。
-      const directive = (msg.payload && msg.payload.directive) || 'broadcast';
+      const directive = (request.payload && request.payload.directive) || 'broadcast';
       // 探路模式：只回答「我这儿能不能写」，绝对不动输入框。
       // 后台先用它问一圈所有 frame，挑出唯一一个该干活的，再单独发真正的指令
       // —— 否则广播会让多个 frame 同时往各自页面里写。
-      const probeOnly = !!(msg.payload && msg.payload.probeOnly);
+      const probeOnly = !!(request.payload && request.payload.probeOnly);
       let focused = true;
       try {
         focused = document.hasFocus();
@@ -1778,8 +1778,8 @@
       return true;
     }
 
-    if (msg.type === 'lt:settings-changed') {
-      state.settings = mergedSettings(msg.payload || {}, false);
+    if (request.type === 'lt:settings-changed') {
+      state.settings = mergedSettings(request.payload || {}, false);
       markSettingsReady();
       refreshTheme();
       refreshLiveButton();
@@ -1791,7 +1791,7 @@
       return false;
     }
 
-    if (msg.type === 'lt:inline-status') {
+    if (request.type === 'lt:inline-status') {
       // 异步回答：自检时要真的去读一次输入框（可能是封闭影子根，得绕主世界一圈）
       statusInfo().then(
         (info) => sendResponse({ ok: true, open: state.open, target: targetLang(), info }),

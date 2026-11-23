@@ -1615,9 +1615,9 @@ function bindEvents() {
   const engineReset = $('engine-reset');
   if (engineReset) engineReset.dataset.label = msg('resetSessionLabel','Reset local session');
   const footerTagline = $('footer-tagline');
-  if (footerTagline) footerTagline.textContent = chrome.i18n.getMessage('footerTagline') || footerTagline.textContent;
+  if (footerTagline) footerTagline.textContent = msg('footerTagline') || footerTagline.textContent;
   const footerProject = $('footer-project');
-  if (footerProject) footerProject.textContent = chrome.i18n.getMessage('projectHome') || footerProject.textContent;
+  if (footerProject) footerProject.textContent = msg('projectHome') || footerProject.textContent;
   const sponsorBox = $('footer-sponsors');
   if (sponsorBox && Array.isArray(SPONSOR_LINKS)) {
     for (const item of SPONSOR_LINKS) {
@@ -1627,7 +1627,7 @@ function bindEvents() {
       a.href = item.url;
       a.target = '_blank';
       a.rel = 'noopener noreferrer';
-      a.textContent = item.label || (chrome.i18n.getMessage('sponsorLabel') || 'Support');
+      a.textContent = item.label || (msg('sponsorLabel') || 'Support');
       sponsorBox.appendChild(a);
     }
   }

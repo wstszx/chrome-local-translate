@@ -134,7 +134,32 @@ function makeEnv({
     ...inline,
   };
 
+  // 真实 chrome.i18n：内容脚本里所有文案都走 chrome.i18n.getMessage（fallback 只在
+  // 拿不到 key 时兜底）。jsdom 里没有 i18n，这里加载真实的 zh_CN 语言包，
+  // 让测试断言的是「用户实际看到的中文文案」，而不是英文兜底文本。
+  const i18nMessages = JSON.parse(read('_locales/zh_CN/messages.json'));
+  const i18n = {
+    // 内容脚本用 getUILanguage() 判断界面语言（中文 UI 显示中文语言名）
+    getUILanguage() {
+      return 'zh-CN';
+    },
+    getMessage(key, subs) {
+      const entry = i18nMessages[key];
+      const text = entry && typeof entry.message === 'string' ? entry.message : '';
+      if (!text) return '';
+      // Chrome 原生语义：数组形式的 subs 按 $1/$2… 替换（命名占位符由调用方自行处理）
+      if (Array.isArray(subs)) {
+        return text.replace(/\$(\d)/g, (m, d) => {
+          const i = Number(d) - 1;
+          return i < subs.length ? String(subs[i]) : m;
+        });
+      }
+      return text;
+    },
+  };
+
   window.chrome = {
+    i18n,
     runtime: {
       id: 'lt-test-extension', // 真实内容脚本一定拿得到 runtime.id；上下文失效时它会变成 undefined
       lastError: undefined,

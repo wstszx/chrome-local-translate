@@ -936,14 +936,14 @@ async function samplePageText() {
     startPageTranslation({ mode: s.displayMode });
   }
 
-  function onMessage(msg, sender, sendResponse) {
+  function onMessage(request, sender, sendResponse) {
     if (state.dead) return false;
     if (!U.extAlive()) {
       markDead();
       return false;
     }
-    if (!msg || typeof msg.type !== 'string') return false;
-    switch (msg.type) {
+    if (!request || typeof request.type !== 'string') return false;
+    switch (request.type) {
       case 'lt:ping':
         if (!IS_TOP) return false; // 顶层作答
         sendResponse({ ok: true, ...getStatus(), isTop: true });
@@ -953,7 +953,7 @@ async function samplePageText() {
         sendResponse({ ok: true, ...getStatus(), isTop: true });
         return false;
       case 'lt:translate-page':
-        startPageTranslation(msg.payload || {}).then((r) => sendResponse(r), (e) => sendResponse({ ok: false, error: String(e) }));
+        startPageTranslation(request.payload || {}).then((r) => sendResponse(r), (e) => sendResponse({ ok: false, error: String(e) }));
         return true;
       case 'lt:restore-page':
         restoreAll({});
@@ -967,7 +967,7 @@ async function samplePageText() {
         return false;
       }
       case 'lt:translate-selection': {
-        const text = (msg.payload && msg.payload.text) || selectedText();
+        const text = (request.payload && request.payload.text) || selectedText();
         if (!text) {
           if (!IS_TOP) return false; // 交给有选区的 frame
           sendResponse({ ok: false, error: msg('csNoSelectedText','No selected text') });
@@ -984,7 +984,7 @@ async function samplePageText() {
         return true;
       }
       case 'lt:explain-selection': {
-        const text = (msg.payload && msg.payload.text) || selectedText();
+        const text = (request.payload && request.payload.text) || selectedText();
         if (!text) {
           if (!IS_TOP) return false; // 交给有选区的 frame
           sendResponse({ ok: false, error: msg('csNoSelectedText','No selected text') });
@@ -994,7 +994,7 @@ async function samplePageText() {
         return true;
       }
       case 'lt:settings-changed':
-        applySettings(msg.payload);
+        applySettings(request.payload);
         sendResponse({ ok: true });
         return false;
       default:
