@@ -442,7 +442,7 @@ jsdom 可能因小文件 I/O 抖动而加载卡住 —— 把仓库（或 node_m
 
 - 爱发电（国内）：<https://ifdian.net/a/fbread>
 - Ko-fi（海外，支持 PayPal/卡等）：<https://ko-fi.com/fbread>
-- GitHub Sponsors（海外/开源）：开通后将链接填入 `lib/links.js` 与 `.github/FUNDING.yml`
+- GitHub Sponsors：暂未开通（收款走 Stripe，不支持中国大陆银行账户）。链接配置在 `lib/links.js`，仓库赞助按钮配置在 `.github/FUNDING.yml`，以后开通时按里面的注释补一行即可
 - 也可以在 GitHub 提 Issue / Star 支持项目：<https://github.com/wstszx/chrome-local-translate>
 
 ## 12. 想继续改？几个自然的扩展点
