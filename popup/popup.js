@@ -168,15 +168,22 @@ async function explain() {
 
   const sponsorBox = $('popup-sponsors');
   if (sponsorBox && Array.isArray(SPONSOR_LINKS)) {
-    for (const item of SPONSOR_LINKS) {
-      if (!item || !item.url) continue;
-      const a = document.createElement('a');
-      a.className = 'popup-link';
-      a.href = item.url;
-      a.target = '_blank';
-      a.rel = 'noopener noreferrer';
-      a.textContent = item.label || (chrome.i18n.getMessage('sponsorLabel') || 'Support');
-      sponsorBox.appendChild(a);
+    const links = SPONSOR_LINKS.filter((item) => item && item.url);
+    if (links.length) {
+      // 本地化的「赞助作者 / Support this project」前缀，说明这几个链接是干什么的
+      const label = document.createElement('span');
+      label.className = 'sponsor-label';
+      label.textContent = msg('sponsorLabel', 'Support this project');
+      sponsorBox.appendChild(label);
+      for (const item of links) {
+        const a = document.createElement('a');
+        a.className = 'popup-link';
+        a.href = item.url;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.textContent = item.label || msg('sponsorLabel', 'Support');
+        sponsorBox.appendChild(a);
+      }
     }
   }
 

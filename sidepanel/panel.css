@@ -611,6 +611,10 @@ button.mini {
   flex-wrap: wrap;
   gap: 10px;
 }
+.footer-links-label {
+  color: var(--fg-muted);
+  white-space: nowrap;
+}
 .footer-link {
   color: var(--accent);
   text-decoration: none;
