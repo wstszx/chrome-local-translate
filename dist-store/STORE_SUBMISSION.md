@@ -1,5 +1,7 @@
 # Chrome Web Store 上架资料（当前：1.5.8）
 
+> **2026-11-23 更新**：仓库已递增到 **1.5.9**（`manifest.json` = `package.json` = 1.5.9），包含 i18n 变量遮蔽修复与 sidepanel footer 取词加固；**尚未打包、尚未上传商店**。1.5.8 审核通过后按 §1 流程打包 1.5.9 提审，并更新本文件的版本号与日期。
+
 > 包（本地构建产物）：`dist-store/chrome-local-translate-1.5.8.zip`（manifest.json 在包根；含 MV3 i18n `_locales/en`、`_locales/zh_CN`，`default_locale: "en"`）。**注意：本地在 1.5.8 提审后继续有提交并可能重建过 zip，勿将当前本地 zip 误当作已提交审核的 draft 包。**
 > 校验/测试（本地仓库当前状态）：`npm run validate`、`npm test` 通过。
 > 商品：Listing 默认显示名 `Local Translate – On-Device AI`（ID `ncenacdchlmblbdlljdkjjhhnjimmeje`，发布者 `mywstszx`）
