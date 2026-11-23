@@ -391,8 +391,8 @@ chrome-local-translate/
 
 ```bash
 npm run validate             # 清单体检：快捷键数量上限、文件引用是否存在、权限名、内容脚本能否是 ESM…
-npm test                     # 先跑 validate，再跑 42 个用例：分段、缓存、降级、错误映射、流式、术语表、自检、位置钳制…
-npm run test:dom             # 69 个用例：在 jsdom 里跑真实的内容脚本（拖动 / 位置记忆 / 整页还原 / 输入框转写 / 影子根 / 上下文失效 / 同语言跳过 / 取消翻译 / agent nonce）
+npm test                     # 先跑 validate，再跑 73 + 16 个用例：分段、缓存、降级、错误映射、流式、术语表、自检、位置钳制、后台路由…
+npm run test:dom             # 87 个用例：在 jsdom 里跑真实的内容脚本（拖动 / 位置记忆 / 整页还原 / 输入框转写 / 影子根 / 上下文失效 / 同语言跳过 / 取消翻译 / agent nonce）
 LT_ONLY="关键字" npm run test:dom   # 只跑名字里含该关键字的用例，排障时用
 npm run test:all             # 上面两个都跑
 npm run preview              # 重新生成 demo/ui-preview.html
