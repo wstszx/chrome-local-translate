@@ -393,9 +393,10 @@ chrome-local-translate/
 ```bash
 npm run validate             # 清单体检：快捷键数量上限、文件引用是否存在、权限名、内容脚本能否是 ESM…
 npm test                     # 先跑 validate，再跑 73 + 16 个用例：分段、缓存、降级、错误映射、流式、术语表、自检、位置钳制、后台路由…
-npm run test:dom             # 87 个用例：在 jsdom 里跑真实的内容脚本（拖动 / 位置记忆 / 整页还原 / 输入框转写 / 影子根 / 上下文失效 / 同语言跳过 / 取消翻译 / agent nonce）
+npm run test:dom             # 90 个用例：在 jsdom 里跑真实的内容脚本（拖动 / 位置记忆 / 整页还原 / 输入框转写 / 影子根 / 上下文失效 / 同语言跳过 / 取消翻译 / 批内去重 / 只翻正文 / agent nonce）
 LT_ONLY="关键字" npm run test:dom   # 只跑名字里含该关键字的用例，排障时用
 npm run test:all             # 上面两个都跑
+npm run test:e2e             # 真实浏览器冒烟测试（Playwright + 本扩展装进 Chromium）：扩展加载 / 内容脚本注入 / 划词气泡 / 转写浮标
 npm run preview              # 重新生成 demo/ui-preview.html
 npm run icons                # 重新生成图标
 ```
@@ -404,6 +405,11 @@ npm run icons                # 重新生成图标
 `npm run test:dom` 本身以 `LT_STRICT=1` 运行（jsdom 缺失/加载失败直接报错，防止 CI 假绿）；
 想本地宽松跳过用 `node tests/test-ui-dom.mjs`。另外：仓库放在 WSL 的 9p 挂载盘（`/mnt/*`）上时，
 jsdom 可能因小文件 I/O 抖动而加载卡住 —— 把仓库（或 node_modules）放到 Linux 本地文件系统即可。
+`test:e2e` 需要 Playwright 的 Chromium：`npx playwright install chromium`（一次性下载）。
+它把**未打包的本目录**当作扩展装进真实浏览器（Chrome 137+ 已移除命令行加载扩展，Playwright
+的 Chromium 仍支持），覆盖 jsdom 模拟不了的：真实渲染与鼠标选区、真实 Shadow DOM、
+真实扩展加载链路（Service Worker → 内容脚本注入）。**只断言 UI 链路不断言译文质量** ——
+测试机器未必装了内置模型语言包，翻译失败（气泡显示错误 + 重试）也是正确行为。
 它把 `content/agent.js`、`content/util.js`、`content/ui.js`、`content/inline.js`、`content/main.js` 原样加载进 jsdom，
 用一个假后台（含假流式端口）应答，所以测的是**真实交互代码**，而不是复制出来的简化版：
 

@@ -307,11 +307,54 @@
     if (!el) return false;
     if (SKIP_TAGS.has(el.tagName)) return false;
     if (el.isContentEditable) return false;
+    if (inChromeUI(el)) return false; // 导航/页脚/Cookie 横幅等界面区域不翻（评审 D1）
     if (el.closest('[data-lt-skip], [data-lt-dual], [data-lt-ui], [translate="no"], .notranslate, code, pre, kbd, samp, [aria-hidden="true"]')) return false;
     if (text.length > 4000) return false;
     if (!U.looksTranslatable(text)) return false;
     if (!isVisible(el)) return false;
     return true;
+  }
+
+  /* ---------------------- 只翻正文：界面铬件判定（评审 D1） ---------------------- */
+
+  /** ARIA 地标：语义上就是界面铬件 */
+  const CHROME_UI_ROLES = new Set(['banner', 'navigation', 'contentinfo', 'complementary', 'search']);
+  /** class/id 里无歧义的铬件词（cookie 弹窗、面包屑、侧栏）。不含 header/footer/banner/menu——
+   *  「entry-header」「hero-banner」这类内容区域命名太常见，误伤正文。 */
+  const CHROME_UI_NAMES = /(cookie|consent|gdpr|breadcrumb|sidebar|navbar|navigation)/i;
+
+  /**
+   * 判断一个元素是否处在「界面铬件」区域：导航、页眉页脚、侧栏、Cookie 横幅等。
+   * 这些文字翻译了只会添乱（按钮文案被换、导航变长），默认整片跳过（skipChromeUI 设置可关）。
+   *
+   * 判定走祖先链，且 **<main>/<article> 是正文边界**：先碰到它们就停止 ——
+   * 文章内部的 <header>（标题区）、<aside>（脚注）、<nav>（相关文章）都是正文的一部分，
+   * 只有「页面级」的铬件才跳。避免把博客标题、产品特性列表误伤。
+   */
+  function inChromeUI(el) {
+    const s = state.settings;
+    if (s && s.skipChromeUI === false) return false; // 设置里明确关闭
+    for (let n = el; n && n !== document.body; n = n.parentElement) {
+      if (n.nodeType !== 1) continue;
+      const tag = n.tagName;
+      if (tag === 'NAV' || tag === 'HEADER' || tag === 'FOOTER' || tag === 'ASIDE') {
+        // 这个铬件标签**自己**是否被 main/article 包着：包着就是正文的一部分
+        // （文章标题区 <article><header>、脚注 <aside>、相关文章 <nav> 都不跳）。
+        // 注意必须用 closest 检查它自己的祖先，而不是靠沿途顺序 —— 自底向上走时
+        // 内层 <header> 比外层 <article> 先被碰到。
+        if (n.closest && n.closest('main, article')) continue;
+        return true;
+      }
+      // 正文边界：进了 main/article 就不再算铬件（哪怕外层还有 header/footer）
+      if (tag === 'MAIN' || tag === 'ARTICLE') return false;
+      const role = n.getAttribute && n.getAttribute('role');
+      if (role && CHROME_UI_ROLES.has(role)) return true;
+      // class 可能是 SVG 动画的 SVGAnimatedString：只有 string 才拿来匹配
+      const cls = typeof n.className === 'string' ? n.className : '';
+      const name = `${cls} ${n.id || ''}`;
+      if (name && CHROME_UI_NAMES.test(name)) return true;
+    }
+    return false;
   }
 
   function collectTextNodes(root = document.body, limit = 4000) {
@@ -358,6 +401,35 @@
       for (const node of list) items.push({ node, text: node.nodeValue, context: multi ? blockText : '' });
     }
     return items;
+  }
+
+  /**
+   * 批内去重（评审 B3）：导航/模板文案在同一个页面里会反复出现（「Home」「Read more」…），
+   * 同一批次里它们会各发一次翻译请求。这里按「文本 + 上下文」去重，只把唯一项发给后台，
+   * 应答回来后再按映射展开回原位置。和缓存互补：缓存省「下一次」，去重省「这一次」。
+   * key 带上 context：同一段文字在不同块上下文里的合理译法可能不同，不能跨上下文复用。
+   */
+  function dedupeSlice(slice) {
+    const map = new Map(); // key -> 唯一项的下标
+    const uniq = [];
+    const slots = []; // 每个 slice 项 -> 对应唯一项的下标
+    for (const it of slice) {
+      const key = `${it.text}\u0000${it.context || ''}`;
+      let idx = map.get(key);
+      if (idx === undefined) {
+        idx = uniq.length;
+        map.set(key, idx);
+        uniq.push(it);
+      }
+      slots.push(idx);
+    }
+    return {
+      items: uniq.map((it) => ({ text: it.text, context: it.context })),
+      /** 把按唯一项返回的 results 展开回 slice.length 长度（无结果的位置是 undefined） */
+      expand(results) {
+        return slots.map((ui) => (results ? results[ui] : undefined));
+      },
+    };
   }
 
   /* --------------------------- 双语对照（段落下插译文） --------------------------- */
@@ -612,11 +684,13 @@ async function samplePageText() {
         const slice = sorted.slice(i, i + BATCH_SIZE);
         let res = null;
         let fatal = '';
+        let dedup = null;
         try {
+          dedup = dedupeSlice(slice);
           res = await sendBG({
             type: 'lt:translateBatch',
             payload: {
-              items: slice.map((it) => ({ text: it.text, context: it.context })),
+              items: dedup.items,
               options: {
                 source,
                 target: s.targetLang,
@@ -640,7 +714,7 @@ async function samplePageText() {
           done = total;
           break;
         }
-        const results = (res && res.results) || [];
+        const results = dedup.expand((res && res.results) || []);
         slice.forEach((it, idx) => {
           const r = results[idx];
           if (r && r.text) {
@@ -809,12 +883,13 @@ async function samplePageText() {
     for (let i = 0; i < items.length; i += BATCH_SIZE) {
       if (token !== state.token) return;
       const slice = items.slice(i, i + BATCH_SIZE);
+      const dedup = dedupeSlice(slice);
       let res = null;
       try {
         res = await sendBG({
           type: 'lt:translateBatch',
           payload: {
-            items: slice.map((it) => ({ text: it.text, context: it.context })),
+            items: dedup.items,
             options: { source: state.sourceLang, target: s.targetLang, engine: s.engine, tone: s.tone, glossary: s.glossary },
           },
         });
@@ -822,7 +897,7 @@ async function samplePageText() {
         return;
       }
       if (token !== state.token) return;
-      const results = (res && res.results) || [];
+      const results = dedup.expand((res && res.results) || []);
       slice.forEach((it, idx) => {
         const r = results[idx];
         if (r && r.text) applyOne(it, r.text);

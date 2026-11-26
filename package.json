@@ -9,12 +9,15 @@
     "test": "node tools/validate-manifest.mjs && node tests/run-tests.mjs && node tests/test-background.mjs",
     "test:dom": "LT_STRICT=1 node tests/test-ui-dom.mjs",
     "test:all": "node tools/validate-manifest.mjs && node tests/run-tests.mjs && node tests/test-background.mjs && node tests/test-ui-dom.mjs",
+    "test:e2e": "node tests/e2e.mjs",
     "preview": "wrangler dev",
     "icons": "python3 tools/make_icons.py",
     "deploy": "wrangler deploy"
   },
   "devDependencies": {
     "jsdom": "^29.1.1",
+    "playwright": "^1.65.1",
+    "playwright-core": "^1.65.1",
     "wrangler": "^4.161.0"
   }
 }

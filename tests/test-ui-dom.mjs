@@ -588,6 +588,84 @@ test('整页翻译 + 还原：结构保留、原文可完整回滚', async () =>
   assert.equal(window.document.getElementById('p2').textContent, 'Local models are great.');
 });
 
+test('批内去重：同批次重复文本只发一次请求，结果仍回填到每一处（评审 B3）', async () => {
+  const { window, sendToContent, messages } = makeEnv();
+  await registerReady({ window });
+  const doc = window.document;
+  // 4 个「Home」文本节点（2 个链接在同一个普通 div 块 + 2 个独立段落里的相同文案），外加 p1/p2 两个唯一段落
+  doc.body.insertAdjacentHTML(
+    'beforeend',
+    `<div id="row"><a href="/a">Home</a><a href="/b">Home</a></div>
+     <div><p id="dup1">Same text</p></div>
+     <div><p id="dup2">Same text</p></div>`,
+  );
+
+  const res = await sendToContent({ type: 'lt:translate-page', payload: { mode: 'replace' } });
+  assert.equal(res.ok, true, `整页翻译应成功：${JSON.stringify(res)}`);
+  assert.equal(res.failed, 0, `去重不应造成任何失败：${JSON.stringify(res)}`);
+
+  // 待翻项共 6 个（p1、p2、2×Home 链接、dup1、dup2），重复组 2 组 → 发给后台的应是 4 个唯一项
+  const batches = messages.filter((m) => m && m.type === 'lt:translateBatch');
+  const sent = batches.reduce((n, m) => n + (m.payload && m.payload.items ? m.payload.items.length : 0), 0);
+  assert.equal(sent, 4, `重复文本应只在批内发一次（发 4 个唯一项，而不是 6 个）：${JSON.stringify(batches.map((m) => m.payload.items))}`);
+
+  // 每一处重复位置都要拿到译文（去重不能丢结果）
+  assert.match(doc.getElementById('p1').textContent, /【译】Hello world/);
+  assert.match(doc.getElementById('dup1').textContent, /【译】Same text/);
+  assert.match(doc.getElementById('dup2').textContent, /【译】Same text/);
+  const links = [...doc.querySelectorAll('#row a')];
+  assert.equal(links.length, 2);
+  for (const a of links) {
+    assert.match(a.textContent, /【译】Home/, `重复链接也要回填译文：${a.textContent}`);
+  }
+});
+
+test('只翻正文：导航/页脚/Cookie 横幅默认跳过，文章内部照翻（评审 D1）', async () => {
+  const { window, sendToContent } = makeEnv();
+  await registerReady({ window });
+  const doc = window.document;
+  doc.body.insertAdjacentHTML(
+    'beforeend',
+    `<nav id="topnav"><a href="/x">Home</a><span>Menu item</span></nav>
+     <header id="site-header"><h1>Welcome to our site</h1></header>
+     <footer id="site-footer"><p>Copyright 2026 Example Corp</p></footer>
+     <div id="cookiebar" class="cookie-consent">We use cookies to improve your experience</div>
+     <main id="content">
+       <article>
+         <header><h1>How local models work</h1></header>
+         <p id="art-p">This paragraph is real content.</p>
+         <aside>Footnote: see the appendix</aside>
+       </article>
+     </main>`,
+  );
+
+  const res = await sendToContent({ type: 'lt:translate-page', payload: { mode: 'replace' } });
+  assert.equal(res.ok, true, `整页翻译应成功：${JSON.stringify(res)}`);
+
+  // 界面铬件：一个字都不动
+  assert.equal(doc.getElementById('topnav').textContent, 'HomeMenu item', '导航不应被翻译');
+  assert.equal(doc.getElementById('site-header').textContent, 'Welcome to our site', '页面级页眉不应被翻译');
+  assert.equal(doc.getElementById('site-footer').textContent, 'Copyright 2026 Example Corp', '页脚不应被翻译');
+  assert.equal(doc.getElementById('cookiebar').textContent, 'We use cookies to improve your experience', 'Cookie 横幅不应被翻译');
+
+  // 正文边界内的 header/aside 照翻：文章标题是用户最想看懂的部分
+  assert.match(doc.querySelector('#content article header h1').textContent, /【译】/, '文章内部的 <header> 是正文边界内，应被翻译');
+  assert.match(doc.getElementById('art-p').textContent, /【译】/, '正文段落应被翻译');
+  assert.match(doc.querySelector('#content article aside').textContent, /【译】/, '文章内部的 <aside>（脚注）应被翻译');
+});
+
+test('只翻正文：设置 skipChromeUI=false 时恢复全页翻译（评审 D1）', async () => {
+  const { window, sendToContent } = makeEnv();
+  await registerReady({ window });
+  const doc = window.document;
+  doc.body.insertAdjacentHTML('beforeend', '<nav id="topnav"><a href="/x">Home</a></nav>');
+  await sendToContent({ type: 'lt:settings-changed', payload: { skipChromeUI: false } });
+
+  const res = await sendToContent({ type: 'lt:translate-page', payload: { mode: 'replace' } });
+  assert.equal(res.ok, true);
+  assert.match(doc.querySelector('#topnav a').textContent, /【译】Home/, '关闭 skipChromeUI 后导航也要翻');
+});
+
 test('整页翻译：目标语言与页面一致时直接跳过', async () => {
   const { window, sendToContent } = makeEnv();
   await registerReady({ window });
