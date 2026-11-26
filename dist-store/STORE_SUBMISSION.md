@@ -1,6 +1,7 @@
-# Chrome Web Store 上架资料（当前：1.5.9 公开）
+# Chrome Web Store 上架资料（当前：1.5.9 公开 / 1.5.10 已打包待上传）
 
-> **2026-11-26 更新**：**1.5.9 已通过审核并公开**（Package 页确认 Published = 1.5.9，Draft 无待审项）。含 i18n 变量遮蔽修复与 sidepanel footer 取词加固。注意：打赏区的「赞助作者」本地化前缀（`32655f7`）与 GitHub Sponsors 占位清理（`2153690`）是送审**之后**的提交，**未包含在 1.5.9 中**，将随下一个版本上架。
+> **2026-11-26 更新（晚）**：仓库递增到 **1.5.10** 并已打包 `dist-store/chrome-local-translate-1.5.10.zip`（29 条目、184 KB、validate + 全部测试通过）。内容：**B3 批内去重**（同批次重复文本只发一次请求）、**D1 只翻正文**（新设置 `skipChromeUI`，默认跳过导航/页脚/Cookie 横幅，`<main>`/`<article>` 是正文边界）、打赏区「赞助作者」本地化前缀（`32655f7`）、GitHub Sponsors 占位清理（`2153690`）、Playwright E2E 基建（`tests/e2e.mjs`，不进包）。**尚未上传商店**（上传时浏览器自动化连接已断开，待恢复或手动上传）。发版说明建议提一句：D1 默认开启会改变行为 —— 导航/页脚不再被翻译，这是改善但用户可能疑问。
+
 
 > 包（本地构建产物）：`dist-store/chrome-local-translate-1.5.8.zip`（manifest.json 在包根；含 MV3 i18n `_locales/en`、`_locales/zh_CN`，`default_locale: "en"`）。**注意：本地在 1.5.8 提审后继续有提交并可能重建过 zip，勿将当前本地 zip 误当作已提交审核的 draft 包。**
 > 校验/测试（本地仓库当前状态）：`npm run validate`、`npm test` 通过。

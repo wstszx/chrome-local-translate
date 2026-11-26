@@ -1,6 +1,6 @@
 {
   "name": "chrome-local-translate",
-  "version": "1.5.9",
+  "version": "1.5.10",
   "private": true,
   "type": "module",
   "description": "Private on-device translation for Chrome using built-in local models (Translator API / Gemini Nano)",
