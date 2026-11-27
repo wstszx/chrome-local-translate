@@ -1,6 +1,6 @@
-# Chrome Web Store 上架资料（当前：1.5.9 公开 / 1.5.10 已打包待上传）
+# Chrome Web Store 上架资料（当前：1.5.9 公开 / 1.5.10 待审核）
 
-> **2026-11-26 更新（晚）**：仓库递增到 **1.5.10** 并已打包 `dist-store/chrome-local-translate-1.5.10.zip`（29 条目、184 KB、validate + 全部测试通过）。内容：**B3 批内去重**（同批次重复文本只发一次请求）、**D1 只翻正文**（新设置 `skipChromeUI`，默认跳过导航/页脚/Cookie 横幅，`<main>`/`<article>` 是正文边界）、打赏区「赞助作者」本地化前缀（`32655f7`）、GitHub Sponsors 占位清理（`2153690`）、Playwright E2E 基建（`tests/e2e.mjs`，不进包）。**尚未上传商店**（上传时浏览器自动化连接已断开，待恢复或手动上传）。发版说明建议提一句：D1 默认开启会改变行为 —— 导航/页脚不再被翻译，这是改善但用户可能疑问。
+> **2026-11-27 更新**：1.5.10 已通过已登录的调试 Chrome（CDP 9222）上传至商店控制台，Draft 确认 1.5.10 后已点击 Submit for review 并确认「自动发布」。状态页现为 **Status: Pending review / This draft is pending review**；公开版仍是 1.5.9，审核通过后自动发布为 1.5.10。包：`dist-store/chrome-local-translate-1.5.10.zip`（29 条目、184 KB、validate + 全部测试通过）。内容：**B3 批内去重**（同批次重复文本只发一次请求）、**D1 只翻正文**（新设置 `skipChromeUI`，默认跳过导航/页脚/Cookie 横幅，`<main>`/`<article>` 是正文边界）、打赏区「赞助作者」本地化前缀（`32655f7`）、GitHub Sponsors 占位清理（`2153690`）、Playwright E2E 基建（`tests/e2e.mjs`，不进包）。发版说明建议提一句：D1 默认开启会改变行为 —— 导航/页脚不再被翻译，这是改善但用户可能疑问。
 
 
 > 包（本地构建产物）：`dist-store/chrome-local-translate-1.5.8.zip`（manifest.json 在包根；含 MV3 i18n `_locales/en`、`_locales/zh_CN`，`default_locale: "en"`）。**注意：本地在 1.5.8 提审后继续有提交并可能重建过 zip，勿将当前本地 zip 误当作已提交审核的 draft 包。**
@@ -8,9 +8,9 @@
 > 商品：Listing 默认显示名 `Local Translate – On-Device AI`（ID `ncenacdchlmblbdlljdkjjhhnjimmeje`，发布者 `mywstszx`）
 > 控制台：https://chrome.google.com/webstore/devconsole/6482309c-c541-4e2e-9f85-ba5b5fb25664/ncenacdchlmblbdlljdkjjhhnjimmeje/edit
 
-## 当前控制台状态（2026-11-17 记录，后续请以控制台为准）
-- **Status**：`Published - public`，公开版本 **1.5.9**（2026-11-26 确认；1.5.9 于 2026-11-23 提交审核、11-26 前后通过并自动发布）。Draft 无待审项。
-- **Package**：Draft **1.5.8** 已上传（Languages: English, Chinese (China)）。**该 draft 不包含 `499c781` 之后的提交**（含站点规则管理/设置简化、后续 i18n 收敛、README/隐私页/选项页合规表述修补等）。
+## 当前控制台状态（2026-11-27 记录，后续请以控制台为准）
+- **Status**：`Pending review`（1.5.10 于 2026-11-27 提交审核，自动发布已勾选）；公开版本仍是 **1.5.9**（1.5.9 于 2026-11-23 提交审核、11-26 前后通过并自动发布）。
+- **Package**：Draft **1.5.10** 已上传（Languages: English, Chinese (China)），待审核；Published **1.5.9**。
 - **Store listing**：1.5.7/1.5.8 提审时已配置的中英文本地化与截图（见下文素材记录）；如需更新隐私/权限说明文案，请在下次版本提交时一并调整。
 - **Privacy / Distribution**：提审时已填写（单一用途、权限理由、Remote code = No、数据使用声明、认证）。如后台字段/问题项有更新，建议按本文“商店后台权限与隐私说明（建议文案）”校对。
 - **Submission checklist**：2026-11-17 已提交审核（自动发布）。
@@ -18,7 +18,8 @@
 ## 发布后待办（1.5.8 审核通过后）
 - ✅ 1.5.8 已通过并公开（2026-11-23 确认公开页展示 1.5.8 与 en/zh-CN 本地化正常）。
 - ✅ 将 `499c781` 之后的改动纳入 **>1.5.8** 的新版本：1.5.9 已递增版本号、打包上传、提交审核并通过（2026-11-23 提交，2026-11-26 确认公开）。
-- 待办（下个版本）：把打赏区「赞助作者」本地化前缀与 GitHub Sponsors 占位清理（`32655f7`、`2153690`）随 1.5.10/1.6.0 上架；届时递增版本号、打包、上传并提交审核，更新本文件。
+- ✅ 打赏区「赞助作者」本地化前缀与 GitHub Sponsors 占位清理（`32655f7`、`2153690`）已随 1.5.10 上传并提交审核（2026-11-27）。
+- 待办：1.5.10 审核通过后补记公开时间，并在发版说明中提示 D1「只翻正文」默认开启带来的行为变化。
 - 如要缓解 “Enhanced Safe Browsing: not trusted” 提示：在后台完善开发者账号信息与权限/隐私说明（见下文建议文案），保持合规与透明；该提示主要受信誉/分发等信号影响，无法仅靠代码立即消除。
 
 ## 1. 包与测试（下次版本提交流程）
